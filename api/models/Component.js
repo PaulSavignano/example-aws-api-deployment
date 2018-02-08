@@ -7,6 +7,7 @@ import {
   components,
   flexFlow,
   justifyContent,
+  textAlign,
   typographies,
 } from '../utils/fieldOptions'
 
@@ -36,6 +37,7 @@ const ComponentSchema = new Schema({
       content: { type: String, trim: true, maxlength: 25 },
       flex: { type: String, trim: true, maxlength: 100 },
       link: { type: String, trim: true, maxlength: 100, },
+      textAlign: { type: String, enum: alignItems },
       iframe: {
         border: { type: String, trim: true, maxlength: 25 },
         borderRadius: { type: String, trim: true, maxlength: 25 },
@@ -48,6 +50,7 @@ const ComponentSchema = new Schema({
         borderRadius: { type: String, trim: true, maxlength: 25 },
         elevation: { type: Number, trim: true, max: 25, min: 0 },
         flex: { type: String, trim: true, maxlength: 100 },
+        margin: { type: String, trim: true, maxlength: 100 },
         src: { type: String, trim: true, maxlength: 500 },
       },
       button: {
