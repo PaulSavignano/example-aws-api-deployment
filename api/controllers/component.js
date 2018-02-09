@@ -73,9 +73,7 @@ export const add = async (req, res) => {
 
 // Read
 export const get = async (req, res) => {
-  console.log('made it to controller')
   const { brandName } = req.params
-  console.log('looking up brandName', brandName)
   const components = await Component.find({ brandName })
   return res.send(components)
 }

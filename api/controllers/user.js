@@ -125,13 +125,12 @@ export const recovery = async (req, res, next) => {
   const resetToken = await createToken()
   const user = await User.findOne({ 'values.email': body.email.toLowerCase(), brandName })
   if (!user) throw new ErrorObject({ email: 'User not found', status: 404 })
-  const path = `${brandName}user/reset/${resetToken}`
+  const path = `${brandName}/user/reset/${resetToken}`
   const newResetToken = await new ResetToken({
     brandName,
     resetToken,
     user: user._id
   }).save()
-
   const { firstName, email } = user.values
   sendGmail({
     brandName,
@@ -158,7 +157,8 @@ export const reset = async (req, res) => {
     body: { password },
     params: { brandName, resetToken }
   } = req
-  const { user } = await ResetToken.findOne({ resetToken, brandName }).populate('user')
+  const token = await ResetToken.findOne({ resetToken, brandName }).populate('user')
+  const { user } = token
   if (!user) throw Error('your reset token has expired')
   user.password = password
   await user.save()
