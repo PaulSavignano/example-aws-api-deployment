@@ -7,7 +7,7 @@ import {
   get,
   getId,
   update,
-  updateTheme,
+  updatePages,
   remove
 } from '../controllers/brand'
 
@@ -16,7 +16,7 @@ const brands = express.Router()
 brands.post('/:brandName', authenticate(['admin']), catchErrors(add))
 brands.get('/:brandName', catchErrors(get))
 brands.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
-brands.patch('/:brandName/:_id/theme', authenticate(['admin']), catchErrors(updateTheme))
+brands.patch('/:brandName/:_id/update-pages', authenticate(['admin']), catchErrors(updatePages))
 brands.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))
 
 export default brands

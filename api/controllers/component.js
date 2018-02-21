@@ -62,9 +62,9 @@ export const add = async (req, res) => {
     { $push: { components: component._id }},
     { new: true }
   )
-  if (!section) throw Error('Component add to Section failed')
+  if (!section) throw Error('Section push component failed')
 
-  return res.send(component)
+  return res.send({ component, section })
 }
 
 
@@ -151,6 +151,6 @@ export const remove = async (req, res) => {
     { $pull: { components: component._id }},
     { new: true }
   )
-  if (!section) throw Error('Component remove Section failed')
-  return res.send(component._id)
+  if (!section) throw Error('Section pull component failed')
+  return res.send({ _id: component._id, section })
 }

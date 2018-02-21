@@ -3,6 +3,7 @@ import url from 'url'
 
 import { deleteFiles, uploadFile } from '../utils/s3'
 import Page from '../models/Page'
+import Brand from '../models/Brand'
 import slugIt from '../utils/slugIt'
 import formatDate from '../utils/formatDate'
 import ErrorObject from '../utils/ErrorObject'
@@ -23,7 +24,14 @@ export const add = async (req, res) => {
     slug: slugIt(values.name),
     values
   }).save()
-  return res.send(page)
+  if (!page) throw Error('Page add failed')
+  const brand = await Brand.findOneAndUpdate(
+    { brandName },
+    { $push: { pages: page._id }},
+    { new: true }
+  )
+  if (!brand) throw Error('Brand push page failed')
+  return res.send({ brand, page })
 }
 
 
@@ -70,6 +78,22 @@ export const update = async (req, res) => {
 
 
 
+
+export const updateSections = async (req, res) => {
+  const {
+    body: { sectionIds },
+    params: { _id, brandName }
+  } = req
+  const page = await Page.findOneAndUpdate(
+    { _id, brandName },
+    { $set: { components: sectionIds }},
+    { new: true }
+  )
+  if (!section) throw Error('Section set components failed')
+}
+
+
+
 export const updateName = async (req, res) => {
   const {
     body: { values },
@@ -92,6 +116,20 @@ export const updateName = async (req, res) => {
 
 
 
+export const updateOrder = async (req, res) => {
+  const {
+    body: { pageIds },
+    params: { brandName }
+  } = req
+  const newPageIdOrder = await PageIds.findOneAndUpdate(
+    { brandName },
+    { $set: { pageIds }},
+    { new: true }
+  )
+  return res.send(newPageIdOrder)
+}
+
+
 
 
 export const remove = async (req, res) => {
@@ -100,6 +138,13 @@ export const remove = async (req, res) => {
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Page remove failed, invalid id')
   const page = await Page.findOne({ _id, brandName })
+  if (!page) throw Error('Page delete failed, no page found')
   await page.remove()
-  return res.send(page._id)
+  const brand = await Brand.findOneAndUpdate(
+    { brandName },
+    { $pull: { pages: page._id }},
+    { new: true }
+  )
+  if (!brand) throw Error('Brand pull page failed')
+  return res.send({ brand, _id: page._id })
 }

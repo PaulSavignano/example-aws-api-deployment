@@ -35,9 +35,9 @@ export const add = async (req, res) => {
     { $push: { sections: section._id }},
     { new: true }
   )
-  if (!page) throw Error('Section add to page failed')
+  if (!page) throw Error('Page push section failed')
 
-  return res.send(section)
+  return res.send({ section, pageSections })
 }
 
 
@@ -94,6 +94,24 @@ export const update = async (req, res) => {
 
 
 
+export const updateComponents = async (req, res) => {
+  const {
+    body: { componentIds },
+    params: { _id, brandName }
+  } = req
+  const section = await Section.findOneAndUpdate(
+    { _id, brandName },
+    { $set: { components: componentIds }},
+    { new: true }
+  )
+  if (!section) throw Error('Section set components failed')
+  return res.send(section)
+}
+
+
+
+
+
 
 export const remove = async (req, res) => {
   const {
@@ -101,13 +119,13 @@ export const remove = async (req, res) => {
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Section remove failed, invalid id')
   const section = await Section.findOne({ _id, brandName })
+  if (!section) throw Error('Section delete failed, no section found')
   await section.remove()
-  if (!section) throw 'Section remove failed'
   const page = await Page.findOneAndUpdate(
     { _id: section.page, brandName },
     { $pull: { sections: section._id }},
     { new: true }
   )
-  if (!page) throw Error('Section remove from Page failed')
-  return res.send(section._id)
+  if (!page) throw Error('Page pull section failed')
+  return res.send({ page, _id: section._id })
 }

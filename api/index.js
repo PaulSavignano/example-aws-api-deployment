@@ -18,6 +18,7 @@ import orders from './routes/orders'
 import pages from './routes/pages'
 import products from './routes/products'
 import sections from './routes/sections'
+import themes from './routes/themes'
 import users from './routes/users'
 
 import moverbase from './moverbase/routes/moverbase'
@@ -46,6 +47,7 @@ app.use('/api/orders', orders)
 app.use('/api/pages', pages)
 app.use('/api/products', products)
 app.use('/api/sections', sections)
+app.use('/api/themes', themes)
 app.use('/api/users', users)
 
 app.use('/api/moverbase', moverbase)

@@ -1,22 +1,26 @@
 import express from 'express'
 import { ObjectID } from 'mongodb'
-import url from 'url'
 import formatDate from '../utils/formatDate'
 
 import ApiConfig from '../models/ApiConfig'
 import Brand from '../models/Brand'
 import Page from '../models/Page'
+import Theme from '../models/Theme'
 import { uploadFile, deleteFiles } from '../utils/s3'
 import handleImage from '../utils/handleImage'
-import handleItemImages from '../utils/handleItemImages'
 
 
 export const add = async (req, res) => {
   const { brandName } = req.params
   const apiConfig = await new ApiConfig({ brandName }).save()
-  const brand = await new Brand({ brandName }).save()
   const page = await new Page({ brandName, 'values.name': 'Home', slug: 'home' }).save()
-  res.send({ apiConfig, brand, page })
+  const brand = await new Brand({ brandName, pages: page._id }).save()
+  const theme = await new Theme({ brandName }).save()
+  return res.send({
+    brand,
+    page,
+    theme,
+  })
 }
 
 
@@ -69,69 +73,22 @@ export const update = async (req, res) => {
 
 
 
-// Update theme
-export const updateTheme = async (req, res) => {
+
+
+
+export const updatePages = async (req, res) => {
   const {
-    body: {
-      oldImageSrc,
-      themeItem,
-      themeItemChild,
-      values,
-    },
+    body: { pageIds },
     params: { _id, brandName }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Theme update failed, Invalid id')
-  oldImageSrc && await deleteFiles([{ Key: oldImageSrc }])
-
-  const valuesWithNewImage = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
-    ...values,
-    image: await handleImage({
-      path: `${brandName}/${themeItem}-image_${formatDate(new Date())}.${values.image.ext}`,
-      image: values.image,
-    })
-  } : null
-  const newValues = valuesWithNewImage ? valuesWithNewImage : values
-
-  if (themeItem) {
-    if (themeItemChild === 'general') {
-      const {
-        fontFamily,
-        fontSize,
-        fontWeightLight,
-        fontWeightMedium,
-        fontWeightRegular,
-      } = values
-      const brand = await Brand.findOneAndUpdate(
-        { _id, brandName },
-        { $set: {
-          'theme.typography.fontFamily': fontFamily,
-          'theme.typography.fontSize': fontSize,
-          'theme.typography.fontWeightLight': fontWeightLight,
-          'theme.typography.fontWeightMedium': fontWeightMedium,
-          'theme.typography.fontWeightRegular': fontWeightRegular,
-          }
-        },
-        { new: true }
-      )
-      if (!brand) throw Error(`Brand update of ${themeItem}`)
-      return res.send(brand)
-    } else if (themeItemChild)  {
-      const set = { $set: {}}
-      set.$set["theme." + themeItem + "." + themeItemChild] = newValues
-      const brand = await Brand.findOneAndUpdate({ _id, brandName }, set,{ new: true })
-      if (!brand) throw Error(`Brand update ${themeItem} ${themeItemChild} failed`)
-      return res.send(brand)
-    } else {
-      const set = { $set: {}}
-      set.$set["theme." + themeItem] = newValues
-      const brand = await Brand.findOneAndUpdate({ _id, brandName }, set, { new: true })
-      if (!brand) throw Error(`Brand update ${themeItem} ${themeItemChild} failed`)
-      return res.send(brand)
-    }
-  } else {
-    throw Error('Brand update failed, invalid params')
-  }
+  const page = await Page.findOneAndUpdate(
+    { _id, brandName },
+    { $set: { pages: pageIds }},
+    { new: true }
+  )
+  if (!page) throw Error('Branbd set pages failed')
 }
+
 
 
 

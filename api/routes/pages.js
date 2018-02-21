@@ -7,6 +7,7 @@ import {
   get,
   update,
   updateName,
+  updateSections,
   remove
 } from '../controllers/page'
 
@@ -16,6 +17,7 @@ pages.post('/:brandName', authenticate(['admin']), catchErrors(add))
 pages.get('/:brandName', catchErrors(get))
 pages.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
 pages.patch('/:brandName/:_id/update-name', authenticate(['admin']), catchErrors(updateName))
+pages.patch('/:brandName/:_id/update-sections', authenticate(['admin']), catchErrors(updateSections))
 pages.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))
 
 export default pages

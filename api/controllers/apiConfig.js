@@ -7,23 +7,21 @@ export const add = async (req, res) => {
     body: { values },
     params: { brandName }
   } = req
-  const newDoc = new ApiConfig({ values, brandName })
-  newDoc.save()
-  .then(doc => res.send(doc))
-  .catch(error => { console.error(error); res.status(400).send({ error })})
+  const apiConfig = new ApiConfig({ values, brandName })
+  return res.send(apiConfig)
 }
+
+
+
 
 export const get = async (req, res) => {
   const { brandName } = req.params
-  try {
-    const config = await ApiConfig.findOne({ brandName })
-    if (!config) throw 'No config found'
-    res.send(config)
-  } catch (error) {
-    console.error(error)
-    res.status(400).send({ error })
-  }
+  const config = await ApiConfig.findOne({ brandName })
+  if (!config) throw Error('No config found')
+  return res.send(config)
 }
+
+
 
 
 export const update = async (req, res) => {
@@ -32,18 +30,13 @@ export const update = async (req, res) => {
     body: { values },
     params: { _id, brandName },
   } = req
-  try {
-    const config = await ApiConfig.findOneAndUpdate(
-      { _id, brandName },
-      { $set: { values }},
-      { new: true }
-    )
-    if (!config) throw 'Update failed, could not find the config'
-    res.send(config)
-  } catch (error) {
-    console.error(error)
-    res.status(400).send({ error })
-  }
+  const config = await ApiConfig.findOneAndUpdate(
+    { _id, brandName },
+    { $set: { values }},
+    { new: true }
+  )
+  if (!config) throw Error('Update failed, could not find the config')
+  return res.send(config)
 }
 
 
@@ -53,7 +46,7 @@ export const remove = async (req, res) => {
   const {
     params: { _id, brandName }
   } = req
-  ApiConfig.findOneAndRemove({ _id, brandName })
-  .then(doc => res.send(doc._id))
-  .catch(error => { console.error(error); res.status(400).send({ error })})
+  const config = await ApiConfig.findOneAndRemove({ _id, brandName })
+  if (!config) throw Error('No api config found')
+  return res.send(config._id)
 }
