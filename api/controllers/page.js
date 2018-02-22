@@ -76,6 +76,24 @@ export const update = async (req, res) => {
   return res.send(page)
 }
 
+export const updateValue = async (req, res) => {
+  const {
+    body: { key, value },
+    params: { _id, brandName }
+  } = req
+  console.log('updateValue', key, value)
+  if (!ObjectID.isValid(_id)) throw Error('Page update failed, invalid id')
+
+  const set = { $set: {}}
+  set.$set["values." + key] = value
+  const page = await Page.findOneAndUpdate(
+    { _id, brandName },
+    set,
+    { new: true }
+  )
+  return res.send(page)
+}
+
 
 
 
@@ -86,10 +104,11 @@ export const updateSections = async (req, res) => {
   } = req
   const page = await Page.findOneAndUpdate(
     { _id, brandName },
-    { $set: { components: sectionIds }},
+    { $set: { sections: sectionIds }},
     { new: true }
   )
-  if (!section) throw Error('Section set components failed')
+  if (!page) throw Error('Page set sections failed')
+  return res.send(page)
 }
 
 
@@ -114,20 +133,6 @@ export const updateName = async (req, res) => {
 }
 
 
-
-
-export const updateOrder = async (req, res) => {
-  const {
-    body: { pageIds },
-    params: { brandName }
-  } = req
-  const newPageIdOrder = await PageIds.findOneAndUpdate(
-    { brandName },
-    { $set: { pageIds }},
-    { new: true }
-  )
-  return res.send(newPageIdOrder)
-}
 
 
 

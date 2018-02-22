@@ -6,7 +6,7 @@ import {
   add,
   get,
   update,
-  updateName,
+  updateValue,
   updateSections,
   remove
 } from '../controllers/page'
@@ -16,7 +16,7 @@ const pages = express.Router()
 pages.post('/:brandName', authenticate(['admin']), catchErrors(add))
 pages.get('/:brandName', catchErrors(get))
 pages.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
-pages.patch('/:brandName/:_id/update-name', authenticate(['admin']), catchErrors(updateName))
+pages.patch('/:brandName/:_id/update-value', authenticate(['admin']), catchErrors(updateValue))
 pages.patch('/:brandName/:_id/update-sections', authenticate(['admin']), catchErrors(updateSections))
 pages.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))
 

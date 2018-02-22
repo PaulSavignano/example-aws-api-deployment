@@ -37,7 +37,7 @@ export const add = async (req, res) => {
   )
   if (!page) throw Error('Page push section failed')
 
-  return res.send({ section, pageSections })
+  return res.send({ section, page })
 }
 
 

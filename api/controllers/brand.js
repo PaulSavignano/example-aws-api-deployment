@@ -75,18 +75,20 @@ export const update = async (req, res) => {
 
 
 
-
 export const updatePages = async (req, res) => {
   const {
     body: { pageIds },
     params: { _id, brandName }
   } = req
-  const page = await Page.findOneAndUpdate(
+  console.log('req body', req.body)
+  console.log('_id', _id, 'brandName', brandName)
+  const brand = await Brand.findOneAndUpdate(
     { _id, brandName },
     { $set: { pages: pageIds }},
     { new: true }
   )
-  if (!page) throw Error('Branbd set pages failed')
+  if (!brand) throw Error('Brand set pages failed')
+  return res.send(brand)
 }
 
 
