@@ -1,8 +1,18 @@
 {
-  "APP_NAME": "",
-  "AWS_ACCESS_KEY_ID": "",
-  "AWS_SECRET_ACCESS_KEY": "",
-  "AWS_S3_BUCKET": "",
-  "MONGODB_URI": "",
-  "PORT": 3001,
+  "development": {
+    "AWS_ACCESS_KEY_ID": "",
+    "AWS_SECRET_ACCESS_KEY": "",
+    "AWS_S3_BUCKET": "",
+    "REACT_APP_IMAGE_ENDPOINT": "",
+    "MONGODB_URI": "",
+    "PORT": 3001
+  },
+  "test": {
+    "AWS_ACCESS_KEY_ID": "",
+    "AWS_SECRET_ACCESS_KEY": "",
+    "AWS_S3_BUCKET": "",
+    "REACT_APP_IMAGE_ENDPOINT": "",
+    "MONGODB_URI": "",
+    "PORT": 3001
+  },
 }
