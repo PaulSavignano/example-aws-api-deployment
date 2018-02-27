@@ -18,7 +18,6 @@ export const add = async (req, res) => {
 export const get = async (req, res) => {
   const { brandName } = req.params
   const theme = await Theme.find({ brandName })
-  console.log('theme', theme)
   if (!theme) throw 'No theme found'
   return res.send(theme)
 }
