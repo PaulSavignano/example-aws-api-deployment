@@ -55,7 +55,7 @@ app.use('/api/moverbase', moverbase)
 app.get('/', (req, res) => {
   res.send(`
     <div style="display: flex; flex-flow: column; justify-content: center; align-items: center; height: 85vh;">
-      <h1 style="font-weight: 300;">Savignano.io API</h1>
+      <h1 style="font-weight: 300; font-family: Helvetica Neue, Open Sans, sans-serif;">Savignano.io API</h1>
     </div>
   `)
 })
