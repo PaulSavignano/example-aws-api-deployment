@@ -39,7 +39,7 @@
   ],
   "license": "MIT",
   "main": "build/index.js",
-  "name": "savignano--io-api-1.0.0",
+  "name": "savignano-io-api-1.0.0",
   "repository": "https://github.com/PaulSavignano/savignano-io-api-1.0.0",
   "version": "3.0.0",
   "engines": {
@@ -48,9 +48,10 @@
   "scripts": {
     "clean": "rm -rf build",
     "prestart": "npm run -s build",
-    "build": "npm run clean && babel api -d build",
-    "start": "nodemon -r babel-register api/index.js",
-    "start:prod": "node build/index.js",
+    "build": "npm run clean && babel src -d build",
+    "postbuild": "rm-rf src",
+    "start": "node build/index.js",
+    "start-dev": "nodemon -r babel-register src/index.js",
     "test-watch": "nodemon --exec 'npm test'",
     "test": "export NODE_ENV=test && mocha **/**/*.test.js --compilers js:babel-register"
   }
