@@ -1,6 +1,5 @@
 import { ObjectID } from 'mongodb'
 import crypto from 'crypto'
-import fetch from 'node-fetch'
 
 import Address from '../models/Address'
 import Brand from '../models/Brand'

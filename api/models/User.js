@@ -1,6 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
 import validator from 'validator'
-import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { ObjectID } from 'mongodb'
 
