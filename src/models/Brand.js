@@ -23,7 +23,6 @@ const BrandSchema = new Schema({
       state: { type: String, trim: true, maxlength: 25, default: 'CA' },
       street: { type: String, trim: true, maxlength: 100, default: '123 Fourth St' },
     },
-    description: { type: String, trim: true, maxlength: 1000, default: 'Your brand rocks!' },
     email: { type: String, trim: true, maxlength: 100, default: 'info@yourbrandrocks.com' },
     googleAnalyticsUA: { type: String, trim: true, maxlength: 150 },
     image: {

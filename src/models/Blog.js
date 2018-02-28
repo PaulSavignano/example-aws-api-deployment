@@ -5,7 +5,6 @@ const BlogSchema = new Schema({
   brandName: { type: String, maxlength: 90, required: true },
   page: { type: Schema.ObjectId, ref: 'Page' },
   pageSlug: { type: String, trim: true, maxlength: 100 },
-  productSlug: { type: String, maxlength: 100 },
   section: { type: Schema.Types.ObjectId, ref: 'Section' },
   published: { Type: Boolean, default: false },
   values: {
