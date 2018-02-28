@@ -6,6 +6,7 @@ import helmet from 'helmet'
 import path from 'path'
 
 import mongoose from './db/mongoose'
+import forceSSL from './middleware/forceSSL'
 
 import catchErrors from './utils/catchErrors'
 import addresses from './routes/addresses'
@@ -25,6 +26,8 @@ import moverbase from './moverbase/routes/moverbase'
 
 const app = express()
 const port = process.env.PORT
+
+app.use(forceSSL)
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*")
