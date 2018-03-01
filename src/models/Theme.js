@@ -87,9 +87,6 @@ const ThemeSchema = new Schema({
     background: {
       paper: { type: String, trim: true, maxlength: 100, default: '#fff' },
       default: { type: String, trim: true, maxlength: 100, default: '#fafafa' },
-      appBar: { type: String, trim: true, maxlength: 100, default: '#f5f5f5' },
-      chip: { type: String, trim: true, maxlength: 100, default: '#e0e0e0' },
-      avatar: { type: String, trim: true, maxlength: 100, default: '#bdbdbd' },
     },
     action: {
       active: { type: String, trim: true, maxlength: 100, default: 'rgba(0, 0, 0, 0.54)' },
