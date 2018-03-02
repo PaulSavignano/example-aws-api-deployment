@@ -48,13 +48,14 @@ export const update = async (req, res) => {
   } : null
   const newValues = valuesWithNewImage ? valuesWithNewImage : values
 
-  if (themeItem === 'general') {
+  if (themeItemChild === 'general') {
     const {
       fontFamily,
       fontSize,
       fontWeightLight,
       fontWeightMedium,
       fontWeightRegular,
+      letterSpacing,
     } = values
     const theme = await Theme.findOneAndUpdate(
       { _id, brandName },
@@ -64,6 +65,7 @@ export const update = async (req, res) => {
         'typography.fontWeightLight': fontWeightLight,
         'typography.fontWeightMedium': fontWeightMedium,
         'typography.fontWeightRegular': fontWeightRegular,
+        'typography.letterSpacing': letterSpacing,
         }
       },
       { new: true }
