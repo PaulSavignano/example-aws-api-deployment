@@ -3,7 +3,6 @@ import formatDate from '../utils/formatDate'
 
 import { deleteFiles, uploadFile } from '../utils/s3'
 import Blog from '../models/Blog'
-import ErrorObject from '../utils/ErrorObject'
 import handleImage from '../utils/handleImage'
 import Page from '../models/Page'
 import Section from '../models/Section'
@@ -30,7 +29,7 @@ export const add = async (req, res) => {
     brandName,
     values: newValues,
   }).save()
-  if (!blog) throw 'No blog was found'
+  if (!blog) throw Error('No blog was found')
   return res.send(blog)
 }
 

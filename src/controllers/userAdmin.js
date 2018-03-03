@@ -5,6 +5,7 @@ import Address from '../models/Address'
 import Brand from '../models/Brand'
 import Order from '../models/Order'
 import User from '../models/User'
+import CustomError from '../utils/CustomError'
 
 export const adminAdd = async (req, res) => {
   const {
@@ -18,7 +19,7 @@ export const adminAdd = async (req, res) => {
   } = req
   if ( !email || !firstName || !firstName || !password) throw Error('User add failed, all fields are required')
   const existingUser = await User.findOne({ 'values.email': email, brandName })
-  if (existingUser) throw new ErrorObject({ email: 'That user email already exists', status: 400 })
+  if (existingUser) throw new CustomError({ field: 'email', message: 'That user email already exists', statusCode: 400 })
   const user = await new User({
     brandName,
     password,

@@ -6,6 +6,7 @@ import Cart from '../models/Cart'
 import User from '../models/User'
 import Order from '../models/Order'
 import sendGmail from '../utils/sendGmail'
+import CustomError from '../utils/CustomError'
 
 const formatPrice = (cents) => `$${(cents / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
 
@@ -88,7 +89,7 @@ const createCharge = async ({
   try {
     const apiConfig = await ApiConfig.findOne({ brandName })
     const { values: { stripeSkLive, stripeSkTest }} = apiConfig
-    if (!stripeSkLive && !stripeSkTest) throw Error('Unable to create charge, no stripe api keys found')
+    if (!stripeSkLive && !stripeSkTest) throw Error('Unable to create charge, no stripe api key found')
     const stripe = require("stripe")(stripeSkLive || stripeSkTest)
     const charge = await stripe.charges.create({
       amount: Math.round(cart.total),
@@ -96,7 +97,6 @@ const createCharge = async ({
       source: stripeToken,
       description: `${brandName} Order`
     })
-    if (!charge) throw 'Unable to create charge,'
     const order = await new Order({
       address: address.values,
       cart,
@@ -146,9 +146,11 @@ const createCharge = async ({
         <p>Once shipped, you can mark the item as shipped in at <a href="${brandName}/admin/orders">${brandName}/admin/orders</a> to send confirmation to ${firstName}.</p>
       `
     })
-  } catch (error) {
-    console.error(error)
-    return Promise.reject(error)
+  } catch (err) {
+    if (err.type === 'StripeCardError') {
+      throw new CustomError({ field: 'card', message: err.message, statusCode: err.statusCode})
+    }
+    return Promise.reject(err)
   }
 }
 

@@ -6,7 +6,7 @@ import Page from '../models/Page'
 import Brand from '../models/Brand'
 import slugIt from '../utils/slugIt'
 import formatDate from '../utils/formatDate'
-import ErrorObject from '../utils/ErrorObject'
+import CustomError from '../utils/CustomError'
 import handleImage from '../utils/handleImage'
 
 
@@ -18,7 +18,7 @@ export const add = async (req, res) => {
     params: { brandName }
   } = req
   const existingPage = await Page.findOne({ 'values.name': values.name, brandName })
-  if (existingPage) throw new ErrorObject({ name: 'That name already exists', status: 400 })
+  if (existingPage) throw new CustomError({ field: 'name', message: 'That name already exists', statusCode: 400 })
   const page = await new Page({
     brandName,
     slug: slugIt(values.name),
@@ -120,7 +120,7 @@ export const updateName = async (req, res) => {
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Page update failed, invalid id')
   const existingPage = await Page.findOne({ brandName, 'values.name': values.name })
-  if (existingPage) throw new ErrorObject({ name: 'That page name already exists', status: 406})
+  if (existingPage) throw new CustomError({ field: 'name', message: 'That name already exists', statusCode: 406 })
   const page = await Page.findOneAndUpdate(
     { _id, brandName },
     { $set: {

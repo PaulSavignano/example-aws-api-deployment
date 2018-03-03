@@ -10,7 +10,7 @@ import User from '../models/User'
 import sendGmail from '../utils/sendGmail'
 import createTokens from '../utils/createTokens'
 import createUserResponse from '../utils/createUserResponse'
-import ErrorObject from '../utils/ErrorObject'
+import CustomError from '../utils/CustomError'
 
 export const add = async (req, res) => {
   const {
@@ -24,7 +24,7 @@ export const add = async (req, res) => {
   } = req
   if ( !email || !firstName || !firstName || !password) throw Error('You must provide all fields')
   const existingUser = await User.findOne({ 'values.email': email.toLowerCase(), brandName })
-  if (existingUser) throw new ErrorObject({ email: 'That user already exists', status: 400 })
+  if (existingUser) throw new CustomError({ field: 'email', message: 'That user already exists', statusCode: 400 })
   const user = await new User({
     brandName,
     password,
@@ -104,9 +104,9 @@ export const signin = async (req, res) => {
     params: { brandName }
   } = req
   const user = await User.findOne({ 'values.email': email.toLowerCase(), brandName })
-  if (!user) throw new ErrorObject({ email: 'Email not found', status: 404 })
+  if (!user) throw new CustomError({ field: 'email', message: 'Email not found', statusCode: 404 })
   const valid = await bcrypt.compare(password, user.password)
-  if (!valid) throw new ErrorObject({ password: 'Password does not match', status: 404 })
+  if (!valid) throw new CustomError({ field: 'password', message: 'Password does not match', statusCode: 404 })
   const { newAccessToken, newRefreshToken } = await createTokens(user, brandName)
   const response = await createUserResponse(user, brandName)
   res.set('x-access-token', newAccessToken);
@@ -124,7 +124,7 @@ export const recovery = async (req, res, next) => {
   } = req
   const resetToken = await createToken()
   const user = await User.findOne({ 'values.email': body.email.toLowerCase(), brandName })
-  if (!user) throw new ErrorObject({ email: 'User not found', status: 404 })
+  if (!user) throw new CustomError({ field: 'email', message: 'User not found', statusCode: 404 })
   const path = `${brandName}/user/reset/${resetToken}`
   const newResetToken = await new ResetToken({
     brandName,

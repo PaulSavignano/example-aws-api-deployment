@@ -3,8 +3,6 @@ import validator from 'validator'
 import bcrypt from 'bcryptjs'
 import { ObjectID } from 'mongodb'
 
-import ErrorObject from '../utils/ErrorObject'
-
 import Address from './Address'
 import Order from './Order'
 

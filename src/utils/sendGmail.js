@@ -15,6 +15,7 @@ const sendGmail = async (props) => {
       fromSubject,
       fromBody,
     } = props
+    console.log('brandName is', brandName)
     const apiConfig = await ApiConfig.findOne({ brandName })
     if (!apiConfig) throw Error('No apiConfig found, email not sent')
     const {

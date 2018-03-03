@@ -64,10 +64,11 @@ app.get('/', (req, res) => {
 })
 
 app.use((err, req, res, next) => {
-  console.error(err.stack)
-  const error = { [err.name]: err.message }
-  const statusCode = err.status || 500
-  res.status(statusCode).send(error)
+  console.log('error: ', err)
+  console.log('error field: ', err.field)
+  console.log('error message: ', err.message)
+  const statusCode = err.statusCode || 400
+  res.status(statusCode).send(err)
 })
 
 app.listen(port, () => console.info(`Api running at port: ${port}`))

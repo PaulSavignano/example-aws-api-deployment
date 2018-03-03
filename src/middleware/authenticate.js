@@ -2,7 +2,6 @@ import AccessToken from '../models/AccessToken'
 import RefreshToken from '../models/RefreshToken'
 import createTokens from '../utils/createTokens'
 import User from '../models/User'
-import ErrorObject from '../utils/ErrorObject'
 
 const hasRoles = (roles, requiredRoles) => {
   return roles.some(r => requiredRoles.indexOf(r) >= 0)
@@ -14,7 +13,7 @@ const authenticate = (requiredRoles) => {
     if (accessToken) {
       try {
         const aToken = await AccessToken.findOne({ accessToken }).populate('user')
-        if (!hasRoles(aToken.user.roles, requiredRoles)) throw Error('User does not have access')
+        if (!hasRoles(aToken.user.roles, requiredRoles)) throw Error('Access denied')
         req.user = aToken.user
         next()
       } catch (error) {
@@ -23,8 +22,7 @@ const authenticate = (requiredRoles) => {
           try {
             const { brandName } = req.params
             const rToken = await RefreshToken.findOne({ refreshToken }).populate('user')
-            if (!rToken) throw new ErrorObject({ Error: 'Tokens expired', status: 401 })
-            if (!hasRoles(rToken.user.roles, requiredRoles)) throw Error('User does not have access')
+            if (!hasRoles(rToken.user.roles, requiredRoles)) throw Error('Access denied')
             const { newAccessToken, newRefreshToken } = await createTokens(rToken.user, brandName)
             if (newAccessToken && newRefreshToken) {
               req.user = rToken.user
@@ -38,7 +36,7 @@ const authenticate = (requiredRoles) => {
         }
       }
     } else {
-      next(Error('User does not have access'))
+      next(Error('Access denied'))
     }
   }
 }
