@@ -26,12 +26,13 @@ export const add = async (req, res, next) => {
       cart
     },
     params: { brandName },
-    user: { _id }
+    user
   } = req
+  console.log('user is ', user)
   if (fullAddress === 'newAddress') {
     const address = await new Address({
       brandName,
-      user: ObjectID(_id),
+      user: ObjectID(user._id),
       values: {
         name,
         phone,
@@ -42,7 +43,7 @@ export const add = async (req, res, next) => {
       }
     }).save()
     const user = await User.findOneAndUpdate(
-      { _id, brandName },
+      { _id: user._id, brandName },
       { $push: { addresses: address._id }},
       { new: true }
     ).populate({ path: 'addresses',  select: '-user' })
@@ -53,22 +54,18 @@ export const add = async (req, res, next) => {
       stripeToken,
       brandName,
       res,
-      req,
-      user
+      user,
     })
   } else {
     const address = await Address.findOne({ _id: fullAddress, brandName })
     if (!address) throw Error('That address does not exist')
-    const user = await User.findOne({ _id })
-    if (!user) throw Error('Could not find user')
     await createCharge({
       address,
       cart,
       stripeToken,
       brandName,
       res,
-      req,
-      user
+      user,
     })
   }
 }
@@ -77,15 +74,10 @@ const createCharge = async ({
   address,
   cart,
   brandName,
-  req,
   res,
   stripeToken,
   user
 }) => {
-  const {
-    _id,
-    values: { firstName, lastName, email }
-  } = user
   try {
     const apiConfig = await ApiConfig.findOne({ brandName })
     const { values: { stripeSkLive, stripeSkTest }} = apiConfig
@@ -100,13 +92,13 @@ const createCharge = async ({
     const order = await new Order({
       address: address.values,
       cart,
-      email,
-      firstName,
+      email: user.email,
+      firstName: user.firstName,
       brandName,
-      lastName,
+      lastName: user.lastName,
       paymentId: charge.id,
       total: cart.total,
-      user: _id,
+      user: user._id,
     }).save()
     await Cart.findOneAndRemove({ _id: cart._id })
     res.send({ order, user })
@@ -132,18 +124,18 @@ const createCharge = async ({
     `
     const mailData = await sendGmail({
       brandName: 'savignano-io-client-dev',
-      to: email,
+      to: user.email,
       toSubject: 'Thank you for your order!',
       toBody: `
-        <p>Hi ${firstName},</p>
+        <p>Hi ${user.firstName},</p>
         <p>Thank you for your recent order ${order._id}.  We are preparing your order for delivery and will send you a confirmation once it has shipped.  Please don't hesitate to reach out regarding anything we can with in the interim.</p>
         ${htmlOrder}
       `,
       fromSubject: `New order received!`,
       fromBody: `
-        <p>${firstName} ${lastName} just placed order an order!</p>
+        <p>${user.firstName} ${user.lastName} just placed order an order!</p>
         ${htmlOrder}
-        <p>Once shipped, you can mark the item as shipped in at <a href="${brandName}/admin/orders">${brandName}/admin/orders</a> to send confirmation to ${firstName}.</p>
+        <p>Once shipped, you can mark the item as shipped in at <a href="${brandName}/admin/orders">${brandName}/admin/orders</a> to send confirmation to ${user.firstName}.</p>
       `
     })
   } catch (err) {
@@ -165,6 +157,179 @@ export const get = async (req, res) => {
   } = req
   const orders = await Order.find({ user: user._id, brandName })
   return res.send(orders)
+}
+
+
+
+export const getSalesByYear = async (req, res) => {
+  const {
+    params: { brandName },
+    user
+  } = req
+  const current = new Date()
+  const last = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+  const salesByYear = await Order.aggregate([
+    {
+      $match: {
+        brandName,
+        createdAt: {
+          $gte: last,
+          $lte: current
+        }
+      }
+    },
+    {
+      $project: {
+        date: { $dateToString: { format: "%Y", date: "$createdAt" }},
+        year: { $year: "$createdAt" },
+        total: "$total",
+      }
+    },
+    {
+      $group: {
+        _id: {
+          date: "$date",
+          year: "$year",
+        },
+        total: { $sum: "$total" },
+      }
+    }
+  ])
+  console.log('year ', salesByYear)
+  return res.send(salesByYear)
+}
+
+
+
+export const getSalesByMonth = async (req, res) => {
+  const {
+    params: { brandName },
+    user
+  } = req
+  const current = new Date()
+  const last = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+  const salesByMonth = await Order.aggregate([
+    {
+      $match: {
+        brandName,
+        createdAt: {
+          $gte: last,
+          $lte: current
+        }
+      },
+    },
+    {
+      $project: {
+        date: { $dateToString: { format: "%Y/%m", date: "$createdAt" }},
+        year: { $year: "$createdAt" },
+        month: { $month: "$createdAt" },
+        total: "$total",
+      }
+    },
+    {
+      $group: {
+        _id: {
+          date: "$date",
+          year: "$year",
+          month: "$month",
+        },
+        total: { $sum: "$total" }
+      }
+    }
+  ])
+  console.log('month ', salesByMonth)
+  return res.send(salesByMonth)
+}
+
+
+
+export const getSalesByWeek = async (req, res) => {
+  const {
+    params: { brandName },
+    user
+  } = req
+  const current = new Date()
+  const last = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+  const salesByWeek = await Order.aggregate([
+    {
+      $match: {
+        brandName,
+        createdAt: {
+          $gte: last,
+          $lte: current
+        }
+      },
+    },
+    {
+      $project: {
+        date: { $dateToString: { format: "%U", date: "$createdAt" }},
+        year: { $year: "$createdAt" },
+        month: { $month: "$createdAt" },
+        week: { $week: "$createdAt" },
+        total: "$total",
+      }
+    },
+    {
+      $group: {
+        _id: {
+          date: "$date",
+          year: "$year",
+          month: "$month",
+          week: "$week",
+        },
+        total: { $sum: "$total" },
+      }
+    }
+  ])
+  console.log('week ', salesByWeek)
+  return res.send(salesByWeek)
+}
+
+
+
+
+export const getSalesByDay = async (req, res) => {
+  const {
+    params: { brandName },
+    user
+  } = req
+  const current = new Date()
+  const last = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+  const salesByDay = await Order.aggregate([
+    {
+      $match: {
+        brandName,
+        createdAt: {
+          $gte: last,
+          $lte: current
+        }
+      },
+    },
+    {
+      $project: {
+        date: { $dateToString: { format: "%Y/%m/%d", date: "$createdAt" }},
+        year: { $year: "$createdAt" },
+        month: { $month: "$createdAt" },
+        day: { $dayOfMonth: "$createdAt" },
+        week: { $week: "$createdAt" },
+        total: "$total",
+      }
+    },
+    {
+      $group: {
+        _id: {
+          date: "$date",
+          year: "$year",
+          month: "$month",
+          week: "$week",
+          day: "$day"
+        },
+        total: { $sum: "$total" },
+      }
+    }
+  ])
+  console.log('day ', salesByDay)
+  return res.send(salesByDay)
 }
 
 

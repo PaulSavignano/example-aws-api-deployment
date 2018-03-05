@@ -17,7 +17,7 @@ const OrderSchema = new Schema({
   paymentId: { type: String, required: true, maxlength: 500 },
   shipDate: { type: Date },
   shipped: { type: Boolean },
-  total: { type: String, required: true, maxlength: 50 },
+  total: { type: Number, required: true, min: 1, max: 100000 },
   user: { type: Schema.Types.ObjectId, ref: 'User' }
 }, {
   timestamps: true

@@ -34,7 +34,6 @@ export const add = async (req, res) => {
 
 
 
-
 export const getId = async (req, res) => {
   const {
     params: { _id, brandName }
