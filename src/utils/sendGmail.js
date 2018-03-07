@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer'
 
 import ApiConfig from '../models/ApiConfig'
 import Brand from '../models/Brand'
+import Theme from '../models/Theme'
 import getRgbTotal from '../utils/getRgbTotal'
 import shadows from './shadows'
 
@@ -26,15 +27,9 @@ const sendGmail = async (props) => {
       oauthRefreshToken
     } = apiConfig.values
     const brand = await Brand.findOne({ brandName })
+    const theme = await Theme.findOne({ brandName })
     if (!brand) throw Error('Could not find brand, email not sent')
     const {
-      theme: {
-        palette: {
-          text: { primary },
-          primary: { main }
-        },
-        typography: { fontFamily }
-      },
       business: {
         address,
         image,
@@ -42,6 +37,13 @@ const sendGmail = async (props) => {
         phone,
       },
     } = brand
+    const {
+      palette: {
+        text: { primary },
+        primary: { main }
+      },
+      typography: { fontFamily }
+    } = theme
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {

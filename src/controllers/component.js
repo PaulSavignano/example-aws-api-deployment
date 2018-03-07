@@ -6,7 +6,7 @@ import Page from '../models/Page'
 import { deleteFiles } from '../utils/s3'
 import handleImage from '../utils/handleImage'
 import handleItemImages from '../utils/handleItemImages'
-import formatDate from '../utils/formatDate'
+import { getTime } from '../utils/formatDate'
 
 export const add = async (req, res) => {
   const {
@@ -24,7 +24,7 @@ export const add = async (req, res) => {
 
   const backgroundImage = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     backgroundImage: await handleImage({
-      path: `${brandName}/${pageSlug}/component-${kind}-background-image-${_id}_${formatDate(new Date())}.${values.backgroundImage.ext}`,
+      path: `${brandName}/${pageSlug}/component-${kind}-background-image-${_id}_${getTime()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : {}
@@ -99,7 +99,7 @@ export const update = async (req, res) => {
   // handle new background image
   const backgroundImage = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     backgroundImage: await handleImage({
-      path: `${brandName}/${pageSlug}/component-${kind}-background-image-${_id}_${formatDate(new Date())}.${values.backgroundImage.ext}`,
+      path: `${brandName}/${pageSlug}/component-${kind}-background-image-${_id}_${getTime()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : {}

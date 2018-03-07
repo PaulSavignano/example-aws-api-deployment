@@ -8,7 +8,6 @@ import {
   getAdmin,
   getSalesByYear,
   getSalesByMonth,
-  getSalesByWeek,
   getSalesByDay,
   update,
   remove
@@ -20,7 +19,6 @@ orders.post('/:brandName', authenticate(['user']), catchErrors(add))
 orders.get('/:brandName', authenticate(['user']), catchErrors(get))
 orders.get('/:brandName/sales-by-year', authenticate(['user']), catchErrors(getSalesByYear))
 orders.get('/:brandName/sales-by-month', authenticate(['user']), catchErrors(getSalesByMonth))
-orders.get('/:brandName/sales-by-week', authenticate(['user']), catchErrors(getSalesByWeek))
 orders.get('/:brandName/sales-by-day', authenticate(['user']), catchErrors(getSalesByDay))
 orders.get('/:brandName/admin', authenticate(['admin', 'owner']), catchErrors(getAdmin))
 orders.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))

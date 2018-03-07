@@ -5,7 +5,7 @@ import Product from '../models/Product'
 import Section from '../models/Section'
 import { deleteFiles, uploadFile } from '../utils/s3'
 import handleImage from '../utils/handleImage'
-import formatDate from '../utils/formatDate'
+import { getTime } from '../utils/formatDate'
 import slugIt from '../utils/slugIt'
 
 export const add = async (req, res) => {
@@ -18,7 +18,7 @@ export const add = async (req, res) => {
   const newImageValues = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${brandName}/products/${slugIt(values.name)}-${_id}-image_${formatDate(new Date())}.${values.image.ext}`,
+      path: `${brandName}/products/${slugIt(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
   } : null

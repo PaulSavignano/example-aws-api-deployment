@@ -5,7 +5,7 @@ import { deleteFiles, uploadFile } from '../utils/s3'
 import Page from '../models/Page'
 import Brand from '../models/Brand'
 import slugIt from '../utils/slugIt'
-import formatDate from '../utils/formatDate'
+import { getTime } from '../utils/formatDate'
 import CustomError from '../utils/CustomError'
 import handleImage from '../utils/handleImage'
 
@@ -60,7 +60,7 @@ export const update = async (req, res) => {
   const newImageValues = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     ...values,
     backgroundImage: await handleImage({
-      path: `${brandName}/${pageSlug}/background-image-${_id}_${formatDate(new Date())}.${values.backgroundImage.ext}`,
+      path: `${brandName}/${pageSlug}/background-image-${_id}_${formatDate()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : null

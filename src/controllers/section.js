@@ -2,7 +2,7 @@ import { ObjectID } from 'mongodb'
 
 import { deleteFiles, uploadFile } from '../utils/s3'
 import handleImage from '../utils/handleImage'
-import formatDate from '../utils/formatDate'
+import { getTime } from '../utils/formatDate'
 import Page from '../models/Page'
 import Section from '../models/Section'
 
@@ -15,7 +15,7 @@ export const add = async (req, res) => {
   const newImageValues = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     ...values,
     backgroundImage: await handleImage({
-      path: `${brandName}/${pageSlug}/section-${_id}-background-image-_${formatDate(new Date())}.${values.backgroundImage.ext}`,
+      path: `${brandName}/${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : null
@@ -71,7 +71,7 @@ export const update = async (req, res) => {
   const newImageValues = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     ...values,
     backgroundImage: await handleImage({
-      path: `${brandName}/${pageSlug}/section-${_id}-background-image-_${formatDate(new Date())}.${values.backgroundImage.ext}`,
+      path: `${brandName}/${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : null

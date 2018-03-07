@@ -10,8 +10,6 @@ import CustomError from '../utils/CustomError'
 
 const formatPrice = (cents) => `$${(cents / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
 
-
-
 export const add = async (req, res, next) => {
   const {
     body: {
@@ -42,7 +40,7 @@ export const add = async (req, res, next) => {
         state
       }
     }).save()
-    const user = await User.findOneAndUpdate(
+    const updatedUser = await User.findOneAndUpdate(
       { _id: user._id, brandName },
       { $push: { addresses: address._id }},
       { new: true }
@@ -54,7 +52,7 @@ export const add = async (req, res, next) => {
       stripeToken,
       brandName,
       res,
-      user,
+      user: updatedUser,
     })
   } else {
     const address = await Address.findOne({ _id: fullAddress, brandName })
@@ -92,10 +90,10 @@ const createCharge = async ({
     const order = await new Order({
       address: address.values,
       cart,
-      email: user.email,
-      firstName: user.firstName,
+      email: user.values.email,
+      firstName: user.values.firstName,
       brandName,
-      lastName: user.lastName,
+      lastName: user.values.lastName,
       paymentId: charge.id,
       total: cart.total,
       user: user._id,
@@ -123,19 +121,19 @@ const createCharge = async ({
       <div>${city}, ${state} ${zip}</div>
     `
     const mailData = await sendGmail({
-      brandName: 'savignano-io-client-dev',
-      to: user.email,
+      brandName,
+      to: user.values.email,
       toSubject: 'Thank you for your order!',
       toBody: `
-        <p>Hi ${user.firstName},</p>
+        <p>Hi ${user.values.firstName},</p>
         <p>Thank you for your recent order ${order._id}.  We are preparing your order for delivery and will send you a confirmation once it has shipped.  Please don't hesitate to reach out regarding anything we can with in the interim.</p>
         ${htmlOrder}
       `,
       fromSubject: `New order received!`,
       fromBody: `
-        <p>${user.firstName} ${user.lastName} just placed order an order!</p>
+        <p>${user.values.firstName} ${user.values.lastName} just placed order an order!</p>
         ${htmlOrder}
-        <p>Once shipped, you can mark the item as shipped in at <a href="${brandName}/admin/orders">${brandName}/admin/orders</a> to send confirmation to ${user.firstName}.</p>
+        <p>Once shipped, you can mark the item as shipped in at <a href="${brandName}/admin/orders">${brandName}/admin/orders</a> to send confirmation to ${user.values.firstName}.</p>
       `
     })
   } catch (err) {
@@ -161,42 +159,63 @@ export const get = async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
 export const getSalesByYear = async (req, res) => {
   const {
     params: { brandName },
     user
   } = req
-  const current = new Date()
-  const last = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
-  const salesByYear = await Order.aggregate([
-    {
-      $match: {
-        brandName,
-        createdAt: {
-          $gte: last,
-          $lte: current
+  const sales = await Order.aggregate([
+    { $match: {
+      brandName,
+    }},
+    { $project: {
+      cYear: { $dateToString: { format: "%Y", date: new Date() }},
+      pYear: { $dateToString: { format: "%Y", date: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) }},
+      dYear: { $dateToString: { format: "%Y", date: "$createdAt" }},
+      month: { $month: "$createdAt" },
+      total: "$total",
+    }},
+    { $group: {
+      _id: {
+        year: { $year: new Date() },
+      },
+      c: {
+        $sum: {
+          $cond: [{
+            $eq: [ "$dYear", "$cYear" ]
+          }, {
+            $sum: "$total"
+          }, 0]
         }
-      }
+      },
+      p: {
+        $sum: {
+          $cond: [{
+            $eq: [ "$dYear", "$pYear" ]
+          }, {
+            $sum: "$total"
+          }, 0]
+        }
+      }}
     },
-    {
-      $project: {
-        date: { $dateToString: { format: "%Y", date: "$createdAt" }},
-        year: { $year: "$createdAt" },
-        total: "$total",
-      }
-    },
-    {
-      $group: {
-        _id: {
-          date: "$date",
-          year: "$year",
-        },
-        total: { $sum: "$total" },
-      }
-    }
+    { $project: {
+      _id: 0,
+      year: "$_id.year",
+      [new Date().getFullYear()]: "$c",
+      [new Date().getFullYear() - 1]: "$p"
+    }}
   ])
-  console.log('year ', salesByYear)
-  return res.send(salesByYear)
+  console.log('year ', sales)
+  return res.send(sales)
 }
 
 
@@ -206,85 +225,52 @@ export const getSalesByMonth = async (req, res) => {
     params: { brandName },
     user
   } = req
-  const current = new Date()
-  const last = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
-  const salesByMonth = await Order.aggregate([
-    {
-      $match: {
-        brandName,
-        createdAt: {
-          $gte: last,
-          $lte: current
+  const sales = await Order.aggregate([
+    { $match: {
+      brandName,
+      createdAt: { "$gte": new Date(new Date().getFullYear() - 1, 0, 1) }
+    }},
+    { $project: {
+      cYear: { $dateToString: { format: "%Y", date: new Date() }},
+      pYear: { $dateToString: { format: "%Y", date: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) }},
+      dYear: { $dateToString: { format: "%Y", date: "$createdAt" }},
+      month: { $month: "$createdAt" },
+      total: "$total",
+    }},
+    { $group: {
+      _id: {
+        year: { $year: new Date() },
+        month: "$month",
+      },
+      c: {
+        $sum: {
+          $cond: [{
+            $eq: [ "$dYear", "$cYear" ]
+          }, {
+            $sum: "$total"
+          }, 0]
         }
       },
-    },
-    {
-      $project: {
-        date: { $dateToString: { format: "%Y/%m", date: "$createdAt" }},
-        year: { $year: "$createdAt" },
-        month: { $month: "$createdAt" },
-        total: "$total",
-      }
-    },
-    {
-      $group: {
-        _id: {
-          date: "$date",
-          year: "$year",
-          month: "$month",
-        },
-        total: { $sum: "$total" }
-      }
-    }
-  ])
-  console.log('month ', salesByMonth)
-  return res.send(salesByMonth)
-}
-
-
-
-export const getSalesByWeek = async (req, res) => {
-  const {
-    params: { brandName },
-    user
-  } = req
-  const current = new Date()
-  const last = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
-  const salesByWeek = await Order.aggregate([
-    {
-      $match: {
-        brandName,
-        createdAt: {
-          $gte: last,
-          $lte: current
+      p: {
+        $sum: {
+          $cond: [{
+            $eq: [ "$dYear", "$pYear" ]
+          }, {
+            $sum: "$total"
+          }, 0]
         }
-      },
+      }}
     },
-    {
-      $project: {
-        date: { $dateToString: { format: "%U", date: "$createdAt" }},
-        year: { $year: "$createdAt" },
-        month: { $month: "$createdAt" },
-        week: { $week: "$createdAt" },
-        total: "$total",
-      }
-    },
-    {
-      $group: {
-        _id: {
-          date: "$date",
-          year: "$year",
-          month: "$month",
-          week: "$week",
-        },
-        total: { $sum: "$total" },
-      }
-    }
+    { $project: {
+      _id: 0,
+      month: "$_id.month",
+      [new Date().getFullYear()]: "$c",
+      [new Date().getFullYear() - 1]: "$p"
+    }}
   ])
-  console.log('week ', salesByWeek)
-  return res.send(salesByWeek)
+  console.log('salesByMonth', sales)
+  return res.send(sales)
 }
-
 
 
 
@@ -295,42 +281,65 @@ export const getSalesByDay = async (req, res) => {
   } = req
   const current = new Date()
   const last = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
-  const salesByDay = await Order.aggregate([
-    {
-      $match: {
-        brandName,
-        createdAt: {
-          $gte: last,
-          $lte: current
+  const sales = await Order.aggregate([
+    { $match: {
+      brandName,
+      createdAt: { "$gte": new Date(new Date().getFullYear() - 1, 0, 1) }
+    }},
+    { $project: {
+      cYear: { $dateToString: { format: "%Y", date: new Date() }},
+      pYear: { $dateToString: { format: "%Y", date: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) }},
+      dYear: { $dateToString: { format: "%Y", date: "$createdAt" }},
+      month: { $month: "$createdAt" },
+      day: { $dayOfMonth: "$createdAt" },
+      total: "$total",
+    }},
+    { $group: {
+      _id: {
+        year: { $year: new Date() },
+        month: { $month: new Date() },
+        day: "$day"
+      },
+      c: {
+        $sum: {
+          $cond: [{
+            $eq: [ "$dYear", "$cYear" ]
+          }, {
+            $sum: "$total"
+          }, 0]
         }
       },
+      p: {
+        $sum: {
+          $cond: [{
+            $eq: [ "$dYear", "$pYear" ]
+          }, {
+            $sum: "$total"
+          }, 0]
+        }
+      }}
     },
-    {
-      $project: {
-        date: { $dateToString: { format: "%Y/%m/%d", date: "$createdAt" }},
-        year: { $year: "$createdAt" },
-        month: { $month: "$createdAt" },
-        day: { $dayOfMonth: "$createdAt" },
-        week: { $week: "$createdAt" },
-        total: "$total",
-      }
-    },
-    {
-      $group: {
-        _id: {
-          date: "$date",
-          year: "$year",
-          month: "$month",
-          week: "$week",
-          day: "$day"
-        },
-        total: { $sum: "$total" },
-      }
-    }
+    { $project: {
+      _id: 0,
+      month: "$_id.month",
+      day: "$_id.day",
+      [new Date().getFullYear()]: "$c",
+      [new Date().getFullYear() - 1]: "$p"
+    }}
   ])
-  console.log('day ', salesByDay)
-  return res.send(salesByDay)
+  console.log('day ', sales)
+  return res.send(sales)
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

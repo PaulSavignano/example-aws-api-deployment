@@ -1,6 +1,6 @@
 import express from 'express'
 import { ObjectID } from 'mongodb'
-import formatDate from '../utils/formatDate'
+import { getTime } from '../utils/formatDate'
 
 import ApiConfig from '../models/ApiConfig'
 import Brand from '../models/Brand'
@@ -49,7 +49,7 @@ export const update = async (req, res) => {
   const valuesWithNewImage = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${brandName}/${brandParam}-image_${formatDate(new Date())}.${values.image.ext}`,
+      path: `${brandName}/${brandParam}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
   } : null
