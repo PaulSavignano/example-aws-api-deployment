@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 
-const ApiConfigSchema = new Schema({
+const ConfigSchema = new Schema({
   brandName: { type: String, maxlength: 90, required: true, unique: true },
   values: {
     gmailUser: { type: String, trim: true, maxlength: 150 },
@@ -16,6 +16,6 @@ const ApiConfigSchema = new Schema({
   timestamps: true
 })
 
-const ApiConfig = mongoose.model('ApiConfig', ApiConfigSchema)
+const Config = mongoose.model('Config', ConfigSchema)
 
-export default ApiConfig
+export default Config

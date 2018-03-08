@@ -1,11 +1,9 @@
 import { ObjectID } from 'mongodb'
 
-import Page from '../models/Page'
-import Product from '../models/Product'
-import Section from '../models/Section'
 import { deleteFiles, uploadFile } from '../utils/s3'
-import handleImage from '../utils/handleImage'
 import { getTime } from '../utils/formatDate'
+import handleImage from '../utils/handleImage'
+import Product from '../models/Product'
 import slugIt from '../utils/slugIt'
 
 export const add = async (req, res) => {
@@ -26,6 +24,7 @@ export const add = async (req, res) => {
   const newValues = newImageValues ? newImageValues : values
 
   const product = await new Product({
+    _id,
     brandName,
     values: newValues,
   }).save()
@@ -45,18 +44,23 @@ export const get = async (req, res) => {
 }
 
 
-
+export const getId = async (req, res) => {
+  const { brandName, _id } = req.params
+  if (!ObjectID.isValid(_id)) throw Error('Product id not found, invalid id')
+  const product = await Product.findOne({ brandName, _id })
+  return res.send(product)
+}
 
 
 
 
 
 export const update = async (req, res) => {
-  if (!ObjectID.isValid(req.params._id)) return res.status(404).send('Invalid id')
   const {
     body: { values, oldSrcs },
     params: { _id, brandName }
   } = req
+  if (!ObjectID.isValid(_id)) throw Error('Product update error, invalid id')
   const imageDeletes = oldSrcs.length && await deleteFiles(oldSrcs)
   // handle new image
   const newImageValues = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
@@ -85,10 +89,10 @@ export const update = async (req, res) => {
 
 
 export const remove = async (req, res) => {
-  if (!ObjectID.isValid(req.params._id)) return res.status(404).send('Invalid id')
   const {
     params: { _id, brandName }
   } = req
+  if (!ObjectID.isValid(_id)) throw Error('Product delete error, invalid id')
   const product = await Product.findOne({ _id, brandName })
   await product.remove()
   if (!product) throw Error('Product remove failed')

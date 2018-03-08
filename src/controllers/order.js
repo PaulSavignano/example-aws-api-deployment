@@ -1,12 +1,12 @@
 import { ObjectID } from 'mongodb'
 
 import Address from '../models/Address'
-import ApiConfig from '../models/ApiConfig'
+import Config from '../models/Config'
 import Cart from '../models/Cart'
-import User from '../models/User'
+import CustomError from '../utils/CustomError'
 import Order from '../models/Order'
 import sendGmail from '../utils/sendGmail'
-import CustomError from '../utils/CustomError'
+import User from '../models/User'
 
 const formatPrice = (cents) => `$${(cents / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
 
@@ -77,8 +77,8 @@ const createCharge = async ({
   user
 }) => {
   try {
-    const apiConfig = await ApiConfig.findOne({ brandName })
-    const { values: { stripeSkLive, stripeSkTest }} = apiConfig
+    const config = await Config.findOne({ brandName })
+    const { values: { stripeSkLive, stripeSkTest }} = config
     if (!stripeSkLive && !stripeSkTest) throw Error('Unable to create charge, no stripe api key found')
     const stripe = require("stripe")(stripeSkLive || stripeSkTest)
     const charge = await stripe.charges.create({
@@ -88,7 +88,7 @@ const createCharge = async ({
       description: `${brandName} Order`
     })
     const order = await new Order({
-      address: address.values,
+      address: address._id,
       cart,
       email: user.values.email,
       firstName: user.values.firstName,

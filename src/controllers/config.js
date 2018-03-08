@@ -1,27 +1,23 @@
 import { ObjectID } from 'mongodb'
 
-import ApiConfig from '../models/ApiConfig'
+import Config from '../models/Config'
 
 export const add = async (req, res) => {
   const {
     body: { values },
     params: { brandName }
   } = req
-  const apiConfig = new ApiConfig({ values, brandName })
-  return res.send(apiConfig)
-}
-
-
-
-
-export const get = async (req, res) => {
-  const { brandName } = req.params
-  const config = await ApiConfig.findOne({ brandName })
-  if (!config) throw Error('No config found')
+  const config = new Config({ values, brandName })
   return res.send(config)
 }
 
 
+export const get = async (req, res) => {
+  const { brandName } = req.params
+  const config = await Config.findOne({ brandName })
+  if (!config) throw Error('No config found')
+  return res.send(config)
+}
 
 
 export const update = async (req, res) => {
@@ -30,7 +26,8 @@ export const update = async (req, res) => {
     body: { values },
     params: { _id, brandName },
   } = req
-  const config = await ApiConfig.findOneAndUpdate(
+  if (!ObjectID.isValid(_id)) throw Error('Config update failed, Invalid id')
+  const config = await Config.findOneAndUpdate(
     { _id, brandName },
     { $set: { values }},
     { new: true }
@@ -46,7 +43,7 @@ export const remove = async (req, res) => {
   const {
     params: { _id, brandName }
   } = req
-  const config = await ApiConfig.findOneAndRemove({ _id, brandName })
+  const config = await Config.findOneAndRemove({ _id, brandName })
   if (!config) throw Error('No api config found')
   return res.send(config._id)
 }

@@ -3,9 +3,7 @@ import RefreshToken from '../models/RefreshToken'
 import createTokens from '../utils/createTokens'
 import User from '../models/User'
 
-const hasRoles = (roles, requiredRoles) => {
-  return roles.some(r => requiredRoles.indexOf(r) >= 0)
-}
+const hasRoles = (roles, requiredRoles) => roles.some(r => requiredRoles.indexOf(r) !== -1)
 
 const authenticate = (requiredRoles) => {
   return async (req, res, next) => {
@@ -15,7 +13,7 @@ const authenticate = (requiredRoles) => {
         const aToken = await AccessToken.findOne({ accessToken }).populate('user')
         if (!hasRoles(aToken.user.roles, requiredRoles)) throw Error('Access denied')
         req.user = aToken.user
-        next()
+        return next()
       } catch (error) {
         const refreshToken = req.headers['x-refresh-token']
         if (refreshToken) {
@@ -29,9 +27,9 @@ const authenticate = (requiredRoles) => {
               res.set('x-access-token', newAccessToken)
               res.set('x-refresh-token', newRefreshToken)
             }
-            next()
+            return next()
           } catch (error) {
-            next(error)
+            return next(error)
           }
         }
       }

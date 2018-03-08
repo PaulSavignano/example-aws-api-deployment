@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer'
 
-import ApiConfig from '../models/ApiConfig'
+import Config from '../models/Config'
 import Brand from '../models/Brand'
 import Theme from '../models/Theme'
 import getRgbTotal from '../utils/getRgbTotal'
@@ -17,15 +17,15 @@ const sendGmail = async (props) => {
       fromBody,
     } = props
     console.log('brandName is', brandName)
-    const apiConfig = await ApiConfig.findOne({ brandName })
-    if (!apiConfig) throw Error('No apiConfig found, email not sent')
+    const config = await Config.findOne({ brandName })
+    if (!config) throw Error('No config found, email not sent')
     const {
       gmailUser,
       oauthAccessToken,
       oauthClientId,
       oauthClientSecret,
       oauthRefreshToken
-    } = apiConfig.values
+    } = config.values
     const brand = await Brand.findOne({ brandName })
     const theme = await Theme.findOne({ brandName })
     if (!brand) throw Error('Could not find brand, email not sent')

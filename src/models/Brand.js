@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 
 import Address from './Address'
-import ApiConfig from './ApiConfig'
+import Config from './Config'
 import Blog from './Blog'
 import Cart from './Cart'
 import Component from './Component'
@@ -72,7 +72,7 @@ BrandSchema.post('remove', function(doc, next) {
 
 
   Address.deleteMany({ brandName: doc.brandName }).then(deletes => console.info('Address deleteMany', deletes)).catch(error => console.error(error))
-  ApiConfig.deleteMany({ brandName: doc.brandName }).then(deletes => console.info('ApiConfig deleteMany', deletes)).catch(error => console.error(error))
+  Config.deleteMany({ brandName: doc.brandName }).then(deletes => console.info('Config deleteMany', deletes)).catch(error => console.error(error))
 
   Blog.find({ brandName: doc.brandName })
   .then(items => items.length && items.forEach(item => item.remove()))

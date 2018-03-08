@@ -31,6 +31,11 @@ const ProductSchema = new Schema({
   timestamps: true
 })
 
+ProductSchema.index({
+  'values.name': 'text',
+  'values.description': 'text'
+})
+
 
 ProductSchema.post('remove', function(doc, next) {
   if (doc.values && doc.values.image && doc.values.image.src) return deleteFiles([{ Key: doc.values.image.src }])

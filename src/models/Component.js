@@ -72,6 +72,11 @@ const ComponentSchema = new Schema({
   timestamps: true
 })
 
+ComponentSchema.index({
+  'items.typographies.content': 'text',
+  'items.wysiwyg': 'text'
+})
+
 ComponentSchema.post('remove', function(doc, next) {
   const backgroundImageSrc = doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src ? [{ Key: doc.values.backgroundImage.src }] : []
   const itemSrcs = doc.values && doc.values.items.length ? doc.values.items.filter(i => i.image && i.image.src).map(i => ({ Key: i.image.src })) : []

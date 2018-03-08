@@ -3,9 +3,9 @@ import crypto from 'crypto'
 
 import Address from '../models/Address'
 import Brand from '../models/Brand'
+import CustomError from '../utils/CustomError'
 import Order from '../models/Order'
 import User from '../models/User'
-import CustomError from '../utils/CustomError'
 
 export const adminAdd = async (req, res) => {
   const {

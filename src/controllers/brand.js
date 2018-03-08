@@ -1,18 +1,17 @@
-import express from 'express'
 import { ObjectID } from 'mongodb'
-import { getTime } from '../utils/formatDate'
 
-import ApiConfig from '../models/ApiConfig'
+import { getTime } from '../utils/formatDate'
+import { uploadFile, deleteFiles } from '../utils/s3'
+import Config from '../models/Config'
 import Brand from '../models/Brand'
+import handleImage from '../utils/handleImage'
 import Page from '../models/Page'
 import Theme from '../models/Theme'
-import { uploadFile, deleteFiles } from '../utils/s3'
-import handleImage from '../utils/handleImage'
 
 
 export const add = async (req, res) => {
   const { brandName } = req.params
-  const apiConfig = await new ApiConfig({ brandName }).save()
+  const config = await new Config({ brandName }).save()
   const page = await new Page({ brandName, 'values.name': 'Home', slug: 'home' }).save()
   const brand = await new Brand({ brandName, pages: page._id }).save()
   const theme = await new Theme({ brandName }).save()

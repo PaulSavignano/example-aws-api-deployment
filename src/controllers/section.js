@@ -1,8 +1,8 @@
 import { ObjectID } from 'mongodb'
 
 import { deleteFiles, uploadFile } from '../utils/s3'
-import handleImage from '../utils/handleImage'
 import { getTime } from '../utils/formatDate'
+import handleImage from '../utils/handleImage'
 import Page from '../models/Page'
 import Section from '../models/Section'
 
@@ -12,6 +12,8 @@ export const add = async (req, res) => {
     body: { pageId, pageSlug, values },
     params: { brandName }
   } = req
+  const _id = new ObjectID()
+
   const newImageValues = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     ...values,
     backgroundImage: await handleImage({
@@ -23,6 +25,7 @@ export const add = async (req, res) => {
   const newValues = newImageValues ? newImageValues : values
 
   const section = await new Section({
+    _id,
     brandName,
     page: ObjectID(pageId),
     pageSlug,

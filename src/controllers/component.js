@@ -1,12 +1,12 @@
 import { ObjectID } from 'mongodb'
 
-import Component from '../models/Component'
-import Section from '../models/Section'
-import Page from '../models/Page'
 import { deleteFiles } from '../utils/s3'
+import { getTime } from '../utils/formatDate'
+import Component from '../models/Component'
 import handleImage from '../utils/handleImage'
 import handleItemImages from '../utils/handleItemImages'
-import { getTime } from '../utils/formatDate'
+import Page from '../models/Page'
+import Section from '../models/Section'
 
 export const add = async (req, res) => {
   const {

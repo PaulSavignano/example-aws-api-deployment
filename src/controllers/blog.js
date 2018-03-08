@@ -1,11 +1,9 @@
 import { ObjectID } from 'mongodb'
-import { getTime } from '../utils/formatDate'
 
 import { deleteFiles, uploadFile } from '../utils/s3'
+import { getTime } from '../utils/formatDate'
 import Blog from '../models/Blog'
 import handleImage from '../utils/handleImage'
-import Page from '../models/Page'
-import Section from '../models/Section'
 
 
 export const add = async (req, res) => {
@@ -26,6 +24,7 @@ export const add = async (req, res) => {
   const newValues = valuesWithNewImage ? valuesWithNewImage : values
 
   const blog = await new Blog({
+    _id,
     brandName,
     values: newValues,
   }).save()
@@ -48,7 +47,7 @@ export const get = async (req, res) => {
 
 export const getId = async (req, res) => {
   const { brandName, _id } = req.params
-  if (!ObjectID.isValid(_id)) throw Error('Get blog failed, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Blog not found, invalid id')
   const blog = await Blog.findOne({ brandName, _id  })
   if (!blog) throw Error('That blog was not found')
   return res.send(blog)
@@ -62,7 +61,7 @@ export const update = async (req, res) => {
     body: { values, oldSrcs, published },
     params: { _id, brandName }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Blog update failed, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Blog update error, Invalid id')
   if (values) {
     const imageDeletes = oldSrcs.length && await deleteFiles(oldSrcs)
 
@@ -101,7 +100,7 @@ export const remove = async (req, res) => {
   const {
     params: { _id, brandName }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Blog remove failed, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Blog remove error, Invalid id')
   const blog = await Blog.findOne({ _id, brandName })
   await blog.remove()
   if (!blog) throw Error('That blog was not found')

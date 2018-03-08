@@ -1,16 +1,16 @@
 import { ObjectID } from 'mongodb'
 import bcrypt from 'bcryptjs'
 
-import createToken from '../utils/createToken'
 import Address from '../models/Address'
 import Brand from '../models/Brand'
-import Order from '../models/Order'
-import ResetToken from '../models/ResetToken'
-import User from '../models/User'
-import sendGmail from '../utils/sendGmail'
+import createToken from '../utils/createToken'
 import createTokens from '../utils/createTokens'
 import createUserResponse from '../utils/createUserResponse'
 import CustomError from '../utils/CustomError'
+import Order from '../models/Order'
+import ResetToken from '../models/ResetToken'
+import sendGmail from '../utils/sendGmail'
+import User from '../models/User'
 
 export const add = async (req, res) => {
   const {

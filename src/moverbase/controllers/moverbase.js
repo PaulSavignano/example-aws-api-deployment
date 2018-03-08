@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 
-import ApiConfig from '../../models/ApiConfig'
+import Config from '../../models/Config'
 
 export const requestEstimate = async (req, res) => {
   const {
@@ -17,7 +17,7 @@ export const requestEstimate = async (req, res) => {
     },
     params: { brandName }
   } = req
-  const moverbaseApiKey = await ApiConfig.findOne({ brandName })
+  const moverbaseApiKey = await Config.findOne({ brandName })
   if (!moverbaseApiKey) throw 'Sorry, there was no moverbase api key found'
   const auth = 'Basic ' + new Buffer(moverbaseApiKey + ':').toString('base64')
   try {

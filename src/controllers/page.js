@@ -2,12 +2,12 @@ import { ObjectID } from 'mongodb'
 import url from 'url'
 
 import { deleteFiles, uploadFile } from '../utils/s3'
-import Page from '../models/Page'
-import Brand from '../models/Brand'
-import slugIt from '../utils/slugIt'
 import { getTime } from '../utils/formatDate'
+import Brand from '../models/Brand'
 import CustomError from '../utils/CustomError'
 import handleImage from '../utils/handleImage'
+import Page from '../models/Page'
+import slugIt from '../utils/slugIt'
 
 
 export const add = async (req, res) => {

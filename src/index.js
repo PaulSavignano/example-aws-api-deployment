@@ -10,7 +10,7 @@ import forceSSL from './middleware/forceSSL'
 
 import catchErrors from './utils/catchErrors'
 import addresses from './routes/addresses'
-import apiConfigs from './routes/apiConfigs'
+import configs from './routes/configs'
 import blogs from './routes/blogs'
 import brands from './routes/brands'
 import carts from './routes/carts'
@@ -18,6 +18,7 @@ import components from './routes/components'
 import orders from './routes/orders'
 import pages from './routes/pages'
 import products from './routes/products'
+import reviews from './routes/reviews'
 import sections from './routes/sections'
 import themes from './routes/themes'
 import users from './routes/users'
@@ -37,11 +38,11 @@ app.use((req, res, next) => {
   next()
 })
 
-app.use(bodyParser.json({limit: '50mb'}))
+app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use('/api/addresses', addresses)
-app.use('/api/api-configs', apiConfigs)
+app.use('/api/configs', configs)
 app.use('/api/blogs', blogs)
 app.use('/api/brands', brands)
 app.use('/api/carts', carts)
@@ -49,6 +50,7 @@ app.use('/api/components', components)
 app.use('/api/orders', orders)
 app.use('/api/pages', pages)
 app.use('/api/products', products)
+app.use('/api/reviews', reviews)
 app.use('/api/sections', sections)
 app.use('/api/themes', themes)
 app.use('/api/users', users)
