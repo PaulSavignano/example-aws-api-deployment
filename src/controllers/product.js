@@ -39,7 +39,26 @@ export const add = async (req, res) => {
 
 export const get = async (req, res) => {
   const { brandName } = req.params
-  const products = await Product.find({ brandName })
+  //const products = await Product.find({ brandName })
+
+  const products = await Product.aggregate([
+    { $match: {
+      brandName,
+    }},
+    { $lookup: {
+      from: 'reviews',
+      localField: '_id',
+      foreignField: 'kind.kindId',
+      as: 'reviews'
+    }},
+    { $project: {
+      _id: "$$ROOT._id",
+      values: "$$ROOT.values",
+      stars: { $sum: "$reviews.values.rating" },
+      reviews: { $size: "$reviews" }
+    }}
+  ])
+  console.log('products', products)
   return res.send(products)
 }
 

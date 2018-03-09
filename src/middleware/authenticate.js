@@ -8,6 +8,7 @@ const hasRoles = (roles, requiredRoles) => roles.some(r => requiredRoles.indexOf
 const authenticate = (requiredRoles) => {
   return async (req, res, next) => {
     const accessToken = req.headers['x-access-token']
+    console.log('accessToken', accessToken)
     if (accessToken) {
       try {
         const aToken = await AccessToken.findOne({ accessToken }).populate('user')

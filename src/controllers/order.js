@@ -53,6 +53,7 @@ export const add = async (req, res, next) => {
       brandName,
       res,
       user: updatedUser,
+      newUserAddress: true,
     })
   } else {
     const address = await Address.findOne({ _id: fullAddress, brandName })
@@ -74,7 +75,8 @@ const createCharge = async ({
   brandName,
   res,
   stripeToken,
-  user
+  user,
+  newUserAddress,
 }) => {
   try {
     const config = await Config.findOne({ brandName })
@@ -99,7 +101,8 @@ const createCharge = async ({
       user: user._id,
     }).save()
     await Cart.findOneAndRemove({ _id: cart._id })
-    res.send({ order, user })
+    const response = newUserAddress ? { order, user } : { order }
+    res.send(response)
     const { name, phone, street, city, state, zip } = address.values
     const htmlOrder = `
       <div style="font-weight: 900">Order Summary</div>

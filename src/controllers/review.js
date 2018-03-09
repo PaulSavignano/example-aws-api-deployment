@@ -38,7 +38,6 @@ export const addProductReview = async (req, res) => {
     user: user._id,
     'cart.items.productId': kindId
   })
-  console.log('userHasOrdered', userHasOrdered, 'kindId', kindId)
   if (userHasOrdered) {
     const review = await new Review({
       brandName,
