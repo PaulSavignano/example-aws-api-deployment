@@ -5,7 +5,6 @@ import { getTime } from '../utils/formatDate'
 import Blog from '../models/Blog'
 import handleImage from '../utils/handleImage'
 
-
 export const add = async (req, res) => {
   const {
     body: { values },
@@ -36,8 +35,13 @@ export const add = async (req, res) => {
 
 
 export const get = async (req, res) => {
-  const { brandName } = req.params
-  const blogs = await Blog.find({ brandName })
+  const {
+    params: { brandName },
+    query: { lastId, limit },
+  } = req
+  const params = lastId ? { _id: { $gt: lastId }, brandName } : { brandName }
+  const blogs = await Blog.find(params)
+  .limit(parseInt(limit))
   return res.send(blogs)
 }
 

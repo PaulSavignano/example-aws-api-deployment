@@ -3,6 +3,8 @@ import { ObjectID } from 'mongodb'
 import Review from '../models/Review'
 import Order from '../models/Order'
 
+const limit = 9
+
 export const addBlogReview = async (req, res) => {
   const {
     body: {
@@ -53,49 +55,102 @@ export const addProductReview = async (req, res) => {
 
 
 
-export const getAdmin = async (req, res) => {
-  const { brandName, page } = req.params
-  const limit = 9
-  const reviews = await Review.find({ brandName })
-  .skip((limit * page) - limit)
-  .limit(limit)
+
+
+
+
+
+
+export const get = async (req, res) => {
+  const {
+    params: { brandName },
+    query: { lastId, limit },
+    user
+  } = req
+  const params = lastId ? { _id: { $gt: lastId }, brandName, user: user._id } : { brandName, user: user._id }
+  const reviews = await Review.find(params)
+  .limit(parseInt(limit))
+  return res.send(addresses)
+}
+
+export const getId = async (req, res) => {
+  const {
+    params: { brandName, _id },
+    user
+  } = req
+  const review = await Review.findOne({ user: user._id, brandName, _id })
+  return res.send(review)
+}
+
+
+export const adminGetUser = async (req, res) => {
+  const {
+    params: { brandName },
+    query: { userId, lastId, limit },
+    user
+  } = req
+  const params = lastId ? { _id: { $gt: lastId }, brandName, user: userId } : { brandName, user: userId }
+  const reviews = await Review.find({ brandName, user: userId })
+  .limit(parseInt(limit))
   return res.send(reviews)
 }
 
 
+export const adminGetId = async (req, res) => {
+  const {
+    params: { brandName, _id },
+    user
+  } = req
+  const review = await Review.findOne({ brandName, _id })
+  return res.send(review)
+}
 
-export const getId = async (req, res) => {
-  const { brandName, _id } = req.params
-  const reviews = await Review.find({ brandName, _id })
+
+export const adminGetAll = async (req, res) => {
+  const {
+    params: { brandName },
+    query: { lastId, limit },
+    user
+  } = req
+  const params = lastId ? { _id: { $gt: lastId }, brandName } : { brandName }
+  const reviews = await Review.find(params)
+  .limit(parseInt(limit))
   return res.send(reviews)
 }
 
 
 export const getKindId = async (req, res) => {
-  const { brandName, page, kindId } = req.params
-  const limit = 9
-  const reviews = await Review.find({ brandName, 'kind.kindId': kindId })
-  .skip((limit * page) - limit)
-  .limit(limit)
+  const {
+    params: { brandName },
+    query: { kindId, lastId, limit },
+  } = req
+  const params = lastId ? { _id: { $gt: lastId }, brandName, 'kind.kindId': kindId } : { brandName, 'kind.kindId': kindId }
+  const reviews = await Review.find(params)
+  .limit(parseInt(limit))
   return res.send(reviews)
 }
 
 
 export const getKind = async (req, res) => {
   const {
-    params: {
-      brandName,
-      page,
-      kind
-    },
-    user
+    params: { brandName },
+    query: { kind, lastId, limit },
+    user,
   } = req
-  const isAdmin = user.roles.some(role => role === 'admin')
-  const limit = 9
-  const query = isAdmin ? { brandName, 'kind.kind': kind } : { brandName, 'kind.kind': kind, user: user._id }
-  const reviews = await Review.find(query)
-  .skip((limit * page) - limit)
-  .limit(limit)
+  const params = lastId ? { _id: { $gt: lastId }, brandName, 'kind.kind': kind, user: user._id } : { brandName, 'kind.kind': kind, user: user._id }
+  const reviews = await Review.find(params)
+  .limit(parseInt(limit))
+  return res.send(reviews)
+}
+
+export const getAdminKind = async (req, res) => {
+  const {
+    params: { brandName },
+    query: { kind, lastId, limit },
+  } = req
+  const params = lastId ? { _id: { $gt: lastId }, brandName, 'kind.kind': kind } : { brandName, 'kind.kind': kind }
+  const reviews = await Review.find(params)
+  .limit(parseInt(limit))
   return res.send(reviews)
 }
 

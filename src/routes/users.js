@@ -18,7 +18,8 @@ import {
 import {
   adminAdd,
   adminRemove,
-  adminUpdate,
+  adminUpdateValues,
+  adminUpdateRoles
 } from '../controllers/userAdmin'
 
 const users = express.Router()
@@ -32,7 +33,8 @@ users.post('/:brandName/recovery', catchErrors(recovery))
 users.post('/:brandName/reset/:resetToken', catchErrors(reset))
 users.post('/:brandName/contact', catchErrors(contact))
 users.post('/:brandName/admin', authenticate([ 'owner' ]), catchErrors(adminAdd))
-users.patch('/:brandName/admin/:_id', authenticate([ 'owner']), catchErrors(adminUpdate))
+users.patch('/:brandName/admin/update-values/:_id', authenticate([ 'owner']), catchErrors(adminUpdateValues))
+users.patch('/:brandName/admin/update-roles/:_id', authenticate([ 'owner']), catchErrors(adminUpdateValues))
 users.delete('/:brandName/admin/:_id', authenticate([ 'owner' ]), catchErrors(adminRemove))
 
 export default users

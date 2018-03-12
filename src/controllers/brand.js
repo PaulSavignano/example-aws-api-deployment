@@ -79,8 +79,6 @@ export const updatePages = async (req, res) => {
     body: { pageIds },
     params: { _id, brandName }
   } = req
-  console.log('req body', req.body)
-  console.log('_id', _id, 'brandName', brandName)
   const brand = await Brand.findOneAndUpdate(
     { _id, brandName },
     { $set: { pages: pageIds }},

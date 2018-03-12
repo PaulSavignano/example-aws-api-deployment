@@ -26,7 +26,6 @@ export const add = async (req, res, next) => {
     params: { brandName },
     user
   } = req
-  console.log('user is ', user)
   if (fullAddress === 'newAddress') {
     const address = await new Address({
       brandName,
@@ -151,14 +150,68 @@ const createCharge = async ({
 
 
 
-export const get = async (req, res) => {
+
+
+
+export const getUser = async (req, res) => {
   const {
     params: { brandName },
+    query: { lastId, limit },
     user
   } = req
-  const orders = await Order.find({ user: user._id, brandName })
+  const params = lastId ? { _id: { $gt: lastId }, brandName, user: user._id } : { brandName, user: user._id }
+  const orders = await Order.find(params)
+  .limit(parseInt(limit))
   return res.send(orders)
 }
+
+export const getId = async (req, res) => {
+  const {
+    params: { brandName, _id },
+    user
+  } = req
+  const order = await Order.findOne({ user: user._id, brandName, _id })
+  return res.send(order)
+}
+
+
+export const adminGetUser = async (req, res) => {
+  const {
+    params: { brandName },
+    query: { userId, limit, lastId },
+    user
+  } = req
+  const params = lastId ? { _id: { $gt: lastId }, brandName, user: userId } : { brandName, user: userId }
+  const orders = await Order.find(params)
+  .limit(parseInt(limit))
+  return res.send(orders)
+}
+
+
+export const adminGetId = async (req, res) => {
+  const {
+    params: { brandName, _id },
+    user
+  } = req
+  const order = await Order.findOne({ brandName, _id })
+  return res.send(order)
+}
+
+
+export const adminGetAll = async (req, res) => {
+  const {
+    params: { brandName, page },
+    query: { limit, lastId },
+    user
+  } = req
+  const params = lastId ? { _id: { $gt: lastId }, brandName } : { brandName }
+  const orders = await Order.find(params)
+  .limit(parseInt(limit))
+  return res.send(orders)
+}
+
+
+
 
 
 
@@ -217,7 +270,6 @@ export const getSalesByYear = async (req, res) => {
       [new Date().getFullYear() - 1]: "$p"
     }}
   ])
-  console.log('year ', sales)
   return res.send(sales)
 }
 
@@ -271,7 +323,6 @@ export const getSalesByMonth = async (req, res) => {
       [new Date().getFullYear() - 1]: "$p"
     }}
   ])
-  console.log('salesByMonth', sales)
   return res.send(sales)
 }
 
@@ -330,7 +381,6 @@ export const getSalesByDay = async (req, res) => {
       [new Date().getFullYear() - 1]: "$p"
     }}
   ])
-  console.log('day ', sales)
   return res.send(sales)
 }
 

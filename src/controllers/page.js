@@ -81,7 +81,6 @@ export const updateValue = async (req, res) => {
     body: { key, value },
     params: { _id, brandName }
   } = req
-  console.log('updateValue', key, value)
   if (!ObjectID.isValid(_id)) throw Error('Page update failed, invalid id')
 
   const set = { $set: {}}

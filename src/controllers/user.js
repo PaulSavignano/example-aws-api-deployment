@@ -5,7 +5,6 @@ import Address from '../models/Address'
 import Brand from '../models/Brand'
 import createToken from '../utils/createToken'
 import createTokens from '../utils/createTokens'
-import createUserResponse from '../utils/createUserResponse'
 import CustomError from '../utils/CustomError'
 import Order from '../models/Order'
 import ResetToken from '../models/ResetToken'
@@ -35,7 +34,7 @@ export const add = async (req, res) => {
   const { values } = user
   res.set('x-access-token', newAccessToken)
   res.set('x-refresh-token', newRefreshToken)
-  res.send({ user })
+  res.send(user)
   return sendGmail({
     brandName,
     to: values.email,
@@ -59,9 +58,9 @@ export const add = async (req, res) => {
 export const get = async (req, res) => {
   const {
     params: { brandName },
+    user
   } = req
-  const { user, users, orders } = await createUserResponse(req.user, brandName)
-  return res.send({ user, users, orders })
+  return res.send(user)
 }
 
 
@@ -88,9 +87,7 @@ export const update = async (req, res) => {
 
 export const remove = async (req, res) => {
   const { params: { brandName }} = req
-  const user = await User.findOne(
-    { _id: req.user._id, brandName }
-  )
+  const user = await User.findOne({ _id: req.user._id, brandName })
   await user.remove()
   return res.status(200).send(user._id)
 }
@@ -108,10 +105,9 @@ export const signin = async (req, res) => {
   const valid = await bcrypt.compare(password, user.password)
   if (!valid) throw new CustomError({ field: 'password', message: 'Password does not match', statusCode: 404 })
   const { newAccessToken, newRefreshToken } = await createTokens(user, brandName)
-  const response = await createUserResponse(user, brandName)
   res.set('x-access-token', newAccessToken);
   res.set('x-refresh-token', newRefreshToken);
-  return res.send(response)
+  return res.send(user)
 }
 
 
@@ -163,10 +159,9 @@ export const reset = async (req, res) => {
   user.password = password
   await user.save()
   const { newAccessToken, newRefreshToken } = await createTokens(user, brandName)
-  const response = await createUserResponse(user, brandName)
   res.set('x-access-token', newAccessToken);
   res.set('x-refresh-token', newRefreshToken);
-  return res.send(response)
+  return res.send(user)
 }
 
 

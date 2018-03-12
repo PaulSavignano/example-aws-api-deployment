@@ -16,7 +16,6 @@ const sendGmail = async (props) => {
       fromSubject,
       fromBody,
     } = props
-    console.log('brandName is', brandName)
     const config = await Config.findOne({ brandName })
     if (!config) throw Error('No config found, email not sent')
     const {

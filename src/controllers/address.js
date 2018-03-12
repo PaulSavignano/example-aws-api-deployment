@@ -3,6 +3,9 @@ import { ObjectID } from 'mongodb'
 import Address from '../models/Address'
 import User from '../models/User'
 
+const limit = 9
+
+
 export const add = async (req, res) => {
   const {
     body,
@@ -13,15 +16,7 @@ export const add = async (req, res) => {
     user: ObjectID(req.user._id),
     values: body
   }).save()
-
-  const user = await User.findOneAndUpdate(
-    { _id: address.user, brandName },
-    { $push: { addresses: address._id }},
-    { new: true }
-  )
-  .populate({ path: 'addresses' })
-
-  return res.send({ user })
+  return res.send(address)
 }
 
 
@@ -36,35 +31,78 @@ export const adminAdd = async (req, res) => {
     user: ObjectID(userId),
     values: body
   }).save()
-
-  const user = await User.findOneAndUpdate(
-    { _id: address.user, brandName },
-    { $push: { addresses: address._id }},
-    { new: true }
-  )
-  .populate('addresses')
-
-  return res.send(user)
+  return res.send(address)
 }
 
 
 
 
-export const get = async (req, res) => {
+
+
+
+export const getUser = async (req, res) => {
   const {
     params: { brandName },
+    query: { lastId, limit },
     user
   } = req
-  const isAdmin = user.roles.some(role => role === 'admin')
-  if (isAdmin) {
-    const addresses = await Address.find({ brandName })
-    if (!addresses) throw 'No addresses found'
-    return res.send(addresses)
-  }
-  const address = await Address.find({ user: user._id, brandName })
-  if (!address) throw 'No address found'
+  const params = lastId ? { _id: { $gt: lastId }, brandName, user: user._id } : { brandName, user: user._id }
+  const addresses = await Address.find(params)
+  .limit(parseInt(limit))
   return res.send(addresses)
 }
+
+
+
+
+export const getId = async (req, res) => {
+  const {
+    params: { brandName, _id },
+    user
+  } = req
+  const address = await Address.findOne({ user: user._id, brandName, _id })
+  return res.send(address)
+}
+
+
+export const adminGetUser = async (req, res) => {
+  const {
+    params: { brandName },
+    query: { userId, page, limit },
+  } = req
+  const addresses = await Address.find({ brandName, user: userId })
+  .skip((parseInt(limit) * parseInt(page)) - parseInt(limit))
+  .limit(parseInt(limit))
+  return res.send(addresses)
+}
+
+
+export const adminGetId = async (req, res) => {
+  const {
+    params: { brandName, _id },
+    user
+  } = req
+  const address = await Address.findOne({ brandName, _id })
+  return res.send(address)
+}
+
+
+export const adminGetAll = async (req, res) => {
+  const {
+    params: { brandName },
+    query: { page, limit },
+  } = req
+  const addresses = await Address.find({ brandName })
+  .skip((parseInt(limit) * parseInt(page)) - parseInt(limit))
+  .limit(parseInt(limit))
+  return res.send(addresses)
+}
+
+
+
+
+
+
 
 
 
@@ -82,8 +120,7 @@ export const update = async (req, res) => {
     { $set: { values }},
     { new: true }
   )
-  const user = await User.findOne({ _id: address.user, brandName })
-  return res.send(user)
+  return res.send(address)
 }
 
 
@@ -101,9 +138,7 @@ export const adminUpdate = async (req, res) => {
     { $set: { values }},
     { new: true }
   )
-
-  const user = await User.findOne({ _id: address.user, brandName })
-  return res.send(user)
+  return res.send(address)
 }
 
 
@@ -115,25 +150,19 @@ export const remove = async (req, res) => {
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Address remove failed, invalid id')
   const address = await Address.findOneAndRemove({ _id })
-  await User.findOneAndUpdate(
-    { _id: address.user, brandName },
-    { $pull: { addresses:  address._id }},
-    { new: true }
-  )
-  const user = await User.findOne({ _id: req.user._id, brandName })
-  return res.send({ user })
+  return res.send(addresss)
 }
+
+
+
 
 export const adminRemove = async (req, res) => {
   const {
     params: { _id, brandName, userId },
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Address remove failed, invalid id')
+  const isOwner = req.user.roles.some(role => role === 'owner')
+  if (!isOwner) throw Error('Update address failed, unauthorized')
   const address = await Address.findOneAndRemove({ _id, brandName })
-  const user = await User.findOneAndUpdate(
-    { _id: address.user, brandName },
-    { $pull: { addresses:  address._id }},
-    { new: true }
-  )
-  return res.send({ address, user })
+  return res.send(address._id)
 }

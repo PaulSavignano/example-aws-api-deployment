@@ -38,13 +38,13 @@ export const add = async (req, res) => {
 
 
 export const get = async (req, res) => {
-  const { brandName } = req.params
-  //const products = await Product.find({ brandName })
-
+  const {
+    params: { brandName },
+    query: { lastId, limit },
+  } = req
+  const params = lastId ? { _id: { $gt: lastId }, brandName } : { brandName }
   const products = await Product.aggregate([
-    { $match: {
-      brandName,
-    }},
+    { $match: params },
     { $lookup: {
       from: 'reviews',
       localField: '_id',
@@ -58,7 +58,7 @@ export const get = async (req, res) => {
       reviews: { $size: "$reviews" }
     }}
   ])
-  console.log('products', products)
+  .limit(parseInt(limit))
   return res.send(products)
 }
 

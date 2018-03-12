@@ -5,8 +5,12 @@ import authenticate from '../middleware/authenticate'
 import {
   addBlogReview,
   addProductReview,
-  getAdminKind,
+  get,
   getId,
+  adminGetUser,
+  adminGetId,
+  adminGetAll,
+  adminGetKind,
   getKindId,
   getKind,
   remove,
@@ -18,10 +22,14 @@ const reviews = express.Router()
 reviews.post('/:brandName/blog-review', authenticate(['admin']), catchErrors(addBlogReview))
 reviews.post('/:brandName/product-review', authenticate(['admin']), catchErrors(addProductReview))
 
-reviews.get('/:brandName/admin-kind/:kind/:page', authenticate(['admin']), catchErrors(getAdminKind))
-reviews.get('/:brandName/id/:_id', authenticate(['admin','owner','user']), catchErrors(getId))
-reviews.get('/:brandName/kind-id/:kindId/:page', catchErrors(getKindId))
-reviews.get('/:brandName/kind/:kind/:page', authenticate(['admin','owner','user']), catchErrors(getKind))
+reviews.get('/:brandName/user', authenticate(['user']), catchErrors(get))
+reviews.get('/:brandName/user-id/:_id', authenticate(['user']), catchErrors(getId))
+reviews.get('/:brandName/admin-user/:userId', authenticate(['admin', 'owner']), catchErrors(adminGetUser))
+reviews.get('/:brandName/admin-kind/:kind', authenticate(['admin', 'owner']), catchErrors(adminGetKind))
+reviews.get('/:brandName/admin-id/:_id', authenticate(['admin', 'owner']), catchErrors(adminGetId))
+reviews.get('/:brandName/admin-all', authenticate(['admin', 'owner']), catchErrors(adminGetAll))
+reviews.get('/:brandName/kind-id/:kindId', catchErrors(getKindId))
+reviews.get('/:brandName/kind/:kind', authenticate(['admin','owner','user']), catchErrors(getKind))
 
 reviews.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
 reviews.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))

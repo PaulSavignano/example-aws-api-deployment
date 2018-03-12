@@ -7,7 +7,6 @@ import Address from './Address'
 import Order from './Order'
 
 const UserSchema = new Schema({
-  addresses: [{ type: Schema.ObjectId, ref: 'Address' }],
   brandName: { type: String, maxlength: 90, required: true },
   password: { type: String, required: true, maxlength: 500, minlength: 6 },
   roles: {
@@ -35,26 +34,18 @@ const UserSchema = new Schema({
   timestamps: true
 })
 
-function autopopulate(next) {
-  this.populate({ path: 'addresses', select: '-user' })
-  next()
-}
-
-UserSchema.pre('find', autopopulate)
-UserSchema.pre('findOne', autopopulate)
 
 UserSchema.methods.toJSON = function() {
   const user = this
   const userObject = user.toObject()
-  const { _id, addresses, roles, values } = userObject
-  return { _id, addresses, roles, values }
+  const { _id, roles, values } = userObject
+  return { _id, roles, values }
 }
 
 
-UserSchema.statics.findByCredentials = function(email, password) {
+UserSchema.statics.findByCredentials = async function(email, password) {
   const User = this
   return User.findOne({ 'values.email': email.toLowerCase() })
-  .populate({ path: 'addresses' })
   .then(user => {
     if (!user) throw new ObjectError({ email: 'User not found', status: 404 })
     return new Promise((resolve, reject) => {

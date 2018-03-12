@@ -32,16 +32,28 @@ export const adminAdd = async (req, res) => {
 
 
 export const adminGet = async (req, res) => {
-  const { brandName } = req.params
-  const users = await User.find({ brandName })
-  if (users) return res.send(users)
-  return
+  const {
+    params: { brandName },
+    query: { lastId, limit },
+  } = req
+  const params = lastId ? { _id: { $gt: lastId }, brandName } : { brandName }
+  const users = await User.find(params)
+  .limit(parseInt(limit))
+  return res.send(users)
+}
+
+export const adminGetId = async (req, res) => {
+  const {
+    params: { brandName },
+    query: { userId },
+  } = req
+  const users = await User.findOne({ brandName, _id: userId })
+  return res.send(user)
 }
 
 
 
-
-export const adminUpdate = async (req, res) => {
+export const adminUpdateValues = async (req, res) => {
   const {
     body: { values, type },
     params: { _id, brandName },
@@ -49,33 +61,36 @@ export const adminUpdate = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('User update failed, invalid id')
   const existingUser = await User.findOne({ _id, brandName })
   if (!existingUser) throw Error('User updated failed, user not found')
-  switch(type) {
-    case 'UPDATE_VALUES':
-      const updatedUser = await User.findOneAndUpdate(
-        { _id, brandName },
-        { $set: { values }},
-        { new: true }
-      )
-      .populate('addresses')
-      return res.send(updatedUser)
-    case 'UPDATE_ROLES':
-      const roles = values.owner ?
-      [ 'admin', 'owner', 'user' ]
-      :
-      values.admin ?
-      [ 'admin', 'user' ]
-      :
-      [ 'user' ]
-      const user = await User.findOneAndUpdate(
-        { _id },
-        { $set: { roles: roles }},
-        { new: true }
-      )
-      .populate('addresses')
-      return res.send(user)
-    default:
-      return
-  }
+  const updatedUser = await User.findOneAndUpdate(
+    { _id, brandName },
+    { $set: { values }},
+    { new: true }
+  )
+  return res.send(updatedUser)
+}
+
+
+export const adminUpdateRoles = async (req, res) => {
+  const {
+    body: { values, type },
+    params: { _id, brandName },
+  } = req
+  if (!ObjectID.isValid(_id)) throw Error('User update failed, invalid id')
+  const existingUser = await User.findOne({ _id, brandName })
+  if (!existingUser) throw Error('User updated failed, user not found')
+  const roles = values.owner ?
+    [ 'admin', 'owner', 'user' ]
+    :
+    values.admin ?
+    [ 'admin', 'user' ]
+    :
+    [ 'user' ]
+  const user = await User.findOneAndUpdate(
+    { _id },
+    { $set: { roles: roles }},
+    { new: true }
+  )
+  return res.send(user)
 }
 
 
