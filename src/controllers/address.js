@@ -40,60 +40,46 @@ export const adminAdd = async (req, res) => {
 
 
 
-export const getUser = async (req, res) => {
+export const get = async (req, res) => {
+  console.log('getting')
   const {
     params: { brandName },
-    query: { lastId, limit },
+    query: { lastId, limit, addressId },
     user
   } = req
-  const params = lastId ? { _id: { $gt: lastId }, brandName, user: user._id } : { brandName, user: user._id }
-  const addresses = await Address.find(params)
+
+  console.log('addressId', addressId)
+  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const idQuery = addressId && { _id: addressId }
+  const query = {
+    brandName,
+    user: user._id,
+    ...lastIdQuery,
+    ...idQuery,
+  }
+  console.log('query: ', query)
+  const addresses = await Address.find(query)
   .limit(parseInt(limit))
+  console.log('addresses', addresses)
   return res.send(addresses)
 }
 
 
-
-
-export const getId = async (req, res) => {
-  const {
-    params: { brandName, _id },
-    user
-  } = req
-  const address = await Address.findOne({ user: user._id, brandName, _id })
-  return res.send(address)
-}
-
-
-export const adminGetUser = async (req, res) => {
+export const adminGet = async (req, res) => {
   const {
     params: { brandName },
-    query: { userId, page, limit },
+    query: { lastId, limit, addressId, userId },
   } = req
-  const addresses = await Address.find({ brandName, user: userId })
-  .skip((parseInt(limit) * parseInt(page)) - parseInt(limit))
-  .limit(parseInt(limit))
-  return res.send(addresses)
-}
-
-
-export const adminGetId = async (req, res) => {
-  const {
-    params: { brandName, _id },
-    user
-  } = req
-  const address = await Address.findOne({ brandName, _id })
-  return res.send(address)
-}
-
-
-export const adminGetAll = async (req, res) => {
-  const {
-    params: { brandName },
-    query: { page, limit },
-  } = req
-  const addresses = await Address.find({ brandName })
-  .skip((parseInt(limit) * parseInt(page)) - parseInt(limit))
+  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const idQuery = addressId && { _id: addressId }
+  const userQuery = userId && { user: userId }
+  const addresses = await Address.find({
+    brandName,
+    user: user._id,
+    ...lastIdQuery,
+    ...idQuery,
+    ...userQuery,
+  })
   .limit(parseInt(limit))
   return res.send(addresses)
 }

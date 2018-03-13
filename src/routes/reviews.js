@@ -5,33 +5,24 @@ import authenticate from '../middleware/authenticate'
 import {
   addBlogReview,
   addProductReview,
+  adminRemove,
+  adminUpdate,
   get,
-  getId,
-  adminGetUser,
-  adminGetId,
-  adminGetAll,
-  adminGetKind,
-  getKindId,
-  getKind,
   remove,
   update,
 } from '../controllers/review'
 
 const reviews = express.Router()
 
-reviews.post('/:brandName/blog-review', authenticate(['admin']), catchErrors(addBlogReview))
-reviews.post('/:brandName/product-review', authenticate(['admin']), catchErrors(addProductReview))
+reviews.post('/:brandName/blog-review', authenticate(['user', 'admin', 'owner']), catchErrors(addBlogReview))
+reviews.post('/:brandName/product-review', authenticate(['admin', 'user', 'owner']), catchErrors(addProductReview))
 
-reviews.get('/:brandName/user', authenticate(['user']), catchErrors(get))
-reviews.get('/:brandName/user-id/:_id', authenticate(['user']), catchErrors(getId))
-reviews.get('/:brandName/admin-user/:userId', authenticate(['admin', 'owner']), catchErrors(adminGetUser))
-reviews.get('/:brandName/admin-kind/:kind', authenticate(['admin', 'owner']), catchErrors(adminGetKind))
-reviews.get('/:brandName/admin-id/:_id', authenticate(['admin', 'owner']), catchErrors(adminGetId))
-reviews.get('/:brandName/admin-all', authenticate(['admin', 'owner']), catchErrors(adminGetAll))
-reviews.get('/:brandName/kind-id/:kindId', catchErrors(getKindId))
-reviews.get('/:brandName/kind/:kind', authenticate(['admin','owner','user']), catchErrors(getKind))
+reviews.get('/:brandName', catchErrors(get))
 
-reviews.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
+reviews.patch('/:brandName/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(update))
+reviews.patch('/:brandName/admin/:_id', authenticate(['admin', 'owner']), catchErrors(adminUpdate))
+
 reviews.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))
+reviews.delete('/:brandName/admin/:_id', authenticate(['admin']), catchErrors(adminRemove))
 
 export default reviews

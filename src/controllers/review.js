@@ -3,8 +3,6 @@ import { ObjectID } from 'mongodb'
 import Review from '../models/Review'
 import Order from '../models/Order'
 
-const limit = 9
-
 export const addBlogReview = async (req, res) => {
   const {
     body: {
@@ -17,7 +15,8 @@ export const addBlogReview = async (req, res) => {
   } = req
   const review = await new Review({
     brandName,
-    kind: { kindId: kindId, kind: 'blog' },
+    kindId: kindId,
+    kind: 'blog',
     user: user._id,
     values,
   }).save()
@@ -43,7 +42,8 @@ export const addProductReview = async (req, res) => {
   if (userHasOrdered) {
     const review = await new Review({
       brandName,
-      kind: { kindId: kindId, kind: 'product' },
+      kindId: kindId,
+      kind: 'product',
       user: user._id,
       values,
     }).save()
@@ -60,99 +60,32 @@ export const addProductReview = async (req, res) => {
 
 
 
-
 export const get = async (req, res) => {
   const {
     params: { brandName },
-    query: { lastId, limit },
+    query: { kind, kindId, lastId, userId, limit },
     user
   } = req
-  const params = lastId ? { _id: { $gt: lastId }, brandName, user: user._id } : { brandName, user: user._id }
-  const reviews = await Review.find(params)
+  const kindQuery = kind && { kind }
+  const kindIdQuery = kindId && { kindId }
+  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const userIdQuery = userId && { _id: userId }
+  console.log('kindIdQuery', kindIdQuery)
+  const query = {
+    brandName,
+    ...kindQuery,
+    ...kindIdQuery,
+    ...lastIdQuery,
+    ...userIdQuery,
+  }
+  console.log('query', query)
+  const reviews = await Review.find(query)
   .limit(parseInt(limit))
-  return res.send(addresses)
-}
-
-export const getId = async (req, res) => {
-  const {
-    params: { brandName, _id },
-    user
-  } = req
-  const review = await Review.findOne({ user: user._id, brandName, _id })
-  return res.send(review)
-}
-
-
-export const adminGetUser = async (req, res) => {
-  const {
-    params: { brandName },
-    query: { userId, lastId, limit },
-    user
-  } = req
-  const params = lastId ? { _id: { $gt: lastId }, brandName, user: userId } : { brandName, user: userId }
-  const reviews = await Review.find({ brandName, user: userId })
-  .limit(parseInt(limit))
+  console.log('reviews', reviews)
   return res.send(reviews)
 }
 
 
-export const adminGetId = async (req, res) => {
-  const {
-    params: { brandName, _id },
-    user
-  } = req
-  const review = await Review.findOne({ brandName, _id })
-  return res.send(review)
-}
-
-
-export const adminGetAll = async (req, res) => {
-  const {
-    params: { brandName },
-    query: { lastId, limit },
-    user
-  } = req
-  const params = lastId ? { _id: { $gt: lastId }, brandName } : { brandName }
-  const reviews = await Review.find(params)
-  .limit(parseInt(limit))
-  return res.send(reviews)
-}
-
-
-export const getKindId = async (req, res) => {
-  const {
-    params: { brandName },
-    query: { kindId, lastId, limit },
-  } = req
-  const params = lastId ? { _id: { $gt: lastId }, brandName, 'kind.kindId': kindId } : { brandName, 'kind.kindId': kindId }
-  const reviews = await Review.find(params)
-  .limit(parseInt(limit))
-  return res.send(reviews)
-}
-
-
-export const getKind = async (req, res) => {
-  const {
-    params: { brandName },
-    query: { kind, lastId, limit },
-    user,
-  } = req
-  const params = lastId ? { _id: { $gt: lastId }, brandName, 'kind.kind': kind, user: user._id } : { brandName, 'kind.kind': kind, user: user._id }
-  const reviews = await Review.find(params)
-  .limit(parseInt(limit))
-  return res.send(reviews)
-}
-
-export const getAdminKind = async (req, res) => {
-  const {
-    params: { brandName },
-    query: { kind, lastId, limit },
-  } = req
-  const params = lastId ? { _id: { $gt: lastId }, brandName, 'kind.kind': kind } : { brandName, 'kind.kind': kind }
-  const reviews = await Review.find(params)
-  .limit(parseInt(limit))
-  return res.send(reviews)
-}
 
 
 

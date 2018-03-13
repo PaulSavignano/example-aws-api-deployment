@@ -70,14 +70,9 @@ export const get = async (req, res) => {
 
 export const update = async (req, res) => {
   const {
-    body: { type, values },
+    body: { values },
   } = req
-  req.user.values = {
-    firstName: values.firstName,
-    lastName: values.lastName,
-    email: values.email.toLowerCase(),
-    phone: values.phone
-  }
+  req.user.values = values
   const user = await req.user.save()
   return res.send(user)
 }
