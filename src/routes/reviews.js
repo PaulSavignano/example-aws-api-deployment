@@ -3,8 +3,7 @@ import express from 'express'
 import catchErrors from '../utils/catchErrors'
 import authenticate from '../middleware/authenticate'
 import {
-  addBlogReview,
-  addProductReview,
+  add,
   adminRemove,
   adminUpdate,
   get,
@@ -14,8 +13,7 @@ import {
 
 const reviews = express.Router()
 
-reviews.post('/:brandName/blog-review', authenticate(['user', 'admin', 'owner']), catchErrors(addBlogReview))
-reviews.post('/:brandName/product-review', authenticate(['admin', 'user', 'owner']), catchErrors(addProductReview))
+reviews.post('/:brandName', authenticate(['user', 'admin', 'owner']), catchErrors(add))
 
 reviews.get('/:brandName', catchErrors(get))
 

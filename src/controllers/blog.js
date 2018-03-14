@@ -40,7 +40,21 @@ export const get = async (req, res) => {
     query: { lastId, limit },
   } = req
   const params = lastId ? { _id: { $gt: lastId }, brandName } : { brandName }
-  const blogs = await Blog.find(params)
+  const blogs = await Blog.aggregate([
+    { $match: params },
+    { $lookup: {
+      from: 'reviews',
+      localField: '_id',
+      foreignField: 'item',
+      as: 'reviews'
+    }},
+    { $project: {
+      _id: "$$ROOT._id",
+      values: "$$ROOT.values",
+      stars: { $sum: "$reviews.values.rating" },
+      reviews: { $size: "$reviews" }
+    }}
+  ])
   .limit(parseInt(limit))
   return res.send(blogs)
 }

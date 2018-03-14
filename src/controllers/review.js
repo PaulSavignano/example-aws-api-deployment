@@ -3,10 +3,10 @@ import { ObjectID } from 'mongodb'
 import Review from '../models/Review'
 import Order from '../models/Order'
 
-export const addBlogReview = async (req, res) => {
+export const add = async (req, res) => {
   const {
     body: {
-      kindId,
+      item,
       kind,
       values,
     },
@@ -15,8 +15,8 @@ export const addBlogReview = async (req, res) => {
   } = req
   const review = await new Review({
     brandName,
-    kindId: kindId,
-    kind: 'blog',
+    item,
+    kind,
     user: user._id,
     values,
   }).save()
@@ -25,65 +25,39 @@ export const addBlogReview = async (req, res) => {
 }
 
 
-export const addProductReview = async (req, res) => {
-  const {
-    body: {
-      kindId,
-      kind,
-      values,
-    },
-    params: { brandName },
-    user
-  } = req
-  const userHasOrdered = await Order.findOne({
-    user: user._id,
-    'cart.items.productId': kindId
-  })
-  if (userHasOrdered) {
-    const review = await new Review({
-      brandName,
-      kindId: kindId,
-      kind: 'product',
-      user: user._id,
-      values,
-    }).save()
-    if (!review) throw Error('New review add error')
-    return res.send(review)
-  }
-  throw Error('User has not puchased that product before')
-}
-
-
-
-
-
-
 
 
 export const get = async (req, res) => {
   const {
     params: { brandName },
-    query: { kind, kindId, lastId, userId, limit },
+    query: { kind, item, lastId, userId, limit, reviewId },
     user
   } = req
   const kindQuery = kind && { kind }
-  const kindIdQuery = kindId && { kindId }
+  const itemQuery = item && { item: item }
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
-  const userIdQuery = userId && { _id: userId }
-  console.log('kindIdQuery', kindIdQuery)
+  const userIdQuery = userId && { user: userId }
+  const reviewIdQuery = reviewId && { _id: reviewId }
   const query = {
     brandName,
     ...kindQuery,
-    ...kindIdQuery,
+    ...itemQuery,
     ...lastIdQuery,
     ...userIdQuery,
+    ...reviewIdQuery,
   }
-  console.log('query', query)
+  if (item) {
+    const reviews = await Review.find(query)
+    .limit(parseInt(limit))
+    return res.send(reviews)
+  }
   const reviews = await Review.find(query)
   .limit(parseInt(limit))
-  console.log('reviews', reviews)
+  .populate('item')
   return res.send(reviews)
+
 }
+
 
 
 

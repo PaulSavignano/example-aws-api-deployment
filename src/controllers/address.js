@@ -41,14 +41,12 @@ export const adminAdd = async (req, res) => {
 
 
 export const get = async (req, res) => {
-  console.log('getting')
   const {
     params: { brandName },
     query: { lastId, limit, addressId },
     user
   } = req
 
-  console.log('addressId', addressId)
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = addressId && { _id: addressId }
   const query = {
@@ -57,10 +55,8 @@ export const get = async (req, res) => {
     ...lastIdQuery,
     ...idQuery,
   }
-  console.log('query: ', query)
   const addresses = await Address.find(query)
   .limit(parseInt(limit))
-  console.log('addresses', addresses)
   return res.send(addresses)
 }
 

@@ -4,7 +4,7 @@ const ReviewSchema = new Schema({
   brandName: { type: String, maxlength: 90, required: true },
   user: { type: Schema.ObjectId, ref: 'User' },
   kind: { type: String, trim: true },
-  kindId: { type: Schema.ObjectId, refPath: 'kind' },
+  item: { type: Schema.ObjectId, refPath: 'kind' },
   values: {
     text: { type: String, maxlength: 9000 },
     rating: { type: Number, min: 1, max: 5 }

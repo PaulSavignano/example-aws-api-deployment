@@ -48,7 +48,7 @@ export const get = async (req, res) => {
     { $lookup: {
       from: 'reviews',
       localField: '_id',
-      foreignField: 'kindId',
+      foreignField: 'item',
       as: 'reviews'
     }},
     { $project: {
