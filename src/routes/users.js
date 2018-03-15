@@ -16,6 +16,7 @@ import {
   requestEstimate
 } from '../controllers/user'
 import {
+  adminGet,
   adminAdd,
   adminRemove,
   adminUpdateValues,
@@ -24,8 +25,10 @@ import {
 
 const users = express.Router()
 
+
 users.post('/:brandName', catchErrors(add))
 users.get('/:brandName', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(get))
+users.get('/:brandName/admin', authenticate([ 'admin', 'owner' ]), catchErrors(adminGet))
 users.patch('/:brandName', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(update))
 users.delete('/:brandName', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(remove))
 users.post('/:brandName/signin', catchErrors(signin))

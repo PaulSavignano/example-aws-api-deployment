@@ -34,23 +34,23 @@ export const adminAdd = async (req, res) => {
 export const adminGet = async (req, res) => {
   const {
     params: { brandName },
-    query: { lastId, limit },
+    query: { lastId, limit, userId },
   } = req
-  const params = lastId ? { _id: { $gt: lastId }, brandName } : { brandName }
-  const users = await User.find(params)
+  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const userQuery = userId && { _id: userId }
+  const query = {
+    brandName,
+    ...lastIdQuery,
+    ...userQuery,
+  }
+  if (userId) {
+    const user = await User.findOne(query)
+    return res.send(user)
+  }
+  const users = await User.find(query)
   .limit(parseInt(limit))
   return res.send(users)
 }
-
-export const adminGetId = async (req, res) => {
-  const {
-    params: { brandName },
-    query: { userId },
-  } = req
-  const users = await User.findOne({ brandName, _id: userId })
-  return res.send(user)
-}
-
 
 
 export const adminUpdateValues = async (req, res) => {
