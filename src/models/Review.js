@@ -16,7 +16,7 @@ const ReviewSchema = new Schema({
 function autopopulate(next) {
   this.populate({
     path: 'user',
-    select: 'values _id'
+    select: 'values.firstName _id'
   })
   next()
 }

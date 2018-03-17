@@ -73,6 +73,6 @@ app.use((err, req, res, next) => {
   res.status(statusCode).send(err)
 })
 
-app.listen(port, () => console.info(`Api running at port: ${port}`))
+app.listen(port, () => console.info(`Server running at port: ${port}`))
 
 export default app

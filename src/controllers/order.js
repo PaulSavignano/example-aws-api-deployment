@@ -90,12 +90,13 @@ const createCharge = async ({
     })
     const order = await new Order({
       address: address._id,
+      brandName,
       cart,
       email: user.values.email,
       firstName: user.values.firstName,
-      brandName,
       lastName: user.values.lastName,
       paymentId: charge.id,
+      shipped: false,
       total: cart.total,
       user: user._id,
     }).save()
