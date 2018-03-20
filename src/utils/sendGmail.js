@@ -9,14 +9,14 @@ import shadows from './shadows'
 const sendGmail = async (props) => {
   try {
     const {
-      brandName,
+      appName,
       to,
       toSubject,
       toBody,
       fromSubject,
       fromBody,
     } = props
-    const config = await Config.findOne({ brandName })
+    const config = await Config.findOne({ appName })
     if (!config) throw Error('No config found, email not sent')
     const {
       gmailUser,
@@ -25,8 +25,8 @@ const sendGmail = async (props) => {
       oauthClientSecret,
       oauthRefreshToken
     } = config.values
-    const brand = await Brand.findOne({ brandName })
-    const theme = await Theme.findOne({ brandName })
+    const brand = await Brand.findOne({ appName })
+    const theme = await Theme.findOne({ appName })
     if (!brand) throw Error('Could not find brand, email not sent')
     const {
       business: {
@@ -74,7 +74,7 @@ const sendGmail = async (props) => {
          <main>
           ${body}
           <br/><br/>
-          <a href="https://${brandName}" style="text-decoration: none; color: ${primary}; font-family: ${name.fontFamily}; font-size: ${name.fontSize}; font-weight: ${name.fontWeight}; letter-spacing: ${name.letterSpacing};  text-shadow: ${name.textShadow};">
+          <a href="https://${appName}" style="text-decoration: none; color: ${primary}; font-family: ${name.fontFamily}; font-size: ${name.fontSize}; font-weight: ${name.fontWeight}; letter-spacing: ${name.letterSpacing};  text-shadow: ${name.textShadow};">
             ${image && image.src ? `
               <img
                 src="assets.savignano.io/${image.src}"

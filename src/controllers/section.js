@@ -10,14 +10,14 @@ import Section from '../models/Section'
 export const add = async (req, res) => {
   const {
     body: { pageId, pageSlug, values },
-    params: { brandName }
+    appName,
   } = req
   const _id = new ObjectID()
 
   const newImageValues = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     ...values,
     backgroundImage: await handleImage({
-      path: `${brandName}/${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
+      path: `${appName}/${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : null
@@ -26,7 +26,7 @@ export const add = async (req, res) => {
 
   const section = await new Section({
     _id,
-    brandName,
+    appName,
     page: ObjectID(pageId),
     pageSlug,
     values: newValues
@@ -34,7 +34,7 @@ export const add = async (req, res) => {
   if (!section) throw Error('Section add failed')
 
   const page = await Page.findOneAndUpdate(
-    { _id: section.page, brandName },
+    { _id: section.page, appName },
     { $push: { sections: section._id }},
     { new: true }
   )
@@ -48,8 +48,8 @@ export const add = async (req, res) => {
 
 
 export const get = async (req, res) => {
-  const { brandName } = req.params
-  const sections = await Section.find({ brandName })
+  const { appName } = req
+  const sections = await Section.find({ appName })
   return res.send(sections)
 }
 
@@ -65,7 +65,8 @@ export const update = async (req, res) => {
       pageSlug,
       values,
     },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Section update failed, invalid id')
   oldSrcs.length && await deleteFiles(oldSrcs)
@@ -74,7 +75,7 @@ export const update = async (req, res) => {
   const newImageValues = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     ...values,
     backgroundImage: await handleImage({
-      path: `${brandName}/${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
+      path: `${appName}/${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : null
@@ -82,7 +83,7 @@ export const update = async (req, res) => {
   const newValues = newImageValues ? newImageValues : values
 
   const section = await Section.findOneAndUpdate(
-    { _id, brandName },
+    { _id, appName },
     { $set: {
       values: newValues,
     }},
@@ -100,10 +101,11 @@ export const update = async (req, res) => {
 export const updateComponents = async (req, res) => {
   const {
     body: { componentIds },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   const section = await Section.findOneAndUpdate(
-    { _id, brandName },
+    { _id, appName },
     { $set: { components: componentIds }},
     { new: true }
   )
@@ -118,14 +120,15 @@ export const updateComponents = async (req, res) => {
 
 export const remove = async (req, res) => {
   const {
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Section remove failed, invalid id')
-  const section = await Section.findOne({ _id, brandName })
+  const section = await Section.findOne({ _id, appName })
   if (!section) throw Error('Section delete failed, no section found')
   await section.remove()
   const page = await Page.findOneAndUpdate(
-    { _id: section.page, brandName },
+    { _id: section.page, appName },
     { $pull: { sections: section._id }},
     { new: true }
   )

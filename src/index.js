@@ -6,6 +6,7 @@ import helmet from 'helmet'
 import path from 'path'
 
 import mongoose from './db/mongoose'
+import setAppName from './middleware/setAppName'
 import forceSSL from './middleware/forceSSL'
 
 import catchErrors from './utils/catchErrors'
@@ -41,21 +42,22 @@ app.use((req, res, next) => {
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.use('/api/addresses', addresses)
-app.use('/api/configs', configs)
-app.use('/api/blogs', blogs)
-app.use('/api/brands', brands)
-app.use('/api/carts', carts)
-app.use('/api/components', components)
-app.use('/api/orders', orders)
-app.use('/api/pages', pages)
-app.use('/api/products', products)
-app.use('/api/reviews', reviews)
-app.use('/api/sections', sections)
-app.use('/api/themes', themes)
-app.use('/api/users', users)
 
-app.use('/api/moverbase', moverbase)
+app.use('/api/:appName/addresses', setAppName, addresses)
+app.use('/api/:appName/configs', setAppName, configs)
+app.use('/api/:appName/blogs', setAppName, blogs)
+app.use('/api/:appName/brands', setAppName, brands)
+app.use('/api/:appName/carts', setAppName, carts)
+app.use('/api/:appName/components', setAppName, components)
+app.use('/api/:appName/orders', setAppName, orders)
+app.use('/api/:appName/pages', setAppName, pages)
+app.use('/api/:appName/products', setAppName, products)
+app.use('/api/:appName/reviews', setAppName, reviews)
+app.use('/api/:appName/sections', setAppName, sections)
+app.use('/api/:appName/themes', setAppName, themes)
+app.use('/api/:appName/users', setAppName, users)
+
+app.use('/moverbase', moverbase)
 
 app.get('/', (req, res) => {
   res.send(`

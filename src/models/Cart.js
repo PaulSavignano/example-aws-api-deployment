@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 
 const CartSchema = new Schema({
-  brandName: { type: String, maxlength: 90, required: true },
+  appName: { type: String, maxlength: 90, required: true },
   createdAt: { type: Date, default: Date.now, expires: '60d' },
   items: [{
     image: {

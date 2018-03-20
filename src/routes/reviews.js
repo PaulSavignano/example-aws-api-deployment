@@ -13,14 +13,14 @@ import {
 
 const reviews = express.Router()
 
-reviews.post('/:brandName', authenticate(['user', 'admin', 'owner']), catchErrors(add))
+reviews.post('/', authenticate(['user', 'admin', 'owner']), catchErrors(add))
 
-reviews.get('/:brandName', catchErrors(get))
+reviews.get('/', catchErrors(get))
 
-reviews.patch('/:brandName/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(update))
-reviews.patch('/:brandName/admin/:_id', authenticate(['admin', 'owner']), catchErrors(adminUpdate))
+reviews.patch('/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(update))
+reviews.patch('/admin/:_id', authenticate(['admin', 'owner']), catchErrors(adminUpdate))
 
-reviews.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))
-reviews.delete('/:brandName/admin/:_id', authenticate(['admin']), catchErrors(adminRemove))
+reviews.delete('/:_id', authenticate(['admin']), catchErrors(remove))
+reviews.delete('/admin/:_id', authenticate(['admin']), catchErrors(adminRemove))
 
 export default reviews

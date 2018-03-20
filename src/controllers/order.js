@@ -23,12 +23,12 @@ export const add = async (req, res, next) => {
       zip,
       cart
     },
-    params: { brandName },
+    appName,
     user
   } = req
   if (fullAddress === 'newAddress') {
     const address = await new Address({
-      brandName,
+      appName,
       user: ObjectID(user._id),
       values: {
         name,
@@ -40,7 +40,7 @@ export const add = async (req, res, next) => {
       }
     }).save()
     const updatedUser = await User.findOneAndUpdate(
-      { _id: user._id, brandName },
+      { _id: user._id, appName },
       { $push: { addresses: address._id }},
       { new: true }
     ).populate({ path: 'addresses',  select: '-user' })
@@ -49,19 +49,19 @@ export const add = async (req, res, next) => {
       address,
       cart,
       stripeToken,
-      brandName,
+      appName,
       res,
       user: updatedUser,
       newUserAddress: true,
     })
   } else {
-    const address = await Address.findOne({ _id: fullAddress, brandName })
+    const address = await Address.findOne({ _id: fullAddress, appName })
     if (!address) throw Error('That address does not exist')
     await createCharge({
       address,
       cart,
       stripeToken,
-      brandName,
+      appName,
       res,
       user,
     })
@@ -71,14 +71,14 @@ export const add = async (req, res, next) => {
 const createCharge = async ({
   address,
   cart,
-  brandName,
+  appName,
   res,
   stripeToken,
   user,
   newUserAddress,
 }) => {
   try {
-    const config = await Config.findOne({ brandName })
+    const config = await Config.findOne({ appName })
     const { values: { stripeSkLive, stripeSkTest }} = config
     if (!stripeSkLive && !stripeSkTest) throw Error('Unable to create charge, no stripe api key found')
     const stripe = require("stripe")(stripeSkLive || stripeSkTest)
@@ -86,11 +86,11 @@ const createCharge = async ({
       amount: Math.round(cart.total),
       currency: "usd",
       source: stripeToken,
-      description: `${brandName} Order`
+      description: `${appName} Order`
     })
     const order = await new Order({
       address: address._id,
-      brandName,
+      appName,
       cart,
       email: user.values.email,
       firstName: user.values.firstName,
@@ -124,7 +124,7 @@ const createCharge = async ({
       <div>${city}, ${state} ${zip}</div>
     `
     const mailData = await sendGmail({
-      brandName,
+      appName,
       to: user.values.email,
       toSubject: 'Thank you for your order!',
       toBody: `
@@ -136,7 +136,7 @@ const createCharge = async ({
       fromBody: `
         <p>${user.values.firstName} ${user.values.lastName} just placed order an order!</p>
         ${htmlOrder}
-        <p>Once shipped, you can mark the item as shipped in at <a href="${brandName}/admin/orders">${brandName}/admin/orders</a> to send confirmation to ${user.values.firstName}.</p>
+        <p>Once shipped, you can mark the item as shipped in at <a href="${appName}/admin/orders">${appName}/admin/orders</a> to send confirmation to ${user.values.firstName}.</p>
       `
     })
   } catch (err) {
@@ -155,15 +155,16 @@ const createCharge = async ({
 
 
 export const get = async (req, res) => {
+  console.log('getting')
   const {
-    params: { brandName },
+    appName,
     query: { lastId, limit, orderId },
     user
   } = req
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = orderId && { _id: orderId }
   const query = {
-    brandName,
+    appName,
     user: user._id,
     ...lastIdQuery,
     ...idQuery,
@@ -181,14 +182,14 @@ export const get = async (req, res) => {
 
 export const adminGet = async (req, res) => {
   const {
-    params: { brandName },
+    appName,
     query: { lastId, limit, orderId, userId },
   } = req
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = orderId && { _id: orderId }
   const userQuery = userId && { user: userId }
   const query = {
-    brandName,
+    appName,
     ...lastIdQuery,
     ...idQuery,
     ...userQuery,
@@ -218,12 +219,12 @@ export const adminGet = async (req, res) => {
 
 export const getSalesByYear = async (req, res) => {
   const {
-    params: { brandName },
+    appName,
     user
   } = req
   const sales = await Order.aggregate([
     { $match: {
-      brandName,
+      appName,
     }},
     { $project: {
       cYear: { $dateToString: { format: "%Y", date: new Date() }},
@@ -269,12 +270,12 @@ export const getSalesByYear = async (req, res) => {
 
 export const getSalesByMonth = async (req, res) => {
   const {
-    params: { brandName },
+    appName,
     user
   } = req
   const sales = await Order.aggregate([
     { $match: {
-      brandName,
+      appName,
       createdAt: { "$gte": new Date(new Date().getFullYear() - 1, 0, 1) }
     }},
     { $project: {
@@ -322,14 +323,14 @@ export const getSalesByMonth = async (req, res) => {
 
 export const getSalesByDay = async (req, res) => {
   const {
-    params: { brandName },
+    appName,
     user
   } = req
   const current = new Date()
   const last = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
   const sales = await Order.aggregate([
     { $match: {
-      brandName,
+      appName,
       createdAt: { "$gte": new Date(new Date().getFullYear() - 1, 0, 1) }
     }},
     { $project: {
@@ -390,8 +391,8 @@ export const getSalesByDay = async (req, res) => {
 
 
 export const getAdmin = async (req, res) => {
-  const { brandName } = req
-  const orders = await Order.find({ brandName })
+  const { appName } = req
+  const orders = await Order.find({ appName })
   return res.send(orders)
 }
 
@@ -400,12 +401,13 @@ export const getAdmin = async (req, res) => {
 export const update = async (req, res) => {
   const {
     body: { type },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Order update failed, Invalid id')
   if (type === 'SHIPPED') {
     const order = await Order.findOneAndUpdate(
-      { _id, brandName },
+      { _id, appName },
       { $set: { shipped: true, shipDate: new Date() }},
       { new: true }
     )
@@ -413,7 +415,7 @@ export const update = async (req, res) => {
     const { name, phone, street, city, state, zip } = address
     res.send(order)
     sendGmail({
-      brandName,
+      appName,
       to: email,
       toSubject: 'Your order has shipped!',
       toBody: `

@@ -11,9 +11,9 @@ import {
 
 const configs = express.Router()
 
-configs.post('/:brandName', authenticate([ 'owner' ]), catchErrors(add))
-configs.get('/:brandName', authenticate([ 'owner' ]), catchErrors(get))
-configs.patch('/:brandName/:_id', authenticate([ 'owner' ]), catchErrors(update))
-configs.delete('/:brandName/:_id', authenticate([ 'owner' ]), catchErrors(remove))
+configs.post('/', authenticate([ 'owner' ]), catchErrors(add))
+configs.get('/', authenticate([ 'owner' ]), catchErrors(get))
+configs.patch('/:_id', authenticate([ 'owner' ]), catchErrors(update))
+configs.delete('/:_id', authenticate([ 'owner' ]), catchErrors(remove))
 
 export default configs

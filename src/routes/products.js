@@ -12,10 +12,10 @@ import {
 
 const products = express.Router()
 
-products.post('/:brandName', authenticate(['admin']), catchErrors(add))
-products.get('/:brandName', catchErrors(get))
-products.get('/:brandName/:_id', catchErrors(getId))
-products.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
-products.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))
+products.post('/', authenticate(['admin']), catchErrors(add))
+products.get('/', catchErrors(get))
+products.get('/:_id', catchErrors(getId))
+products.patch('/:_id', authenticate(['admin']), catchErrors(update))
+products.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 
 export default products

@@ -3,6 +3,8 @@ import { ObjectID } from 'mongodb'
 import { getTime } from '../utils/formatDate'
 import { uploadFile, deleteFiles } from '../utils/s3'
 import Config from '../models/Config'
+import Blog from '../models/Blog'
+import Product from '../models/Product'
 import Brand from '../models/Brand'
 import handleImage from '../utils/handleImage'
 import Page from '../models/Page'
@@ -10,11 +12,11 @@ import Theme from '../models/Theme'
 
 
 export const add = async (req, res) => {
-  const { brandName } = req.params
-  const config = await new Config({ brandName }).save()
-  const page = await new Page({ brandName, 'values.name': 'Home', slug: 'home' }).save()
-  const brand = await new Brand({ brandName, pages: page._id }).save()
-  const theme = await new Theme({ brandName }).save()
+  const { appName } = req
+  const config = await new Config({ appName }).save()
+  const page = await new Page({ appName, 'values.name': 'Home', slug: 'home' }).save()
+  const brand = await new Brand({ appName, pages: page._id }).save()
+  const theme = await new Theme({ appName }).save()
   return res.send({
     brand,
     page,
@@ -24,8 +26,8 @@ export const add = async (req, res) => {
 
 
 export const get = async (req, res) => {
-  const { brandName } = req.params
-  const brand = await Brand.find({ brandName })
+  const { appName } = req
+  const brand = await Brand.findOne({ appName })
   if (!brand) throw 'No brand found'
   res.send(brand)
 }
@@ -35,12 +37,9 @@ export const get = async (req, res) => {
 // Update brand
 export const update = async (req, res) => {
   const {
-    body: {
-      brandParam,
-      oldImageSrc,
-      values,
-    },
-    params: { _id, brandName }
+    body: { brandParam, oldImageSrc, values },
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Brand update failed, Invalid id')
   oldImageSrc && await deleteFiles([{ Key: oldImageSrc }])
@@ -48,7 +47,7 @@ export const update = async (req, res) => {
   const valuesWithNewImage = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${brandName}/${brandParam}-image_${getTime()}.${values.image.ext}`,
+      path: `${appName}/${brandParam}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
   } : null
@@ -56,7 +55,7 @@ export const update = async (req, res) => {
 
   if (brandParam) {
     const brand = await Brand.findOneAndUpdate(
-      { _id, brandName },
+      { _id, appName },
       { $set: {
         [brandParam]: newValues
       }},
@@ -77,10 +76,11 @@ export const update = async (req, res) => {
 export const updatePages = async (req, res) => {
   const {
     body: { pageIds },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   const brand = await Brand.findOneAndUpdate(
-    { _id, brandName },
+    { _id, appName },
     { $set: { pages: pageIds }},
     { new: true }
   )
@@ -96,9 +96,12 @@ export const updatePages = async (req, res) => {
 
 // Delete
 export const remove = async (req, res) => {
-  const { _id, brandName } = req.params
+  const {
+    appName,
+    params: { _id }
+  } = req
   if (!ObjectID.isValid(_id)) throw Error('Brand remove failed, Invalid id')
-  const brand = await Brand.findOne({ _id, brandName })
+  const brand = await Brand.findOne({ _id, appName })
   await brand.remove()
   if (!brand) throw 'Brand remove Brand.findOneAndRemove() error'
   return res.send(brand._id)

@@ -4,7 +4,7 @@ import { ObjectID } from 'mongodb'
 
 const handleItemImages = async ({
   _id,
-  brandName,
+  appName,
   items,
   pageSlug,
   kind,
@@ -16,7 +16,7 @@ const handleItemImages = async ({
         kind: item.kind,
         _id: itemId,
         image: await handleImage({
-          path: `${brandName}/${pageSlug}/${kind}-${_id}-${item.kind}-${itemId}_${getTime()}.${item.image.ext}`,
+          path: `${appName}/${pageSlug}/${kind}-${_id}-${item.kind}-${itemId}_${getTime()}.${item.image.ext}`,
           image: item.image,
         })
       }

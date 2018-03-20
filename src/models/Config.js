@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 
 const ConfigSchema = new Schema({
-  brandName: { type: String, maxlength: 90, required: true, unique: true },
+  appName: { type: String, maxlength: 90, required: true, unique: true },
   values: {
     gmailUser: { type: String, trim: true, maxlength: 150 },
     moverbaseKey: { type: String, trim: true, maxlength: 150 },

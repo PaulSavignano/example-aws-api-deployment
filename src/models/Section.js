@@ -7,7 +7,7 @@ import { deleteFiles } from '../utils/s3'
 import { alignItems, flexFlow, justifyContent } from '../utils/fieldOptions'
 
 const SectionSchema = new Schema({
-  brandName: { type: String, maxlength: 90, required: true },
+  appName: { type: String, maxlength: 90, required: true },
   components: [{ type: Schema.Types.ObjectId, ref: 'Component' }],
   page: { type: Schema.ObjectId, ref: 'Page' },
   pageSlug: { type: String, trim: true, maxlength: 100 },

@@ -13,10 +13,10 @@ import {
 
 const brands = express.Router()
 
-brands.post('/:brandName', authenticate(['admin']), catchErrors(add))
-brands.get('/:brandName', catchErrors(get))
-brands.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
-brands.patch('/:brandName/:_id/update-pages', authenticate(['admin']), catchErrors(updatePages))
-brands.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))
+brands.post('/', authenticate(['admin']), catchErrors(add))
+brands.get('/', catchErrors(get))
+brands.patch('/:_id', authenticate(['admin']), catchErrors(update))
+brands.patch('/:_id/update-pages', authenticate(['admin']), catchErrors(updatePages))
+brands.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 
 export default brands

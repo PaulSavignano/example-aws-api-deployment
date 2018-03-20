@@ -12,10 +12,10 @@ import catchErrors from '../utils/catchErrors'
 
 const blogs = express.Router()
 
-blogs.post('/:brandName', authenticate(['admin']), catchErrors(add))
-blogs.get('/:brandName', catchErrors(get))
-blogs.get('/:brandName/:_id', catchErrors(getId))
-blogs.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
-blogs.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))
+blogs.post('/', authenticate(['admin']), catchErrors(add))
+blogs.get('/', catchErrors(get))
+blogs.get('/:_id', catchErrors(getId))
+blogs.patch('/:_id', authenticate(['admin']), catchErrors(update))
+blogs.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 
 export default blogs

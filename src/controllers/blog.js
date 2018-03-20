@@ -8,14 +8,14 @@ import handleImage from '../utils/handleImage'
 export const add = async (req, res) => {
   const {
     body: { values },
-    params: { brandName }
+    appName,
   } = req
   const _id = new ObjectID()
 
   const valuesWithNewImage = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${brandName}/blogs/${values.title}-${_id}-image_${getTime()}.${values.image.ext}`,
+      path: `${appName}/blogs/${values.title}-${_id}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
   } : null
@@ -24,7 +24,7 @@ export const add = async (req, res) => {
 
   const blog = await new Blog({
     _id,
-    brandName,
+    appName,
     values: newValues,
   }).save()
   if (!blog) throw Error('No blog was found')
@@ -36,10 +36,10 @@ export const add = async (req, res) => {
 
 export const get = async (req, res) => {
   const {
-    params: { brandName },
+    appName,
     query: { lastId, limit },
   } = req
-  const params = lastId ? { _id: { $gt: lastId }, brandName } : { brandName }
+  const params = lastId ? { _id: { $gt: lastId }, appName } : { appName }
   const blogs = await Blog.aggregate([
     { $match: params },
     { $lookup: {
@@ -64,9 +64,12 @@ export const get = async (req, res) => {
 
 
 export const getId = async (req, res) => {
-  const { brandName, _id } = req.params
+  const {
+    appName,
+    params: { _id }
+  } = req
   if (!ObjectID.isValid(_id)) throw Error('Blog not found, invalid id')
-  const blog = await Blog.findOne({ brandName, _id  })
+  const blog = await Blog.findOne({ appName, _id  })
   if (!blog) throw Error('That blog was not found')
   return res.send(blog)
 }
@@ -77,7 +80,8 @@ export const getId = async (req, res) => {
 export const update = async (req, res) => {
   const {
     body: { values, oldSrcs, published },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Blog update error, Invalid id')
   if (values) {
@@ -86,14 +90,14 @@ export const update = async (req, res) => {
     const valuesWithNewImage = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
       ...values,
       image: await handleImage({
-        path: `${brandName}/blogs/${values.title}-${_id}-image_${getTime()}.${values.image.ext}`,
+        path: `${appName}/blogs/${values.title}-${_id}-image_${getTime()}.${values.image.ext}`,
         image: values.image,
       })
     } : null
     const newValues = valuesWithNewImage ? valuesWithNewImage : values
 
     const blog = await Blog.findOneAndUpdate(
-      { _id, brandName },
+      { _id, appName },
       { $set: { values: newValues }},
       { new: true }
     )
@@ -101,7 +105,7 @@ export const update = async (req, res) => {
     return res.send(blog)
   } else {
     const blog = await Blog.findOneAndUpdate(
-      { _id, brandName },
+      { _id, appName },
       { $set: { published }},
       { new: true }
     )
@@ -116,10 +120,11 @@ export const update = async (req, res) => {
 
 export const remove = async (req, res) => {
   const {
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Blog remove error, Invalid id')
-  const blog = await Blog.findOne({ _id, brandName })
+  const blog = await Blog.findOne({ _id, appName })
   await blog.remove()
   if (!blog) throw Error('That blog was not found')
   return res.send(blog._id)

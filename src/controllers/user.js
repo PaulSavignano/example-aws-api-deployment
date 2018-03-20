@@ -19,35 +19,35 @@ export const add = async (req, res) => {
       lastName,
       password
     },
-    params: { brandName }
+    appName
   } = req
   if ( !email || !firstName || !firstName || !password) throw Error('You must provide all fields')
-  const existingUser = await User.findOne({ 'values.email': email.toLowerCase(), brandName })
+  const existingUser = await User.findOne({ 'values.email': email.toLowerCase(), appName })
   if (existingUser) throw new CustomError({ field: 'email', message: 'That user already exists', statusCode: 400 })
   const user = await new User({
-    brandName,
+    appName,
     password,
     values: { email: email.toLowerCase(), firstName, lastName }
   }).save()
 
-  const { newAccessToken, newRefreshToken } = await createTokens(user, brandName)
+  const { newAccessToken, newRefreshToken } = await createTokens(user, appName)
   const { values } = user
   res.set('x-access-token', newAccessToken)
   res.set('x-refresh-token', newRefreshToken)
   res.send(user)
   return sendGmail({
-    brandName,
+    appName,
     to: values.email,
-    toSubject: `Welcome to ${brandName}!`,
+    toSubject: `Welcome to ${appName}!`,
     toBody: `
       <p>Hi ${values.firstName},</p>
-      <p>Thank you for joining ${brandName}!</p>
-      <p>I hope you enjoy our offerings.  You may modify your profile settings at <a href="${brandName}/user/profile">${brandName}/user/profile</a>.</p>
+      <p>Thank you for joining ${appName}!</p>
+      <p>I hope you enjoy our offerings.  You may modify your profile settings at <a href="${appName}/user/profile">${appName}/user/profile</a>.</p>
       <p>Please let us know if there is anything we can do to better help you.</p>
     `,
-    fromSubject: `New ${brandName} user!`,
+    fromSubject: `New ${appName} user!`,
     fromBody: `
-      <p>New user ${values.firstName} ${values.lastName} just signed up at ${brandName}.</p>
+      <p>New user ${values.firstName} ${values.lastName} just signed up at ${appName}.</p>
       `
   })
 }
@@ -57,7 +57,7 @@ export const add = async (req, res) => {
 
 export const get = async (req, res) => {
   const {
-    params: { brandName },
+    appName,
     user
   } = req
   return res.send(user)
@@ -81,8 +81,8 @@ export const update = async (req, res) => {
 
 
 export const remove = async (req, res) => {
-  const { params: { brandName }} = req
-  const user = await User.findOne({ _id: req.user._id, brandName })
+  const { appName } = req
+  const user = await User.findOne({ _id: req.user._id, appName })
   await user.remove()
   return res.status(200).send(user._id)
 }
@@ -93,13 +93,13 @@ export const remove = async (req, res) => {
 export const signin = async (req, res) => {
   const {
     body: { email, password },
-    params: { brandName }
+    appName
   } = req
-  const user = await User.findOne({ 'values.email': email.toLowerCase(), brandName })
+  const user = await User.findOne({ 'values.email': email.toLowerCase(), appName })
   if (!user) throw new CustomError({ field: 'email', message: 'Email not found', statusCode: 404 })
   const valid = await bcrypt.compare(password, user.password)
   if (!valid) throw new CustomError({ field: 'password', message: 'Password does not match', statusCode: 404 })
-  const { newAccessToken, newRefreshToken } = await createTokens(user, brandName)
+  const { newAccessToken, newRefreshToken } = await createTokens(user, appName)
   res.set('x-access-token', newAccessToken);
   res.set('x-refresh-token', newRefreshToken);
   return res.send(user)
@@ -111,20 +111,20 @@ export const signin = async (req, res) => {
 export const recovery = async (req, res, next) => {
   const {
     body,
-    params: { brandName }
+    appName
   } = req
   const resetToken = await createToken()
-  const user = await User.findOne({ 'values.email': body.email.toLowerCase(), brandName })
+  const user = await User.findOne({ 'values.email': body.email.toLowerCase(), appName })
   if (!user) throw new CustomError({ field: 'email', message: 'User not found', statusCode: 404 })
-  const path = `${brandName}/user/reset/${resetToken}`
+  const path = `${appName}/user/reset/${resetToken}`
   const newResetToken = await new ResetToken({
-    brandName,
+    appName,
     resetToken,
     user: user._id
   }).save()
   const { firstName, email } = user.values
   sendGmail({
-    brandName,
+    appName,
     to: email,
     toSubject: 'Reset Password',
     toBody: `
@@ -146,14 +146,15 @@ export const recovery = async (req, res, next) => {
 export const reset = async (req, res) => {
   const {
     body: { password },
-    params: { brandName, resetToken }
+    appName,
+    params: { resetToken }
   } = req
-  const token = await ResetToken.findOne({ resetToken, brandName }).populate('user')
+  const token = await ResetToken.findOne({ resetToken, appName }).populate('user')
   const { user } = token
   if (!user) throw Error('your reset token has expired')
   user.password = password
   await user.save()
-  const { newAccessToken, newRefreshToken } = await createTokens(user, brandName)
+  const { newAccessToken, newRefreshToken } = await createTokens(user, appName)
   res.set('x-access-token', newAccessToken);
   res.set('x-refresh-token', newRefreshToken);
   return res.send(user)
@@ -170,21 +171,21 @@ export const contact = async (req, res) => {
       message,
       phone
     },
-    params: { brandName }
+    appName
   } = req
   if (!firstName || !email || !message) throw Error('All fields are required')
-  const brand = await Brand.findOne({ brandName })
+  const brand = await Brand.findOne({ appName })
   if (!brand) throw Error('Contact failed')
   const { name } = brand.business.values
   const into = await sendGmail({
-    brandName,
+    appName,
     to: email,
     toSubject: `Thank you for contacting ${name}!`,
     name: firstName,
     toBody: `<p>Thank you for contacting ${name}.  We will respond to your request shortly!</p>`,
     fromSubject: `New Contact Request`,
     fromBody: `
-      <p>${firstName} just contacted you through ${brandName}.</p>
+      <p>${firstName} just contacted you through ${appName}.</p>
       <div>Phone: ${phone ? phone : 'not provided'}</div>
       <div>Email: ${email}</div>
       <div>Message: ${message}</div>

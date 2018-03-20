@@ -6,16 +6,13 @@ import Product from '../models/Product'
 
 export const add = async (req, res) => {
   const {
-    body: {
-      productId,
-      productQty
-    },
-    params: { brandName }
+    body: { productId, productQty },
+    appName,
   } = req
-  const product = await Product.findOne({ _id: productId, brandName })
+  const product = await Product.findOne({ _id: productId, appName })
   const { price, name } = product.values
   const cart = await new Cart({
-    brandName,
+    appName,
     items: [{
       productId,
       productQty,
@@ -36,10 +33,11 @@ export const add = async (req, res) => {
 
 export const getId = async (req, res) => {
   const {
-    params: { _id, brandName }
+    appName,
+    params: { _id },
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Get cart by id failed, Invalid id')
-  const cart = await Cart.findOne({ _id, brandName })
+  const cart = await Cart.findOne({ _id, appName })
   if (!cart) throw Error('No cart found')
   return res.send(cart)
 }
@@ -50,10 +48,11 @@ export const getId = async (req, res) => {
 export const update = async (req, res) => {
   const {
     body: { type, productId, productQty },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Cart update failed, Invalid id')
-  const cart = await Cart.findOne({ _id, brandName })
+  const cart = await Cart.findOne({ _id, appName })
   if (!cart) throw Error('cart not found')
   const index = cart.items.map(i => i.productId.toHexString()).indexOf(productId)
   if (index !== -1) {
@@ -110,7 +109,7 @@ export const update = async (req, res) => {
         return cart
     }
   } else {
-    const product = await Product.findOne({ _id: productId, brandName })
+    const product = await Product.findOne({ _id: productId, appName })
     cart.total = cart.total + ((product.values.price * productQty) + (product.values.price * productQty) * .075)
     cart.subTotal = cart.subTotal + (product.values.price * productQty)
     cart.quantity = cart.quantity + productQty
@@ -133,9 +132,10 @@ export const update = async (req, res) => {
 
 export const remove = async (req, res) => {
   const {
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Cart remove failed, Invalid id')
-  const cart = await Cart.findOneAndRemove({ _id, brandName })
+  const cart = await Cart.findOneAndRemove({ _id, appName })
   return res.send(cart._id)
 }

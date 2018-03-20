@@ -2,18 +2,18 @@ import AccessToken from '../models/AccessToken'
 import RefreshToken from '../models/RefreshToken'
 import createToken from '../utils/createToken'
 
-const createTokens = async (user, brandName) => {
+const createTokens = async (user, appName) => {
   try {
     const newAccessToken = await createToken()
     const newRefreshToken = await createToken()
     await new AccessToken({
       accessToken: newAccessToken,
-      brandName,
+      appName,
       user: user._id
     }).save()
     await new RefreshToken({
       refreshToken: newRefreshToken,
-      brandName,
+      appName,
       user: user._id
     }).save()
     return {

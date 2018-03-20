@@ -12,9 +12,9 @@ import {
 
 const themes = express.Router()
 
-themes.post('/:brandName', authenticate(['admin']), catchErrors(add))
-themes.get('/:brandName', catchErrors(get))
-themes.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
-themes.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))
+themes.post('/', authenticate(['admin']), catchErrors(add))
+themes.get('/', catchErrors(get))
+themes.patch('/:_id', authenticate(['admin']), catchErrors(update))
+themes.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 
 export default themes

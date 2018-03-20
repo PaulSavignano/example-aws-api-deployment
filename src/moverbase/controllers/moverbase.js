@@ -15,9 +15,9 @@ export const requestEstimate = async (req, res) => {
       size,
       note
     },
-    params: { brandName }
+    params: { appName }
   } = req
-  const moverbaseApiKey = await Config.findOne({ brandName })
+  const moverbaseApiKey = await Config.findOne({ appName })
   if (!moverbaseApiKey) throw 'Sorry, there was no moverbase api key found'
   const auth = 'Basic ' + new Buffer(moverbaseApiKey + ':').toString('base64')
   try {
@@ -41,14 +41,14 @@ export const requestEstimate = async (req, res) => {
     })
     const json = await response.json()
     const emailInfo = await sendGmail({
-      brandName,
+      appName,
       to: email,
       toSubject: 'Thank you for contacting us for a free estimate',
       name: firstName,
       toBody: `<p>Thank you for requesting a free estimate.  We will contact you shortly!</p>`,
       fromSubject: `New Estimate Request`,
       fromBody: `
-        <p>${firstName} just contacted you through ${brandName}.</p>
+        <p>${firstName} just contacted you through ${appName}.</p>
         ${phone && `<div>Phone: ${phone}</div>`}
         <div>Email: ${email}</div>
         <div>Note: ${note}</div>

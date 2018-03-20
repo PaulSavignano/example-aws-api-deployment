@@ -15,13 +15,13 @@ export const adminAdd = async (req, res) => {
       lastName,
       password
     },
-    params: { brandName }
+    appName
   } = req
   if ( !email || !firstName || !firstName || !password) throw Error('User add failed, all fields are required')
-  const existingUser = await User.findOne({ 'values.email': email, brandName })
+  const existingUser = await User.findOne({ 'values.email': email, appName })
   if (existingUser) throw new CustomError({ field: 'email', message: 'That user email already exists', statusCode: 400 })
   const user = await new User({
-    brandName,
+    appName,
     password,
     values: { email, firstName, lastName }
   }).save()
@@ -33,13 +33,13 @@ export const adminAdd = async (req, res) => {
 
 export const adminGet = async (req, res) => {
   const {
-    params: { brandName },
+    appName,
     query: { lastId, limit, userId },
   } = req
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const userQuery = userId && { _id: userId }
   const query = {
-    brandName,
+    appName,
     ...lastIdQuery,
     ...userQuery,
   }
@@ -56,13 +56,14 @@ export const adminGet = async (req, res) => {
 export const adminUpdateValues = async (req, res) => {
   const {
     body: { values, type },
-    params: { _id, brandName },
+    appName,
+    params: { _id },
   } = req
   if (!ObjectID.isValid(_id)) throw Error('User update failed, invalid id')
-  const existingUser = await User.findOne({ _id, brandName })
+  const existingUser = await User.findOne({ _id, appName })
   if (!existingUser) throw Error('User updated failed, user not found')
   const updatedUser = await User.findOneAndUpdate(
-    { _id, brandName },
+    { _id, appName },
     { $set: { values }},
     { new: true }
   )
@@ -73,10 +74,11 @@ export const adminUpdateValues = async (req, res) => {
 export const adminUpdateRoles = async (req, res) => {
   const {
     body: { values, type },
-    params: { _id, brandName },
+    appName,
+    params: { _id },
   } = req
   if (!ObjectID.isValid(_id)) throw Error('User update failed, invalid id')
-  const existingUser = await User.findOne({ _id, brandName })
+  const existingUser = await User.findOne({ _id, appName })
   if (!existingUser) throw Error('User updated failed, user not found')
   const roles = values.owner ?
     [ 'admin', 'owner', 'user' ]
@@ -100,9 +102,10 @@ export const adminUpdateRoles = async (req, res) => {
 
 export const adminRemove = async (req, res) => {
   const {
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
-  const user = await User.findOne({ _id, brandName })
+  const user = await User.findOne({ _id, appName })
   await user.remove()
   return res.send(user._id)
 }

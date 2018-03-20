@@ -15,7 +15,7 @@ import { deleteFile } from '../utils/s3'
 import { alignItems, flexFlow, justifyContent, textAlign } from '../utils/fieldOptions'
 
 const BrandSchema = new Schema({
-  brandName: { type: String, maxlength: 90, required: true, unique: true },
+  appName: { type: String, maxlength: 90, required: true, unique: true },
   business: {
     address: {
       city: { type: String, trim: true, maxlength: 100, default: 'Carlsbad' },
@@ -71,38 +71,38 @@ BrandSchema.post('remove', function(doc, next) {
 
 
 
-  Address.deleteMany({ brandName: doc.brandName }).then(deletes => console.info('Address deleteMany', deletes)).catch(error => console.error(error))
-  Config.deleteMany({ brandName: doc.brandName }).then(deletes => console.info('Config deleteMany', deletes)).catch(error => console.error(error))
+  Address.deleteMany({ appName: doc.appName }).then(deletes => console.info('Address deleteMany', deletes)).catch(error => console.error(error))
+  Config.deleteMany({ appName: doc.appName }).then(deletes => console.info('Config deleteMany', deletes)).catch(error => console.error(error))
 
-  Blog.find({ brandName: doc.brandName })
+  Blog.find({ appName: doc.appName })
   .then(items => items.length && items.forEach(item => item.remove()))
   .catch(error => console.error(error))
 
-  Cart.deleteMany({ brandName: doc.brandName }).then(deletes => console.info('Cart deleteMany', deletes)).catch(error => console.error(error))
+  Cart.deleteMany({ appName: doc.appName }).then(deletes => console.info('Cart deleteMany', deletes)).catch(error => console.error(error))
 
-  Component.find({ brandName: doc.brandName })
+  Component.find({ appName: doc.appName })
   .then(items => items.length && items.forEach(item => item.remove()))
   .catch(error => console.error(error))
 
-  Order.deleteMany({ brandName: doc.brandName }).then(deletes => console.info('Order deleteMany', deletes)).catch(error => console.error(error))
+  Order.deleteMany({ appName: doc.appName }).then(deletes => console.info('Order deleteMany', deletes)).catch(error => console.error(error))
 
-  Page.find({ brandName: doc.brandName })
+  Page.find({ appName: doc.appName })
   .then(items => items.length && items.forEach(item => item.remove()))
   .catch(error => console.error(error))
 
-  Product.find({ brandName: doc.brandName })
+  Product.find({ appName: doc.appName })
   .then(items => items.length && items.forEach(item => item.remove()))
   .catch(error => console.error(error))
 
-  Section.find({ brandName: doc.brandName })
+  Section.find({ appName: doc.appName })
   .then(items => items.length && items.forEach(item => item.remove()))
   .catch(error => console.error(error))
 
-  Theme.find({ brandName: doc.brandName })
+  Theme.find({ appName: doc.appName })
   .then(items => items.length && items.forEach(item => item.remove()))
   .catch(error => console.error(error))
 
-  User.deleteMany({ brandName: doc.brandName }).then(deletes => console.info('User deleteMany', deletes)).catch(error => console.error(error))
+  User.deleteMany({ appName: doc.appName }).then(deletes => console.info('User deleteMany', deletes)).catch(error => console.error(error))
   next()
 })
 

@@ -7,7 +7,7 @@ import Address from './Address'
 import Order from './Order'
 
 const UserSchema = new Schema({
-  brandName: { type: String, maxlength: 90, required: true },
+  appName: { type: String, maxlength: 90, required: true },
   password: { type: String, required: true, maxlength: 500, minlength: 6 },
   roles: {
     type: [{ type: String, enum: ['admin', 'master', 'owner', 'user'], maxlength: 25 }],

@@ -3,7 +3,7 @@ import mongoose, { Schema } from 'mongoose'
 import { deleteFiles } from '../utils/s3'
 
 const ProductSchema = new Schema({
-  brandName: { type: String, maxlength: 90, required: true },
+  appName: { type: String, maxlength: 90, required: true },
   published: { Type: Boolean, default: false },
   section: { type: Schema.Types.ObjectId, ref: 'Section' },
   values: {

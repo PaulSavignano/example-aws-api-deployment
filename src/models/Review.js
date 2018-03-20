@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 
 const ReviewSchema = new Schema({
-  brandName: { type: String, maxlength: 90, required: true },
+  appName: { type: String, maxlength: 90, required: true },
   user: { type: Schema.ObjectId, ref: 'User' },
   kind: { type: String, trim: true },
   item: { type: Schema.ObjectId, refPath: 'kind' },

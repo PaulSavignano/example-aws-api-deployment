@@ -12,7 +12,7 @@ import {
 } from '../utils/fieldOptions'
 
 const ComponentSchema = new Schema({
-  brandName: { type: String, maxlength: 90, required: true },
+  appName: { type: String, maxlength: 90, required: true },
   page: { type: Schema.ObjectId, ref: 'Page' },
   pageSlug: { type: String, trim: true, maxlength: 25 },
   section: { type: Schema.ObjectId, ref: 'Section' },

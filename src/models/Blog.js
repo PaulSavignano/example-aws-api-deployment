@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose'
 import { deleteFiles } from '../utils/s3'
 
 const BlogSchema = new Schema({
-  brandName: { type: String, maxlength: 90, required: true },
+  appName: { type: String, maxlength: 90, required: true },
   page: { type: Schema.ObjectId, ref: 'Page' },
   pageSlug: { type: String, trim: true, maxlength: 100 },
   section: { type: Schema.Types.ObjectId, ref: 'Section' },

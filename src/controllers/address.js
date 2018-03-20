@@ -8,17 +8,17 @@ export const add = async (req, res) => {
   console.log('adding')
   const {
     body: { values },
-    params: { brandName },
+    appName,
     user,
   } = req
   console.log('user', user)
   const address = await new Address({
-    brandName,
+    appName,
     user: ObjectID(user._id),
     values
   }).save()
   const updateUser = await User.findOneAndUpdate(
-    { _id: user._id, brandName },
+    { _id: user._id, appName },
     { $push: { addresses: address._id }},
     { new: true }
   )
@@ -30,10 +30,11 @@ export const add = async (req, res) => {
 export const adminAdd = async (req, res) => {
   const {
     body,
-    params: { brandName, userId },
+    params: { userId },
+    appName,
   } = req
   const address = await new Address({
-    brandName,
+    appName,
     user: ObjectID(userId),
     values: body
   }).save()
@@ -48,14 +49,14 @@ export const adminAdd = async (req, res) => {
 
 export const get = async (req, res) => {
   const {
-    params: { brandName },
+    appName,
     query: { lastId, limit, addressId },
     user
   } = req
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = addressId && { _id: addressId }
   const query = {
-    brandName,
+    appName,
     user: user._id,
     ...lastIdQuery,
     ...idQuery,
@@ -73,14 +74,14 @@ export const get = async (req, res) => {
 
 export const adminGet = async (req, res) => {
   const {
-    params: { brandName },
+    appName,
     query: { lastId, limit, addressId, userId },
   } = req
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = addressId && { _id: addressId }
   const userQuery = userId && { user: userId }
   const query = {
-    brandName,
+    appName,
     ...lastIdQuery,
     ...idQuery,
     ...userQuery,
@@ -106,14 +107,13 @@ export const adminGet = async (req, res) => {
 
 export const update = async (req, res) => {
   const {
-    body: {
-      values
-    },
-    params: { _id, brandName },
+    body: { values },
+    appName,
+    params: { _id },
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Update address failed, invalid id')
   const address = await Address.findOneAndUpdate(
-    { _id, user: req.user._id, brandName },
+    { _id, user: req.user._id, appName },
     { $set: { values }},
     { new: true }
   )
@@ -125,13 +125,14 @@ export const update = async (req, res) => {
 export const adminUpdate = async (req, res) => {
   const {
     body: { values },
-    params: { _id, brandName },
+    appName,
+    params: { _id },
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Address update failed, invalid id')
   const isOwner = req.user.roles.some(role => role === 'owner')
   if (!isOwner) throw Error('Update address failed, unauthorized')
   const address = await Address.findOneAndUpdate(
-    { _id, brandName },
+    { _id, appName },
     { $set: { values }},
     { new: true }
   )
@@ -143,13 +144,14 @@ export const adminUpdate = async (req, res) => {
 
 export const remove = async (req, res) => {
   const {
-    params: { _id, brandName },
+    appName,
+    params: { _id },
     user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Address remove failed, invalid id')
   const address = await Address.findOneAndRemove({ _id })
   const updateUser = await User.findOneAndUpdate(
-    { _id: user._id, brandName },
+    { _id: user._id, appName },
     { $pull: { addresses: address._id }},
     { new: true }
   )
@@ -161,12 +163,13 @@ export const remove = async (req, res) => {
 
 export const adminRemove = async (req, res) => {
   const {
-    params: { _id, brandName, userId },
+    appName,
+    params: { _id, userId },
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Address remove failed, invalid id')
-  const address = await Address.findOneAndRemove({ _id, brandName })
+  const address = await Address.findOneAndRemove({ _id, appName })
   const updateUser = await User.findOneAndUpdate(
-    { _id: userId, brandName },
+    { _id: userId, appName },
     { $pull: { addresses: address._id }},
     { new: true }
   )

@@ -4,7 +4,7 @@ import { deleteFile } from '../utils/s3'
 import { alignItems, flexFlow, justifyContent, textAlign } from '../utils/fieldOptions'
 
 const ThemeSchema = new Schema({
-  brandName: { type: String, maxlength: 90, required: true },
+  appName: { type: String, maxlength: 90, required: true },
   appBar: {
     backgroundColor: { type: String, trim: true, maxlength: 50, default: '#2196f3' },
     color: { type: String, trim: true, maxlength: 25, default: 'rgb(255, 255, 255)' },

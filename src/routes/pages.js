@@ -6,18 +6,18 @@ import {
   add,
   get,
   update,
-  updateValue,
+  updateValues,
   updateSections,
   remove
 } from '../controllers/page'
 
 const pages = express.Router()
 
-pages.post('/:brandName', authenticate(['admin']), catchErrors(add))
-pages.get('/:brandName', catchErrors(get))
-pages.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
-pages.patch('/:brandName/:_id/update-value', authenticate(['admin']), catchErrors(updateValue))
-pages.patch('/:brandName/:_id/update-sections', authenticate(['admin']), catchErrors(updateSections))
-pages.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))
+pages.post('/', authenticate(['admin']), catchErrors(add))
+pages.get('/', catchErrors(get))
+pages.patch('/:_id', authenticate(['admin']), catchErrors(update))
+pages.patch('/:_id/update-value', authenticate(['admin']), catchErrors(updateValues))
+pages.patch('/:_id/update-sections', authenticate(['admin']), catchErrors(updateSections))
+pages.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 
 export default pages

@@ -12,10 +12,10 @@ import {
 
 const components = express.Router()
 
-components.post('/:brandName', authenticate(['admin']), catchErrors(add))
-components.get('/:brandName', catchErrors(get))
-components.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
-components.patch('/:brandName/:sectionId', authenticate(['admin']), catchErrors(updateOrder))
-components.delete('/:brandName/:_id', authenticate(['admin']), catchErrors(remove))
+components.post('/', authenticate(['admin']), catchErrors(add))
+components.get('/', catchErrors(get))
+components.patch('/:_id', authenticate(['admin']), catchErrors(update))
+components.patch('/:sectionId', authenticate(['admin']), catchErrors(updateOrder))
+components.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 
 export default components

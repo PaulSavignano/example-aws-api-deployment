@@ -7,10 +7,10 @@ const userThreeId = new ObjectID()
 
 export const userSeeds = [{
   _id: userOneId,
-  brandName: 'dev-test.savignano.io',
+  appName: 'dev-test.savignano.io',
 }, {
   _id: userTwoId,
-  brandName: 'dev-test.savignano.io',
+  appName: 'dev-test.savignano.io',
 }]
 
 export const populateUsers = (done) => {

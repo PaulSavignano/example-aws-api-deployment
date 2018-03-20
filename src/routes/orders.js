@@ -15,16 +15,16 @@ import {
 
 const orders = express.Router()
 
-orders.post('/:brandName', authenticate(['user']), catchErrors(add))
+orders.post('/', authenticate(['user']), catchErrors(add))
 
-orders.get('/:brandName', authenticate(['user']), catchErrors(get))
-orders.get('/:brandName/admin', authenticate(['admin', 'owner']), catchErrors(adminGet))
+orders.get('/', authenticate(['user']), catchErrors(get))
+orders.get('/admin', authenticate(['admin', 'owner']), catchErrors(adminGet))
 
-orders.get('/:brandName/sales-by-day', authenticate(['user']), catchErrors(getSalesByDay))
-orders.get('/:brandName/sales-by-month', authenticate(['user']), catchErrors(getSalesByMonth))
-orders.get('/:brandName/sales-by-year', authenticate(['user']), catchErrors(getSalesByYear))
+orders.get('/sales-by-day', authenticate(['user']), catchErrors(getSalesByDay))
+orders.get('/sales-by-month', authenticate(['user']), catchErrors(getSalesByMonth))
+orders.get('/sales-by-year', authenticate(['user']), catchErrors(getSalesByYear))
 
 
-orders.patch('/:brandName/:_id', authenticate(['admin']), catchErrors(update))
+orders.patch('/:_id', authenticate(['admin']), catchErrors(update))
 
 export default orders

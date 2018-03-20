@@ -4,7 +4,7 @@ import Section from './Section'
 import { deleteFiles } from '../utils/s3'
 
 const PageSchema = new Schema({
-  brandName: { type: String, maxlength: 90, required: true, },
+  appName: { type: String, maxlength: 90, required: true, },
   sections: [{ type: Schema.Types.ObjectId, ref: 'Section' }],
   slug: { type: String },
   values: {
@@ -24,7 +24,7 @@ const PageSchema = new Schema({
 PageSchema.pre('save', async function(next) {
   const page = this
   try {
-    const existingPage = await Page.findOne({ brandName: page.brandName, 'values.name': page.values.name })
+    const existingPage = await Page.findOne({ appName: page.appName, 'values.name': page.values.name })
     if (existingPage) throw 'try a different name, that page already exists'
   } catch (error) {
     next(Error(error))

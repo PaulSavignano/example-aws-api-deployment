@@ -10,11 +10,11 @@ export const add = async (req, res) => {
       kind,
       values,
     },
-    params: { brandName },
+    appName,
     user
   } = req
   const review = await new Review({
-    brandName,
+    appName,
     item,
     kind,
     user: user._id,
@@ -29,7 +29,7 @@ export const add = async (req, res) => {
 
 export const get = async (req, res) => {
   const {
-    params: { brandName },
+    appName,
     query: { kind, item, lastId, userId, limit, reviewId },
     user
   } = req
@@ -39,7 +39,7 @@ export const get = async (req, res) => {
   const userIdQuery = userId && { user: userId }
   const reviewIdQuery = reviewId && { _id: reviewId }
   const query = {
-    brandName,
+    appName,
     ...kindQuery,
     ...itemQuery,
     ...lastIdQuery,
@@ -67,11 +67,12 @@ export const get = async (req, res) => {
 export const update = async (req, res) => {
   const {
     body: { values },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
   const review = await Review.findOneAndUpdate(
-    { _id, brandName },
+    { _id, appName },
     { $set: { values }},
     { new: true }
   )
@@ -83,10 +84,11 @@ export const update = async (req, res) => {
 
 export const remove = async (req, res) => {
   const {
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Review remove error, invalid id')
-  const review = await Review.findOneAndRemove({ _id, brandName })
+  const review = await Review.findOneAndRemove({ _id, appName })
   if (!review) throw Error('Review remove error, review not found')
   return res.send(review._id)
 }

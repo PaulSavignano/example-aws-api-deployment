@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose'
 
 const RefreshTokenSchema = new Schema({
   createdAt: { type: Date, default: Date.now, expires: '7d' },
-  brandName: { type: String, maxlength: 90, required: true },
+  appName: { type: String, maxlength: 90, required: true },
   refreshToken: { type: String, required: true },
   user: { type: Schema.ObjectId, ref: 'User' },
 }, {

@@ -12,21 +12,19 @@ import slugIt from '../utils/slugIt'
 
 export const add = async (req, res) => {
   const {
-    body: {
-      values
-    },
-    params: { brandName }
+    body: { values },
+    appName
   } = req
-  const existingPage = await Page.findOne({ 'values.name': values.name, brandName })
+  const existingPage = await Page.findOne({ 'values.name': values.name, appName })
   if (existingPage) throw new CustomError({ field: 'name', message: 'That name already exists', statusCode: 400 })
   const page = await new Page({
-    brandName,
+    appName,
     slug: slugIt(values.name),
     values
   }).save()
   if (!page) throw Error('Page add failed')
   const brand = await Brand.findOneAndUpdate(
-    { brandName },
+    { appName },
     { $push: { pages: page._id }},
     { new: true }
   )
@@ -37,8 +35,8 @@ export const add = async (req, res) => {
 
 
 export const get = async (req, res) => {
-  const { brandName } = req.params
-  const pages = await Page.find({ brandName })
+  const { appName } = req
+  const pages = await Page.find({ appName })
   return res.send(pages)
 }
 
@@ -52,7 +50,8 @@ export const update = async (req, res) => {
       values,
       pageSlug,
     },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Page update failed, invalid id')
   oldSrcs.length && await deleteFiles(oldSrcs)
@@ -60,14 +59,14 @@ export const update = async (req, res) => {
   const newImageValues = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     ...values,
     backgroundImage: await handleImage({
-      path: `${brandName}/${pageSlug}/background-image-${_id}_${formatDate()}.${values.backgroundImage.ext}`,
+      path: `${appName}/${pageSlug}/background-image-${_id}_${formatDate()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : null
   const newValues = newImageValues ? newImageValues : values
 
   const page = await Page.findOneAndUpdate(
-    { _id, brandName },
+    { _id, appName },
     { $set: {
       values: newValues,
     }},
@@ -76,17 +75,20 @@ export const update = async (req, res) => {
   return res.send(page)
 }
 
-export const updateValue = async (req, res) => {
+
+
+export const updateValues = async (req, res) => {
   const {
     body: { key, value },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Page update failed, invalid id')
 
   const set = { $set: {}}
   set.$set["values." + key] = value
   const page = await Page.findOneAndUpdate(
-    { _id, brandName },
+    { _id, appName },
     set,
     { new: true }
   )
@@ -99,10 +101,11 @@ export const updateValue = async (req, res) => {
 export const updateSections = async (req, res) => {
   const {
     body: { sectionIds },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   const page = await Page.findOneAndUpdate(
-    { _id, brandName },
+    { _id, appName },
     { $set: { sections: sectionIds }},
     { new: true }
   )
@@ -115,13 +118,14 @@ export const updateSections = async (req, res) => {
 export const updateName = async (req, res) => {
   const {
     body: { values },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Page update failed, invalid id')
-  const existingPage = await Page.findOne({ brandName, 'values.name': values.name })
+  const existingPage = await Page.findOne({ appName, 'values.name': values.name })
   if (existingPage) throw new CustomError({ field: 'name', message: 'That name already exists', statusCode: 406 })
   const page = await Page.findOneAndUpdate(
-    { _id, brandName },
+    { _id, appName },
     { $set: {
       slug,
       'values.name': values.name
@@ -138,14 +142,15 @@ export const updateName = async (req, res) => {
 
 export const remove = async (req, res) => {
   const {
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Page remove failed, invalid id')
-  const page = await Page.findOne({ _id, brandName })
+  const page = await Page.findOne({ _id, appName })
   if (!page) throw Error('Page delete failed, no page found')
   await page.remove()
   const brand = await Brand.findOneAndUpdate(
-    { brandName },
+    { appName },
     { $pull: { pages: page._id }},
     { new: true }
   )

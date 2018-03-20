@@ -11,9 +11,9 @@ import {
 
 const carts = express.Router()
 
-carts.post('/:brandName', catchErrors(add))
-carts.get('/:brandName/:_id', catchErrors(getId))
-carts.patch('/:brandName/:_id', catchErrors(update))
-carts.delete('/:brandName/:_id', catchErrors(remove))
+carts.post('/', catchErrors(add))
+carts.get('/:_id', catchErrors(getId))
+carts.patch('/:_id', catchErrors(update))
+carts.delete('/:_id', catchErrors(remove))
 
 export default carts

@@ -9,14 +9,14 @@ import slugIt from '../utils/slugIt'
 export const add = async (req, res) => {
   const {
     body: { values },
-    params: { brandName }
+    appName,
   } = req
   const _id = new ObjectID()
   // handle new background image and return object
   const newImageValues = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${brandName}/products/${slugIt(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
+      path: `${appName}/products/${slugIt(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
   } : null
@@ -25,7 +25,7 @@ export const add = async (req, res) => {
 
   const product = await new Product({
     _id,
-    brandName,
+    appName,
     values: newValues,
   }).save()
   if (!product) throw Error('No product was found')
@@ -39,10 +39,10 @@ export const add = async (req, res) => {
 
 export const get = async (req, res) => {
   const {
-    params: { brandName },
+    appName,
     query: { lastId, limit },
   } = req
-  const params = lastId ? { _id: { $gt: lastId }, brandName } : { brandName }
+  const params = lastId ? { _id: { $gt: lastId }, appName } : { appName }
   const products = await Product.aggregate([
     { $match: params },
     { $lookup: {
@@ -63,10 +63,15 @@ export const get = async (req, res) => {
 }
 
 
+
+
 export const getId = async (req, res) => {
-  const { brandName, _id } = req.params
+  const {
+    appName,
+    params: { _id }
+  } = req
   if (!ObjectID.isValid(_id)) throw Error('Product id not found, invalid id')
-  const product = await Product.findOne({ brandName, _id })
+  const product = await Product.findOne({ appName, _id })
   return res.send(product)
 }
 
@@ -77,7 +82,8 @@ export const getId = async (req, res) => {
 export const update = async (req, res) => {
   const {
     body: { values, oldSrcs },
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Product update error, invalid id')
   const imageDeletes = oldSrcs.length && await deleteFiles(oldSrcs)
@@ -85,7 +91,7 @@ export const update = async (req, res) => {
   const newImageValues = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${brandName}/products/${slugIt(values.name)}-${_id}-image_${formatDate(new Date())}.${values.image.ext}`,
+      path: `${appName}/products/${slugIt(values.name)}-${_id}-image_${formatDate(new Date())}.${values.image.ext}`,
       image: values.image,
     })
   } : null
@@ -93,7 +99,7 @@ export const update = async (req, res) => {
   const newValues = newImageValues ? newImageValues : values
 
   const product = await Product.findOneAndUpdate(
-    { _id, brandName },
+    { _id, appName },
     { $set: { values: newValues }},
     { new: true }
   )
@@ -109,10 +115,11 @@ export const update = async (req, res) => {
 
 export const remove = async (req, res) => {
   const {
-    params: { _id, brandName }
+    appName,
+    params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Product delete error, invalid id')
-  const product = await Product.findOne({ _id, brandName })
+  const product = await Product.findOne({ _id, appName })
   await product.remove()
   if (!product) throw Error('Product remove failed')
   return res.send(product._id)
