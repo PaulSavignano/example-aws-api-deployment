@@ -5,13 +5,11 @@ import User from '../models/User'
 
 
 export const add = async (req, res) => {
-  console.log('adding')
   const {
     body: { values },
     appName,
     user,
   } = req
-  console.log('user', user)
   const address = await new Address({
     appName,
     user: ObjectID(user._id),

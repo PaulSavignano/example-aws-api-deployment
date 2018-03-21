@@ -20,6 +20,7 @@ import orders from './routes/orders'
 import pages from './routes/pages'
 import products from './routes/products'
 import reviews from './routes/reviews'
+import searches from './routes/searches'
 import sections from './routes/sections'
 import themes from './routes/themes'
 import users from './routes/users'
@@ -53,11 +54,12 @@ app.use('/api/:appName/orders', setAppName, orders)
 app.use('/api/:appName/pages', setAppName, pages)
 app.use('/api/:appName/products', setAppName, products)
 app.use('/api/:appName/reviews', setAppName, reviews)
+app.use('/api/:appName/searches', setAppName, searches)
 app.use('/api/:appName/sections', setAppName, sections)
 app.use('/api/:appName/themes', setAppName, themes)
 app.use('/api/:appName/users', setAppName, users)
 
-app.use('/moverbase', moverbase)
+app.use('/api/:appName/moverbase', moverbase)
 
 app.get('/', (req, res) => {
   res.send(`
@@ -68,9 +70,9 @@ app.get('/', (req, res) => {
 })
 
 app.use((err, req, res, next) => {
-  console.log('error: ', err)
-  console.log('error field: ', err.field)
-  console.log('error message: ', err.message)
+  console.error('error: ', err)
+  console.error('error field: ', err.field)
+  console.error('error message: ', err.message)
   const statusCode = err.statusCode || 400
   res.status(statusCode).send(err)
 })

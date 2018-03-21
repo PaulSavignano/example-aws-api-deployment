@@ -73,8 +73,8 @@ const ComponentSchema = new Schema({
 })
 
 ComponentSchema.index({
-  'items.typographies.content': 'text',
-  'items.wysiwyg': 'text'
+  'values.items.typographies.content': 'text',
+  'values.items.wysiwyg.content': 'text'
 })
 
 ComponentSchema.post('remove', function(doc, next) {
@@ -84,6 +84,7 @@ ComponentSchema.post('remove', function(doc, next) {
   if (deletes.length > 0) return deleteFiles(deletes).then(() => next()).catch(error => next(Error(error)))
   next()
 })
+
 
 const Component = mongoose.model('Component', ComponentSchema)
 

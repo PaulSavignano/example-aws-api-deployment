@@ -55,7 +55,7 @@ export const adminGet = async (req, res) => {
 
 export const adminUpdateValues = async (req, res) => {
   const {
-    body: { values, type },
+    body: { values },
     appName,
     params: { _id },
   } = req
@@ -73,7 +73,7 @@ export const adminUpdateValues = async (req, res) => {
 
 export const adminUpdateRoles = async (req, res) => {
   const {
-    body: { values, type },
+    body: { values },
     appName,
     params: { _id },
   } = req

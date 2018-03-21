@@ -33,7 +33,8 @@ const BlogSchema = new Schema({
 
 BlogSchema.index({
   'values.title': 'text',
-  'values.description': 'text'
+  'values.description': 'text',
+  'values.detail': 'text'
 })
 
 

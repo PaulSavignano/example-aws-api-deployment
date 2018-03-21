@@ -155,7 +155,6 @@ const createCharge = async ({
 
 
 export const get = async (req, res) => {
-  console.log('getting')
   const {
     appName,
     query: { lastId, limit, orderId },

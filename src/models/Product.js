@@ -33,7 +33,8 @@ const ProductSchema = new Schema({
 
 ProductSchema.index({
   'values.name': 'text',
-  'values.description': 'text'
+  'values.description': 'text',
+  'values.detail': 'text'
 })
 
 
