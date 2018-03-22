@@ -23,4 +23,5 @@ reviews.patch('/admin/:_id', authenticate(['admin', 'owner']), catchErrors(admin
 reviews.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 reviews.delete('/admin/:_id', authenticate(['admin']), catchErrors(adminRemove))
 
+
 export default reviews
