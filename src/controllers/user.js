@@ -79,6 +79,23 @@ export const update = async (req, res) => {
 
 
 
+export const updateAddresses = async (req, res) => {
+  const {
+    body: { addresses },
+    appName,
+    user,
+  } = req
+  const userUpdate = await User.findOneAndUpdate(
+    { _id: user._id, appName },
+    { $set: { addresses }},
+    { new: true }
+  )
+  if (!userUpdate) throw Error('Page set sections failed')
+  return res.send(userUpdate)
+}
+
+
+
 
 export const remove = async (req, res) => {
   const { appName } = req

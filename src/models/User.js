@@ -8,6 +8,7 @@ import Order from './Order'
 
 const UserSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
+  addresses: [{ type: Schema.Types.ObjectId, ref: 'Address' }],
   password: { type: String, required: true, maxlength: 500, minlength: 6 },
   roles: {
     type: [{ type: String, enum: ['admin', 'master', 'owner', 'user'], maxlength: 25 }],
@@ -38,8 +39,8 @@ const UserSchema = new Schema({
 UserSchema.methods.toJSON = function() {
   const user = this
   const userObject = user.toObject()
-  const { _id, roles, values } = userObject
-  return { _id, roles, values }
+  const { _id, roles, values, addresses } = userObject
+  return { _id, roles, values, addresses }
 }
 
 

@@ -95,6 +95,21 @@ export const adminUpdateRoles = async (req, res) => {
   return res.send(user)
 }
 
+export const adminUpdateAddresses = async (req, res) => {
+  const {
+    body: { addresses },
+    appName,
+    params: { _id }
+  } = req
+  const userUpdate = await User.findOneAndUpdate(
+    { _id, appName },
+    { $set: { addresses }},
+    { new: true }
+  )
+  if (!userUpdate) throw Error('Admin set user addresses failed')
+  return res.send(userUpdate)
+}
+
 
 
 
