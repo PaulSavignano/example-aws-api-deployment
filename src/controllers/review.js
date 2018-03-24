@@ -13,13 +13,15 @@ export const add = async (req, res) => {
     appName,
     user
   } = req
-  const review = await new Review({
+  const doc = await new Review({
     appName,
     item,
     kind,
     user: user._id,
     values,
   }).save()
+  console.log('doc', doc._id)
+  const review = await Review.findOne({ _id: doc._id })
   if (!review) throw Error('New review add error')
   return res.send(review)
 }
@@ -66,16 +68,17 @@ export const get = async (req, res) => {
 
 export const update = async (req, res) => {
   const {
-    body: { values },
+    body: { update },
     appName,
     params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
   const review = await Review.findOneAndUpdate(
     { _id, appName },
-    { $set: { values }},
+    { $set: { ...update }},
     { new: true }
-  )
+  ).populate({ path: 'user', select: 'values.firstName _id' })
+  console.log('review', review)
   if (!review) throw Error('Review update error')
   return res.send(review)
 }

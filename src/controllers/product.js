@@ -6,6 +6,8 @@ import handleImage from '../utils/handleImage'
 import Product from '../models/Product'
 import slugIt from '../utils/slugIt'
 
+
+
 export const add = async (req, res) => {
   const {
     body: { values },
