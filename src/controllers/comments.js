@@ -5,14 +5,13 @@ import Order from '../models/Order'
 
 export const add = async (req, res) => {
   const {
-    body: {
-      item,
-      kind,
-      values,
-    },
+    body: { parent },
     appName,
     user
   } = req
+  if (parent.kind) {
+
+  }
   const doc = await new Review({
     appName,
     item,

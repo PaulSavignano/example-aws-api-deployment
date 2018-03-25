@@ -83,15 +83,14 @@ export const updateAddresses = async (req, res) => {
   const {
     body: { addresses },
     appName,
-    user,
   } = req
-  const userUpdate = await User.findOneAndUpdate(
-    { _id: user._id, appName },
+  const user = await User.findOneAndUpdate(
+    { _id: req.user._id, appName },
     { $set: { addresses }},
     { new: true }
   )
-  if (!userUpdate) throw Error('Page set sections failed')
-  return res.send(userUpdate)
+  if (!user) throw Error('Page set sections failed')
+  return res.send(user)
 }
 
 

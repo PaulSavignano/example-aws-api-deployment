@@ -8,19 +8,18 @@ export const add = async (req, res) => {
   const {
     body: { values },
     appName,
-    user,
   } = req
   const address = await new Address({
     appName,
-    user: ObjectID(user._id),
+    user: ObjectID(req.user._id),
     values
   }).save()
-  const updateUser = await User.findOneAndUpdate(
-    { _id: user._id, appName },
+  const user = await User.findOneAndUpdate(
+    { _id: req.user._id, appName },
     { $push: { addresses: address._id }},
     { new: true }
   )
-  return res.send(address)
+  return res.send({ address, user })
 }
 
 
@@ -36,7 +35,12 @@ export const adminAdd = async (req, res) => {
     user: ObjectID(userId),
     values: body
   }).save()
-  return res.send(address)
+  const user = await User.findOneAndUpdate(
+    { _id: userId, appName },
+    { $push: { addresses: address._id }},
+    { new: true }
+  )
+  return res.send({ address, user })
 }
 
 
@@ -144,16 +148,15 @@ export const remove = async (req, res) => {
   const {
     appName,
     params: { _id },
-    user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Address remove failed, invalid id')
-  const address = await Address.findOneAndRemove({ _id })
-  const updateUser = await User.findOneAndUpdate(
-    { _id: user._id, appName },
-    { $pull: { addresses: address._id }},
+  const address = await Address.findOneAndRemove({ _id, user: req.user._id })
+  const user = await User.findOneAndUpdate(
+    { _id: req.user._id, appName },
+    { $pull: { addresses: _id }},
     { new: true }
   )
-  return res.send(address)
+  return res.send({ address, user })
 }
 
 
@@ -166,10 +169,10 @@ export const adminRemove = async (req, res) => {
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Address remove failed, invalid id')
   const address = await Address.findOneAndRemove({ _id, appName })
-  const updateUser = await User.findOneAndUpdate(
+  const user = await User.findOneAndUpdate(
     { _id: userId, appName },
     { $pull: { addresses: address._id }},
     { new: true }
   )
-  return res.send(address._id)
+  return res.send({ address, user })
 }

@@ -4,7 +4,7 @@ const ReviewSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   item: { type: Schema.ObjectId, refPath: 'kind' },
   kind: { type: String, trim: true },
-  published: { Type: Boolean, default: false },
+  published: { type: Boolean, default: false },
   user: { type: Schema.ObjectId, ref: 'User' },
   values: {
     text: { type: String, maxlength: 9000 },
