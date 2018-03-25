@@ -89,7 +89,7 @@ const createCharge = async ({
       description: `${appName} Order`
     })
     const order = await new Order({
-      address: address._id,
+      address,
       appName,
       cart,
       email: user.values.email,

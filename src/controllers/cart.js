@@ -46,6 +46,8 @@ export const getId = async (req, res) => {
 
 
 
+
+
 export const update = async (req, res) => {
   const {
     body: { type, productId, productQty },
@@ -117,7 +119,7 @@ export const update = async (req, res) => {
     const item = {
       productId,
       productQty,
-      image: product.image,
+      image: product.values.image,
       name: product.values.name,
       price: product.values.price,
       total: product.values.price * productQty
