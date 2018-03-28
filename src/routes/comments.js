@@ -7,14 +7,14 @@ import {
   get,
   remove,
   update,
-} from '../controllers/review'
+} from '../controllers/comments'
 
-const reviews = express.Router()
+const comments = express.Router()
 
-reviews.post('/', authenticate(['user', 'admin', 'owner']), catchErrors(add))
-reviews.get('/', catchErrors(get))
-reviews.patch('/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(update))
-reviews.delete('/:_id', authenticate(['admin']), catchErrors(remove))
+comments.post('/', authenticate(['user', 'admin', 'owner']), catchErrors(add))
+comments.get('/', catchErrors(get))
+comments.patch('/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(update))
+comments.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 
 
-export default reviews
+export default comments

@@ -1,111 +1,35 @@
 import { ObjectID } from 'mongodb'
 
-import Review from '../models/Review'
-import Order from '../models/Order'
+import Comment from '../models/Comment'
 
 export const add = async (req, res) => {
   const {
-    body: { parent },
+    body,
     appName,
     user
   } = req
-  if (parent.kind) {
-
-  }
-  const doc = await new Review({
+  const comment = await new Comment({
     appName,
-    item,
-    kind,
     user: user._id,
-    values,
+    ...req.body
   }).save()
-  console.log('doc', doc._id)
-  const review = await Review.findOne({ _id: doc._id })
-  if (!review) throw Error('New review add error')
-  return res.send(review)
+  if (!comment) throw Error('New comment add error')
+  return res.send(comment)
 }
-
 
 
 
 export const get = async (req, res) => {
   const {
     appName,
-    query: { kind, item, lastId, userId, limit, reviewId },
+    query: { userId, reviewId },
     user
   } = req
-  console.log('req', req.query)
-  const kindQuery = kind && { kind }
-  const itemQuery = item && { item: item }
-  const lastIdQuery = lastId && { _id: { $gt: lastId }}
-  const userIdQuery = userId && { user: userId }
-  const reviewIdQuery = reviewId && { _id: reviewId }
-  const query = {
-    appName,
-    ...kindQuery,
-    ...itemQuery,
-    ...lastIdQuery,
-    ...userIdQuery,
-    ...reviewIdQuery,
-  }
-  if (item) {
-    const reviews = await Review.find(query)
-    .limit(parseInt(limit))
-    return res.send(reviews)
-  }
-  const reviews = await Review.find(query)
-  .limit(parseInt(limit))
-  .populate('item')
-  console.log('reviews are ', reviews)
-  return res.send(reviews)
-
+  const comments = await Comment.find({ appName, review: reviewId })
+  console.log('comments are ', comments)
+  return res.send(comments)
 }
 
-
-
-
-
-
-
-export const update = async (req, res) => {
-  const {
-    body: { update },
-    appName,
-    params: { _id },
-    user,
-  } = req
-  console.log('update is ', req.body)
-  if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
-  const review = await Review.findOneAndUpdate(
-    { _id, appName, user: user._id },
-    { $set: { ...update }},
-    { new: true }
-  )
-  .populate({ path: 'user', select: 'values.firstName _id' })
-  .populate('item')
-  if (!review) throw Error('Review update error')
-  return res.send(review)
-}
-
-
-export const adminUpdate = async (req, res) => {
-  const {
-    body: { update },
-    appName,
-    params: { _id }
-  } = req
-  if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
-  const review = await Review.findOneAndUpdate(
-    { _id, appName },
-    { $set: { ...update }},
-    { new: true }
-  )
-  .populate({ path: 'user', select: 'values.firstName _id' })
-  .populate('item')
-  console.log('review', review)
-  if (!review) throw Error('Review update error')
-  return res.send(review)
-}
 
 
 
@@ -114,8 +38,8 @@ export const remove = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Review remove error, invalid id')
-  const review = await Review.findOneAndRemove({ _id, appName })
-  if (!review) throw Error('Review remove error, review not found')
-  return res.send(review._id)
+  if (!ObjectID.isValid(_id)) throw Error('Comment remove error, invalid id')
+  const comment = await Comment.findOneAndRemove({ _id, appName })
+  if (!comment) throw Error('Comment remove error, comment not found')
+  return res.send(comment._id)
 }

@@ -9,13 +9,14 @@ import mongoose from './db/mongoose'
 import setAppName from './middleware/setAppName'
 import forceSSL from './middleware/forceSSL'
 
-import catchErrors from './utils/catchErrors'
 import addresses from './routes/addresses'
-import configs from './routes/configs'
 import blogs from './routes/blogs'
 import brands from './routes/brands'
 import carts from './routes/carts'
+import catchErrors from './utils/catchErrors'
+import comments from './routes/comments'
 import components from './routes/components'
+import configs from './routes/configs'
 import orders from './routes/orders'
 import pages from './routes/pages'
 import products from './routes/products'
@@ -45,11 +46,12 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 
 app.use('/api/:appName/addresses', setAppName, addresses)
-app.use('/api/:appName/configs', setAppName, configs)
 app.use('/api/:appName/blogs', setAppName, blogs)
 app.use('/api/:appName/brands', setAppName, brands)
 app.use('/api/:appName/carts', setAppName, carts)
+app.use('/api/:appName/comments', setAppName, comments)
 app.use('/api/:appName/components', setAppName, components)
+app.use('/api/:appName/configs', setAppName, configs)
 app.use('/api/:appName/orders', setAppName, orders)
 app.use('/api/:appName/pages', setAppName, pages)
 app.use('/api/:appName/products', setAppName, products)
