@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 import { deleteFiles } from '../utils/s3'
 
-const BlogSchema = new Schema({
+const blogSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   page: { type: Schema.ObjectId, ref: 'Page' },
   pageSlug: { type: String, trim: true, maxlength: 100 },
@@ -31,20 +31,20 @@ const BlogSchema = new Schema({
   timestamps: true
 })
 
-BlogSchema.index({
+blogSchema.index({
   'values.title': 'text',
   'values.description': 'text',
   'values.detail': 'text'
 })
 
 
-BlogSchema.post('remove', function(doc, next) {
+blogSchema.post('remove', function(doc, next) {
   if (doc.values && doc.values.image && doc.values.image.src) return deleteFiles([{ Key: doc.values.image.src }])
   .then(() => next())
   .catch(error => next(Error(error)))
   next()
 })
 
-const Blog = mongoose.model('Blog', BlogSchema)
+const Blog = mongoose.model('Blog', blogSchema)
 
 export default Blog

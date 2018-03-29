@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 
-const CommentSchema = new Schema({
+const commentSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   user: { type: Schema.ObjectId, ref: 'User' },
   review: { type: Schema.ObjectId, ref: 'Review' },
@@ -22,11 +22,11 @@ function autopopulate(next) {
   next()
 }
 
-CommentSchema.pre('find', autopopulate);
-CommentSchema.pre('findOne', autopopulate)
-CommentSchema.pre('save', autopopulate)
+commentSchema.pre('find', autopopulate);
+commentSchema.pre('findOne', autopopulate)
+commentSchema.pre('save', autopopulate)
 
 
-const Comment = mongoose.model('Comment', CommentSchema)
+const Comment = mongoose.model('Comment', commentSchema)
 
 export default Comment

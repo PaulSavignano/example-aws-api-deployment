@@ -6,7 +6,7 @@ import { ObjectID } from 'mongodb'
 import Address from './Address'
 import Order from './Order'
 
-const UserSchema = new Schema({
+const userSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   addresses: [{ type: Schema.Types.ObjectId, ref: 'Address' }],
   password: { type: String, required: true, maxlength: 500, minlength: 6 },
@@ -36,7 +36,7 @@ const UserSchema = new Schema({
 })
 
 
-UserSchema.methods.toJSON = function() {
+userSchema.methods.toJSON = function() {
   const user = this
   const userObject = user.toObject()
   const { _id, roles, values, addresses } = userObject
@@ -44,7 +44,7 @@ UserSchema.methods.toJSON = function() {
 }
 
 
-UserSchema.statics.findByCredentials = async function(email, password) {
+userSchema.statics.findByCredentials = async function(email, password) {
   const User = this
   return User.findOne({ 'values.email': email.toLowerCase() })
   .then(user => {
@@ -63,7 +63,7 @@ UserSchema.statics.findByCredentials = async function(email, password) {
 }
 
 
-UserSchema.pre('save', function(next) {
+userSchema.pre('save', function(next) {
   const user = this
   if (user.isModified('password')) {
     return bcrypt.genSalt(10, (err, salt) => {
@@ -78,7 +78,7 @@ UserSchema.pre('save', function(next) {
 })
 
 
-UserSchema.post('remove', function(doc, next) {
+userSchema.post('remove', function(doc, next) {
   if (doc.addresses.length > 0) {
     return Address.deleteMany({ user: doc._id })
     .then(() => next())
@@ -87,6 +87,6 @@ UserSchema.post('remove', function(doc, next) {
   next()
 })
 
-const User = mongoose.model('User', UserSchema)
+const User = mongoose.model('User', userSchema)
 
 export default User

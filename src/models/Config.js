@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 
-const ConfigSchema = new Schema({
+const configSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true, unique: true },
   values: {
     gmailUser: { type: String, trim: true, maxlength: 150 },
@@ -16,6 +16,6 @@ const ConfigSchema = new Schema({
   timestamps: true
 })
 
-const Config = mongoose.model('Config', ConfigSchema)
+const Config = mongoose.model('Config', configSchema)
 
 export default Config

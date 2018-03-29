@@ -35,43 +35,17 @@ export const update = async (req, res) => {
     user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid id')
-  if (values) {
-    const comment = await Comment.findOneAndUpdate(
-      { _id, appName, user: user._id },
-      { $set: { values }},
-      { new: true }
-    )
-    .populate({
-      path: 'user',
-      select: 'values.firstName values.lastName _id'
-    })
-    return res.send(comment)
-  }
-  if (like) {
-    const comment = await Comment.findOneAndUpdate(
-      { _id, appName, user: user._id },
-      { $push: { likes: like }, $pull: { disLikes: like }},
-      { new: true }
-    )
-    .populate({
-      path: 'user',
-      select: 'values.firstName values.lastName _id'
-    })
-    return res.send(comment)
-  }
-  if (disLike) {
-    console.log('disLike', disLike)
-    const comment = await Comment.findOneAndUpdate(
-      { _id, appName, user: user._id },
-      { $push: { disLikes: disLike }, $pull: { likes: disLike }},
-      { new: true }
-    )
-    .populate({
-      path: 'user',
-      select: 'values.firstName values.lastName _id'
-    })
-    return res.send(comment)
-  }
+  const update = values ? { $set: { values }} : like ? { $push: { likes: like }, $pull: { disLikes: like }} : disLike ? { $push: { disLikes: disLike }, $pull: { likes: disLike }} : null
+  const comment = await Comment.findOneAndUpdate(
+    { _id, appName, user: user._id },
+    update,
+    { new: true }
+  )
+  .populate({
+    path: 'user',
+    select: 'values.firstName values.lastName _id'
+  })
+  return res.send(comment)
 }
 
 

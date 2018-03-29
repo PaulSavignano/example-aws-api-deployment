@@ -6,7 +6,7 @@ import Component from './Component'
 import { deleteFiles } from '../utils/s3'
 import { alignItems, flexFlow, justifyContent } from '../utils/fieldOptions'
 
-const SectionSchema = new Schema({
+const sectionSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   components: [{ type: Schema.Types.ObjectId, ref: 'Component' }],
   page: { type: Schema.ObjectId, ref: 'Page' },
@@ -34,7 +34,7 @@ const SectionSchema = new Schema({
 })
 
 
-SectionSchema.post('remove', function(doc, next) {
+sectionSchema.post('remove', function(doc, next) {
   if (doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src) {
     deleteFiles([{ Key: doc.values.backgroundImage.src }])
     .catch(err => next(Error(error)))
@@ -50,6 +50,6 @@ SectionSchema.post('remove', function(doc, next) {
   next()
 })
 
-const Section = mongoose.model('Section', SectionSchema)
+const Section = mongoose.model('Section', sectionSchema)
 
 export default Section

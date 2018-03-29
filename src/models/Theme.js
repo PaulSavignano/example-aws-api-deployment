@@ -3,7 +3,7 @@ import mongoose, { Schema } from 'mongoose'
 import { deleteFile } from '../utils/s3'
 import { alignItems, flexFlow, justifyContent, textAlign } from '../utils/fieldOptions'
 
-const ThemeSchema = new Schema({
+const themeSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   appBar: {
     backgroundColor: { type: String, trim: true, maxlength: 50, default: '#2196f3' },
@@ -203,7 +203,7 @@ const ThemeSchema = new Schema({
   timestamps: true
 })
 
-ThemeSchema.post('remove', function(doc, next) {
+themeSchema.post('remove', function(doc, next) {
   const { footer } = doc
   if (footer.image && footer.image.src) {
     deleteFile({ Key: footer.image.src })
@@ -212,6 +212,6 @@ ThemeSchema.post('remove', function(doc, next) {
 
 })
 
-const Theme = mongoose.model('Theme', ThemeSchema)
+const Theme = mongoose.model('Theme', themeSchema)
 
 export default Theme

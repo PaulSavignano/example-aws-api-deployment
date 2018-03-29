@@ -123,19 +123,20 @@ export const getGraph = async (req, res) => {
 
 export const update = async (req, res) => {
   const {
-    body: { update },
+    body: { values, like, disLike },
     appName,
     params: { _id },
     user,
   } = req
   console.log('update is ', req.body)
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
+  const update = values ? { $set: { values }} : like ? { $push: { likes: like }, $pull: { disLikes: like }} : disLike ? { $push: { disLikes: disLike }, $pull: { likes: disLike }} : null
   const review = await Review.findOneAndUpdate(
     { _id, appName, user: user._id },
-    { $set: { ...update }},
+    update,
     { new: true }
   )
-  .populate({ path: 'user', select: 'values.firstName _id' })
+  .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
   .populate('item')
   if (!review) throw Error('Review update error')
   return res.send(review)
@@ -154,7 +155,7 @@ export const adminUpdate = async (req, res) => {
     { $set: { ...update }},
     { new: true }
   )
-  .populate({ path: 'user', select: 'values.firstName _id' })
+  .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
   .populate('item')
   console.log('review', review)
   if (!review) throw Error('Review update error')

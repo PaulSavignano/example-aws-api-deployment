@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 
-const CartSchema = new Schema({
+const cartSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   createdAt: { type: Date, default: Date.now, expires: '60d' },
   items: [{
@@ -25,6 +25,6 @@ const CartSchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
 })
 
-const Cart = mongoose.model('Cart', CartSchema)
+const Cart = mongoose.model('Cart', cartSchema)
 
 export default Cart

@@ -46,7 +46,7 @@ export const add = async (req, res, next) => {
     ).populate({ path: 'addresses',  select: '-user' })
 
     await createCharge({
-      address,
+      address: address.values,
       cart,
       stripeToken,
       appName,
@@ -58,7 +58,7 @@ export const add = async (req, res, next) => {
     const address = await Address.findOne({ _id: fullAddress, appName })
     if (!address) throw Error('That address does not exist')
     await createCharge({
-      address,
+      address: address.values,
       cart,
       stripeToken,
       appName,
@@ -103,7 +103,7 @@ const createCharge = async ({
     await Cart.findOneAndRemove({ _id: cart._id })
     const response = newUserAddress ? { order, user } : { order }
     res.send(response)
-    const { name, phone, street, city, state, zip } = address.values
+    const { name, phone, street, city, state, zip } = address
     const htmlOrder = `
       <div style="font-weight: 900">Order Summary</div>
       <div>Order: ${order._id}</div>

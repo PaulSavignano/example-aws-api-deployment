@@ -3,7 +3,7 @@ import mongoose, { Schema } from 'mongoose'
 import Section from './Section'
 import { deleteFiles } from '../utils/s3'
 
-const PageSchema = new Schema({
+const pageSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true, },
   sections: [{ type: Schema.Types.ObjectId, ref: 'Section' }],
   slug: { type: String },
@@ -21,7 +21,7 @@ const PageSchema = new Schema({
 })
 
 
-PageSchema.pre('save', async function(next) {
+pageSchema.pre('save', async function(next) {
   const page = this
   try {
     const existingPage = await Page.findOne({ appName: page.appName, 'values.name': page.values.name })
@@ -32,7 +32,7 @@ PageSchema.pre('save', async function(next) {
   next()
 })
 
-PageSchema.post('remove', function(doc, next) {
+pageSchema.post('remove', function(doc, next) {
   if (doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src) {
     return deleteFiles([{ Key: doc.values.backgroundImage.src }]).then(() => next())
     .catch(err => next(Error(error)))
@@ -45,6 +45,6 @@ PageSchema.post('remove', function(doc, next) {
   next()
 })
 
-const Page = mongoose.model('Page', PageSchema)
+const Page = mongoose.model('Page', pageSchema)
 
 export default Page

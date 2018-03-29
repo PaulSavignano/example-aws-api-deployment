@@ -14,7 +14,7 @@ import User from './User'
 import { deleteFile } from '../utils/s3'
 import { alignItems, flexFlow, justifyContent, textAlign } from '../utils/fieldOptions'
 
-const BrandSchema = new Schema({
+const brandSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true, unique: true },
   business: {
     address: {
@@ -62,7 +62,7 @@ const BrandSchema = new Schema({
   timestamps: true
 })
 
-BrandSchema.post('remove', function(doc, next) {
+brandSchema.post('remove', function(doc, next) {
   const { business } = doc
   if (business.image && business.image.src) {
     deleteFiles({ Key: appBar.image.src })
@@ -106,6 +106,6 @@ BrandSchema.post('remove', function(doc, next) {
   next()
 })
 
-const Brand = mongoose.model('Brand', BrandSchema)
+const Brand = mongoose.model('Brand', brandSchema)
 
 export default Brand

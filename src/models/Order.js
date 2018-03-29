@@ -1,7 +1,9 @@
 import mongoose, { Schema } from 'mongoose'
 
-const OrderSchema = new Schema({
-  address: { type: Object, required: true },
+import { addressValuesSchema } from '../utils/schemas'
+
+const orderSchema = new Schema({
+  address: addressValuesSchema,
   appName: { type: String, maxlength: 90, required: true },
   cart: { type: Object, required: true },
   email: { type: String, required: true, maxlength: 100 },
@@ -16,6 +18,6 @@ const OrderSchema = new Schema({
   timestamps: true
 })
 
-const Order = mongoose.model('Order', OrderSchema)
+const Order = mongoose.model('Order', orderSchema)
 
 export default Order

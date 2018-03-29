@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose'
 
 import { deleteFiles } from '../utils/s3'
 
-const ProductSchema = new Schema({
+const productSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   published: { Type: Boolean, default: false },
   section: { type: Schema.Types.ObjectId, ref: 'Section' },
@@ -31,20 +31,20 @@ const ProductSchema = new Schema({
   timestamps: true
 })
 
-ProductSchema.index({
+productSchema.index({
   'values.name': 'text',
   'values.description': 'text',
   'values.detail': 'text'
 })
 
 
-ProductSchema.post('remove', function(doc, next) {
+productSchema.post('remove', function(doc, next) {
   if (doc.values && doc.values.image && doc.values.image.src) return deleteFiles([{ Key: doc.values.image.src }])
   .then(() => next())
   .catch(error => next(Error(error)))
   next()
 })
 
-const Product = mongoose.model('Product', ProductSchema)
+const Product = mongoose.model('Product', productSchema)
 
 export default Product
