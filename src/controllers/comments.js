@@ -4,17 +4,74 @@ import Comment from '../models/Comment'
 
 export const add = async (req, res) => {
   const {
-    body,
+    body: { parent, values, review },
     appName,
     user
   } = req
-  const comment = await new Comment({
+  const add = {
     appName,
     user: user._id,
-    ...req.body
-  }).save()
+    parent,
+    values,
+    review
+  }
+  const newComment = await new Comment({ ...add }).save()
+  const comment = await Comment.findOne({ _id: newComment._id })
+  .populate({
+    path: 'user',
+    select: 'values.firstName values.lastName _id'
+  })
   if (!comment) throw Error('New comment add error')
+  console.log('comment', comment)
   return res.send(comment)
+}
+
+
+export const update = async (req, res) => {
+  const {
+    body: { values, like, disLike },
+    params: { _id },
+    appName,
+    user,
+  } = req
+  if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid id')
+  if (values) {
+    const comment = await Comment.findOneAndUpdate(
+      { _id, appName, user: user._id },
+      { $set: { values }},
+      { new: true }
+    )
+    .populate({
+      path: 'user',
+      select: 'values.firstName values.lastName _id'
+    })
+    return res.send(comment)
+  }
+  if (like) {
+    const comment = await Comment.findOneAndUpdate(
+      { _id, appName, user: user._id },
+      { $push: { likes: like }, $pull: { disLikes: like }},
+      { new: true }
+    )
+    .populate({
+      path: 'user',
+      select: 'values.firstName values.lastName _id'
+    })
+    return res.send(comment)
+  }
+  if (disLike) {
+    console.log('disLike', disLike)
+    const comment = await Comment.findOneAndUpdate(
+      { _id, appName, user: user._id },
+      { $push: { disLikes: disLike }, $pull: { likes: disLike }},
+      { new: true }
+    )
+    .populate({
+      path: 'user',
+      select: 'values.firstName values.lastName _id'
+    })
+    return res.send(comment)
+  }
 }
 
 
