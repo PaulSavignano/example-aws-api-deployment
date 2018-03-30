@@ -7,7 +7,6 @@ const reviewSchema = new Schema({
   published: { type: Boolean, default: false },
   user: { type: Schema.ObjectId, ref: 'User' },
   likes: [{ type: Schema.ObjectId, ref: 'User' }],
-  disLikes: [{ type: Schema.ObjectId, ref: 'User' }],
   values: {
     text: { type: String, maxlength: 9000 },
     rating: { type: Number, min: 1, max: 5 }
@@ -26,7 +25,6 @@ function autopopulate(next) {
 
 reviewSchema.pre('find', autopopulate);
 reviewSchema.pre('findOne', autopopulate)
-reviewSchema.pre('save', autopopulate)
 
 const Review = mongoose.model('Review', reviewSchema)
 

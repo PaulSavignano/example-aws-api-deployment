@@ -6,7 +6,6 @@ const commentSchema = new Schema({
   review: { type: Schema.ObjectId, ref: 'Review' },
   parent: { type: Schema.ObjectId, ref: 'Comment' },
   likes: [{ type: Schema.ObjectId, ref: 'User' }],
-  disLikes: [{ type: Schema.ObjectId, ref: 'User' }],
   values: {
     text: { type: String, maxlength: 9000 },
   }
@@ -24,8 +23,6 @@ function autopopulate(next) {
 
 commentSchema.pre('find', autopopulate);
 commentSchema.pre('findOne', autopopulate)
-commentSchema.pre('save', autopopulate)
-
 
 const Comment = mongoose.model('Comment', commentSchema)
 

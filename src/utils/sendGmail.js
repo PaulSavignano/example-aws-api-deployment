@@ -7,15 +7,15 @@ import getRgbTotal from '../utils/getRgbTotal'
 import shadows from './shadows'
 
 const sendGmail = async (props) => {
+  const {
+    appName,
+    toEmail,
+    toSubject,
+    toBody,
+    adminSubject,
+    adminBody,
+  } = props
   try {
-    const {
-      appName,
-      to,
-      toSubject,
-      toBody,
-      fromSubject,
-      fromBody,
-    } = props
     const config = await Config.findOne({ appName })
     if (!config) throw Error('No config found, email not sent')
     const {
@@ -57,74 +57,77 @@ const sendGmail = async (props) => {
     const emailTemplate = (body) => (`
       <!doctype html>
       <html>
-      <head>
-        <link href="https://fonts.googleapis.com/css?family=Dancing+Script|Open+Sans+Condensed:300" rel="stylesheet">
-      <style type="text/css">
-        p, div, ol {
-          font-family: ${fontFamily};
-        }
-        a {
-          text-decoration: none;
-          color: inherit !important;
-          font-family: ${fontFamily};
-        }
-      </style>
-      </head>
-      <body>
-         <main>
-          ${body}
-          <br/><br/>
-          <a href="https://${appName}" style="text-decoration: none; color: ${primary}; font-family: ${name.fontFamily}; font-size: ${name.fontSize}; font-weight: ${name.fontWeight}; letter-spacing: ${name.letterSpacing};  text-shadow: ${name.textShadow};">
-            ${image && image.src ? `
-              <img
-                src="assets.savignano.io/${image.src}"
-                alt="business"
-                height="60px"
-                width="auto"
-                style="border: ${image.border}; border-radius: ${image.borderRadius}; box-shadow: ${shadows[image.elevation]} !important; -webkit-box-shadow: ${shadows[image.elevation]} !important; -moz-box-shadow: ${shadows[image.elevation]} !important; margin: ${image.margin}"
-              />` : ''}
-            <div>
-              ${name.text}
-            </div>
-          </a>
-          <div>
-            <a href="mailto:${gmailUser}" style="text-decoration: none; color: ${main};">
-              ${gmailUser}
-            </a>
-          </div>
-          ${phone ? `
-            <div style="font-family: ${fontFamily}">
-              <a href="tel:${phone.replace(/\D+/g, '')}" style="text-decoration: none; color: inherit;">
-                ${phone}
+        <head>
+          <link href="https://fonts.googleapis.com/css?family=Dancing+Script|Open+Sans+Condensed:300" rel="stylesheet">
+        <style type="text/css">
+          p, div, ol {
+            font-family: ${fontFamily};
+          }
+          a {
+            text-decoration: none;
+            color: inherit !important;
+            font-family: ${fontFamily};
+          }
+        </style>
+        </head>
+        <body>
+           <main>
+            ${body}
+            <br/><br/>
+            <a href="https://${appName}" style="text-decoration: none; color: ${primary}; font-family: ${name.fontFamily}; font-size: ${name.fontSize}; font-weight: ${name.fontWeight}; letter-spacing: ${name.letterSpacing};  text-shadow: ${name.textShadow};">
+              ${image && image.src ? `
+                <img
+                  src="assets.savignano.io/${image.src}"
+                  alt="business"
+                  height="60px"
+                  width="auto"
+                  style="border: ${image.border}; border-radius: ${image.borderRadius}; box-shadow: ${shadows[image.elevation]} !important; -webkit-box-shadow: ${shadows[image.elevation]} !important; -moz-box-shadow: ${shadows[image.elevation]} !important; margin: ${image.margin}"
+                />` : ''}
+              <div>
+                ${name.text}
               </div>
-          ` : '' }
-          ${address.street ? `<div style="font-family: ${fontFamily}">${address.street}</div>` : '' }
-          ${address.zip ? `<div style="font-family: ${fontFamily}">${address.city} ${address.state}, ${address.zip}</div>` : '' }
-         </main>
-      </body>
+            </a>
+            <div>
+              <a href="mailto:${gmailUser}" style="text-decoration: none; color: ${main};">
+                ${gmailUser}
+              </a>
+            </div>
+            ${phone ? `
+              <div style="font-family: ${fontFamily}">
+                <a href="tel:${phone.replace(/\D+/g, '')}" style="text-decoration: none; color: inherit;">
+                  ${phone}
+                </div>
+            ` : '' }
+            ${address.street ? `<div style="font-family: ${fontFamily}">${address.street}</div>` : '' }
+            ${address.zip ? `<div style="font-family: ${fontFamily}">${address.city} ${address.state}, ${address.zip}</div>` : '' }
+           </main>
+        </body>
       </html>
     `)
 
-    const userMail = {
-      from: gmailUser,
-      to: to,
-      subject: toSubject,
-      html: emailTemplate(toBody)
+    if (toSubject) {
+      const userMail = {
+        from: gmailUser,
+        to: toEmail,
+        subject: toSubject,
+        html: emailTemplate(toBody)
+      }
+      const userEmail = await transporter.sendMail(userMail)
+      console.info('sendGmail userEmail: ', userEmail)
     }
-    if (fromSubject) {
+
+    if (adminSubject) {
       const adminMail = {
         from: gmailUser,
         to: gmailUser,
-        subject: fromSubject,
-        html: emailTemplate(fromBody)
+        subject: adminSubject,
+        html: emailTemplate(adminBody)
       }
-      const adminMailInfo = await transporter.sendMail(adminMail)
-      console.info('sendGmail adminMailInfo: ', adminMailInfo)
+      const adminEmail = await transporter.sendMail(adminMail)
+      console.info('sendGmail adminEmail: ', adminEmail)
     }
-    const userMailInfo = await transporter.sendMail(userMail)
-    if (!userMailInfo) throw 'User email did not send'
-    console.info('sendGmail userMailInfo: ', userMailInfo)
-    return Promise.resolve(userMailInfo)
+
+    return
   } catch (error) {
     return Promise.reject(error)
   }

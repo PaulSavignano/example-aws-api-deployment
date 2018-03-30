@@ -2,17 +2,21 @@ import { ObjectID } from 'mongodb'
 
 import Review from '../models/Review'
 import Order from '../models/Order'
+import sendGmail from '../utils/sendGmail'
 
 export const add = async (req, res) => {
   const {
     body: {
       item,
       kind,
+      itemName,
+      href,
       values,
     },
     appName,
     user
   } = req
+
   const doc = await new Review({
     appName,
     item,
@@ -20,10 +24,29 @@ export const add = async (req, res) => {
     user: user._id,
     values,
   }).save()
-  console.log('doc', doc._id)
   const review = await Review.findOne({ _id: doc._id })
   if (!review) throw Error('New review add error')
-  return res.send(review)
+  res.send(review)
+  const emailSummary = `
+    <div style="text-decoration: underline">Review Summary</div>
+    <div>Stars: ${values.rating}</div>
+    <div>Review: ${values.text}</div>
+  `
+  const mailData = await sendGmail({
+    appName,
+    to: user.values.email,
+    toSubject: 'Thank you for your review!',
+    toBody: `
+      <p>Hi ${user.values.firstName},</p>
+      <p>We appreciate you taking to time to write a review for <a href="${href}">${itemName}</a>.</p>
+      ${emailSummary}
+    `,
+    adminSubject: `New review received!`,
+    adminBody: `
+      <p>${user.values.firstName} ${user.values.lastName} just added a review for <a href="${href}">${itemName}</a>!</p>
+      ${emailSummary}
+    `
+  })
 }
 
 
@@ -35,7 +58,6 @@ export const get = async (req, res) => {
     query: { kind, item, lastId, userId, limit, reviewId },
     user
   } = req
-  console.log('req', req.query)
   const kindQuery = kind && { kind }
   const itemQuery = item && { item: item }
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
@@ -57,7 +79,6 @@ export const get = async (req, res) => {
   const reviews = await Review.find(query)
   .limit(parseInt(limit))
   .populate('item')
-  console.log('reviews are ', reviews)
   return res.send(reviews)
 
 }
@@ -74,7 +95,6 @@ export const getGraph = async (req, res) => {
     query: { kind, item, lastId, userId, limit, reviewId },
     user
   } = req
-  console.log('req', req.query)
   const kindQuery = kind && { kind }
   const itemQuery = item && { item: item }
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
@@ -123,16 +143,15 @@ export const getGraph = async (req, res) => {
 
 export const update = async (req, res) => {
   const {
-    body: { values, like, disLike },
+    body: { values, like, unlike, href, itemName },
     appName,
     params: { _id },
     user,
   } = req
-  console.log('update is ', req.body)
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
-  const update = values ? { $set: { values }} : like ? { $push: { likes: like }, $pull: { disLikes: like }} : disLike ? { $push: { disLikes: disLike }, $pull: { likes: disLike }} : null
+  const update = values ? { $set: { values }} : like ? { $push: { likes: like }} : unlike ? { $pull: { likes: unlike }} : null
   const review = await Review.findOneAndUpdate(
-    { _id, appName, user: user._id },
+    { _id, appName },
     update,
     { new: true }
   )
@@ -140,6 +159,19 @@ export const update = async (req, res) => {
   .populate('item')
   if (!review) throw Error('Review update error')
   return res.send(review)
+
+  if (values) {
+    const mailData = await sendGmail({
+      appName,
+      adminSubject: `Review Updated!`,
+      adminBody: `
+        <p>${user.values.firstName} ${user.values.lastName} just updated their review for <a href="${href}">${itemName}</a>!</p>
+        <div style="text-decoration: underline">Review Summary</div>
+        <div>Stars: ${values.rating}</div>
+        <div>Review: ${values.text}</div>
+      `
+    })
+  }
 }
 
 
@@ -157,7 +189,6 @@ export const adminUpdate = async (req, res) => {
   )
   .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
   .populate('item')
-  console.log('review', review)
   if (!review) throw Error('Review update error')
   return res.send(review)
 }

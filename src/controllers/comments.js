@@ -1,41 +1,47 @@
 import { ObjectID } from 'mongodb'
 
 import Comment from '../models/Comment'
+import sendGmail from '../utils/sendGmail'
 
 export const add = async (req, res) => {
   const {
-    body: { parent, values, review },
+    body: { parent, values, review, href, itemName },
     appName,
     user
   } = req
   const add = {
     appName,
-    user: user._id,
+    user: ObjectID(user._id),
     parent,
     values,
     review
   }
-  const newComment = await new Comment({ ...add }).save()
-  const comment = await Comment.findOne({ _id: newComment._id })
-  .populate({
-    path: 'user',
-    select: 'values.firstName values.lastName _id'
-  })
+  const doc = await new Comment({ ...add }).save()
+  const comment = await Comment.findOne({ _id: doc._id })
+
   if (!comment) throw Error('New comment add error')
-  console.log('comment', comment)
-  return res.send(comment)
+  res.send(comment)
+
+  const parentDoc = parent ? await Comment.findOne({ parent }) : await Review.findOne({ _id: review })
+  const mailData = await sendGmail({
+    appName,
+    adminSubject: `New review received!`,
+    adminBody: `
+      <p>${user.values.firstName} ${user.values.lastName} just commented on ${parentDoc.user.values.firstName} ${parentDoc.user.values.lastName}'s ${parent ? 'comment' : 'review'} of <a href="${href}">${itemName}</a>!</p>
+    `
+  })
 }
 
 
 export const update = async (req, res) => {
   const {
-    body: { values, like, disLike },
+    body: { values, like, unlike, href, itemName },
     params: { _id },
     appName,
     user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid id')
-  const update = values ? { $set: { values }} : like ? { $push: { likes: like }, $pull: { disLikes: like }} : disLike ? { $push: { disLikes: disLike }, $pull: { likes: disLike }} : null
+  const update = values ? { $set: { values }} : like ? { $push: { likes: like }} : unlike ? { $pull: { likes: unlike }} : null
   const comment = await Comment.findOneAndUpdate(
     { _id, appName, user: user._id },
     update,
@@ -45,7 +51,19 @@ export const update = async (req, res) => {
     path: 'user',
     select: 'values.firstName values.lastName _id'
   })
-  return res.send(comment)
+
+  res.send(comment)
+
+  if (values) {
+    const mailData = await sendGmail({
+      appName,
+      adminSubject: `Comment Updated!`,
+      adminBody: `
+        <p>${user.values.firstName} ${user.values.lastName} just updated their comment for <a href="${href}">${itemName}</a>!</p>
+        <p style="font-style: italic;">Comment: ${values.text}</p>
+      `
+    })
+  }
 }
 
 
@@ -57,7 +75,6 @@ export const get = async (req, res) => {
     user
   } = req
   const comments = await Comment.find({ appName, review: reviewId })
-  console.log('comments are ', comments)
   return res.send(comments)
 }
 

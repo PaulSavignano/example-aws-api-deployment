@@ -17,10 +17,9 @@ const authenticate = (requiredRoles) => async (req, res, next) => {
       const refreshToken = req.headers['x-refresh-token']
       if (refreshToken) {
         try {
-          const { appName } = req.params
           const rToken = await RefreshToken.findOne({ refreshToken }).populate('user')
           if (!hasRoles(rToken.user.roles, requiredRoles)) throw Error('Access denied')
-          const { newAccessToken, newRefreshToken } = await createTokens(rToken.user, appName)
+          const { newAccessToken, newRefreshToken } = await createTokens(rToken.user, req.appName)
           if (newAccessToken && newRefreshToken) {
             req.user = rToken.user
             res.set('x-access-token', newAccessToken)
