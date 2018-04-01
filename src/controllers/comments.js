@@ -1,6 +1,7 @@
 import { ObjectID } from 'mongodb'
 
 import Comment from '../models/Comment'
+import Review from '../models/Review'
 import sendGmail from '../utils/sendGmail'
 
 export const add = async (req, res) => {
@@ -25,9 +26,10 @@ export const add = async (req, res) => {
   const parentDoc = parent ? await Comment.findOne({ parent }) : await Review.findOne({ _id: review })
   const mailData = await sendGmail({
     appName,
-    adminSubject: `New review received!`,
+    adminSubject: `New comment received!`,
     adminBody: `
-      <p>${user.values.firstName} ${user.values.lastName} just commented on ${parentDoc.user.values.firstName} ${parentDoc.user.values.lastName}'s ${parent ? 'comment' : 'review'} of <a href="${href}">${itemName}</a>!</p>
+      <p>${user.values.firstName} ${user.values.lastName} just commented on ${parentDoc.user.values.firstName} ${parentDoc.user.values.lastName}'s ${parent ? 'comment' : 'review'} of <a href="${href}#${comment._id}">${itemName}</a>!</p>
+      <p style="font-style: italic;">${values.text}</p>
     `
   })
 }
@@ -59,8 +61,8 @@ export const update = async (req, res) => {
       appName,
       adminSubject: `Comment Updated!`,
       adminBody: `
-        <p>${user.values.firstName} ${user.values.lastName} just updated their comment for <a href="${href}">${itemName}</a>!</p>
-        <p style="font-style: italic;">Comment: ${values.text}</p>
+        <p>${user.values.firstName} ${user.values.lastName} just updated their comment for <a href="${href}#${comment._id}">${itemName}</a>!</p>
+        <p style="font-style: italic;">${values.text}</p>
       `
     })
   }
@@ -77,6 +79,28 @@ export const get = async (req, res) => {
   const comments = await Comment.find({ appName, review: reviewId })
   return res.send(comments)
 }
+
+
+
+
+
+export const reportAbuse = async (req, res) => {
+  const {
+    appName,
+    body: { comment, href, itemName},
+    user
+  } = req
+  const mailData = await sendGmail({
+    appName,
+    adminSubject: `Abuse reported on comment ${comment._id}!`,
+    adminBody: `
+      <p>${user.values.firstName} ${user.values.lastName} just reported abuse regarding comment ${comment._id} <a href="${href}">${itemName}</a>!</p>
+    `
+  })
+
+  return res.send(mailData)
+}
+
 
 
 

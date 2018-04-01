@@ -38,12 +38,12 @@ export const add = async (req, res) => {
     toSubject: 'Thank you for your review!',
     toBody: `
       <p>Hi ${user.values.firstName},</p>
-      <p>We appreciate you taking to time to write a review for <a href="${href}">${itemName}</a>.</p>
+      <p>We appreciate you taking to time to write a review for <a href="${href}#${review._id}">${itemName}</a>.</p>
       ${emailSummary}
     `,
     adminSubject: `New review received!`,
     adminBody: `
-      <p>${user.values.firstName} ${user.values.lastName} just added a review for <a href="${href}">${itemName}</a>!</p>
+      <p>${user.values.firstName} ${user.values.lastName} just added a review for <a href="${href}#${review._id}">${itemName}</a>!</p>
       ${emailSummary}
     `
   })
@@ -165,7 +165,7 @@ export const update = async (req, res) => {
       appName,
       adminSubject: `Review Updated!`,
       adminBody: `
-        <p>${user.values.firstName} ${user.values.lastName} just updated their review for <a href="${href}">${itemName}</a>!</p>
+        <p>${user.values.firstName} ${user.values.lastName} just updated their review for <a href="${href}#${reivew._id}">${itemName}</a>!</p>
         <div style="text-decoration: underline">Review Summary</div>
         <div>Stars: ${values.rating}</div>
         <div>Review: ${values.text}</div>
