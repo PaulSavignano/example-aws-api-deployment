@@ -1,7 +1,9 @@
 import { ObjectID } from 'mongodb'
 
-import Review from '../models/Review'
+import Blog from '../models/Blog'
 import Order from '../models/Order'
+import Product from '../models/Product'
+import Review from '../models/Review'
 import sendGmail from '../utils/sendGmail'
 
 export const add = async (req, res) => {
@@ -78,7 +80,6 @@ export const get = async (req, res) => {
   }
   const reviews = await Review.find(query)
   .limit(parseInt(limit))
-  .populate('item')
   return res.send(reviews)
 
 }
@@ -141,37 +142,78 @@ export const getGraph = async (req, res) => {
 
 
 
-export const update = async (req, res) => {
+export const updateLikes = async (req, res) => {
   const {
-    body: { values, like, unlike, href, itemName },
+    body: { like, unlike, href, itemName },
     appName,
     params: { _id },
     user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
-  const update = values ? { $set: { values }} : like ? { $push: { likes: like }} : unlike ? { $pull: { likes: unlike }} : null
+  const update = like ? { $push: { likes: like }} : unlike ? { $pull: { likes: unlike }} : null
   const review = await Review.findOneAndUpdate(
     { _id, appName },
     update,
     { new: true }
   )
   .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
-  .populate('item')
   if (!review) throw Error('Review update error')
-  return res.send(review)
+  res.send(review)
+}
 
-  if (values) {
-    const mailData = await sendGmail({
-      appName,
-      adminSubject: `Review Updated!`,
-      adminBody: `
-        <p>${user.values.firstName} ${user.values.lastName} just updated their review for <a href="${href}#${reivew._id}">${itemName}</a>!</p>
-        <div style="text-decoration: underline">Review Summary</div>
-        <div>Stars: ${values.rating}</div>
-        <div>Review: ${values.text}</div>
-      `
-    })
-  }
+
+
+export const updateValues = async (req, res) => {
+  const {
+    body: { values, href, itemName },
+    appName,
+    params: { _id },
+    user,
+  } = req
+  if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
+  const oldReview = await Review.findOne({ _id, appName })
+  const hasNewRating = oldReview.values.rating !== values.rating ? true : false
+  const review = await Review.findOneAndUpdate(
+    { _id, appName },
+    { $set: { values }},
+    { new: true }
+  )
+  .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
+  if (!review) throw Error('Review update error')
+
+  const agg = hasNewRating ? [
+    { $match: { appName, _id: review.item  } },
+    { $lookup: {
+      from: 'reviews',
+      localField: '_id',
+      foreignField: 'item',
+      as: 'reviews'
+    }},
+    { $project: {
+      _id: "$$ROOT._id",
+      values: "$$ROOT.values",
+      stars: { $sum: "$reviews.values.rating" },
+      reviews: { $size: "$reviews" }
+    }}
+  ] : null
+  console.log('bool ', hasNewRating, review.kind === 'Product')
+  const products = hasNewRating && review.kind === 'Product' ? await Product.aggregate(agg) : null
+  const blogs = hasNewRating && review.kind === 'Blog' ? await Blog.aggregate(agg) : null
+  const blog = blogs && blogs.length > 0 ? blogs[0] : null
+  const product = products && products.length > 0 ? products[0] : null
+  const response = { review, product, blog }
+  console.log('response is ', response)
+  return res.send({ ...response })
+  const mailData = await sendGmail({
+    appName,
+    adminSubject: `Review Updated!`,
+    adminBody: `
+      <p>${user.values.firstName} ${user.values.lastName} just updated their review for <a href="${href}#${reivew._id}">${itemName}</a>!</p>
+      <div style="text-decoration: underline">Review Summary</div>
+      <div>Stars: ${values.rating}</div>
+      <div>Review: ${values.text}</div>
+    `
+  })
 }
 
 

@@ -6,7 +6,7 @@ import { deleteFiles } from '../utils/s3'
 const pageSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true, },
   sections: [{ type: Schema.Types.ObjectId, ref: 'Section' }],
-  slug: { type: String },
+  slug: { type: String, maxlength: 90 },
   values: {
     backgroundColor: { type: String, trim: true, maxlength: 50 },
     backgroundImage: {

@@ -10,7 +10,6 @@ const sectionSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   components: [{ type: Schema.Types.ObjectId, ref: 'Component' }],
   page: { type: Schema.ObjectId, ref: 'Page' },
-  pageSlug: { type: String, trim: true, maxlength: 100 },
   values: {
     alignItems: { type: String, enum: alignItems },
     backgroundColor: { type: String, trim: true, maxlength: 50 },

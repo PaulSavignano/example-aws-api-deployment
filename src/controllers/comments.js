@@ -35,17 +35,20 @@ export const add = async (req, res) => {
 }
 
 
-export const update = async (req, res) => {
+
+
+
+export const updateLikes = async (req, res) => {
   const {
-    body: { values, like, unlike, href, itemName },
+    body: { like, unlike },
     params: { _id },
     appName,
     user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid id')
-  const update = values ? { $set: { values }} : like ? { $push: { likes: like }} : unlike ? { $pull: { likes: unlike }} : null
+  const update = like ? { $push: { likes: like }} : unlike ? { $pull: { likes: unlike }} : null
   const comment = await Comment.findOneAndUpdate(
-    { _id, appName, user: user._id },
+    { _id, appName },
     update,
     { new: true }
   )
@@ -53,19 +56,38 @@ export const update = async (req, res) => {
     path: 'user',
     select: 'values.firstName values.lastName _id'
   })
-
   res.send(comment)
-
-  if (values) {
-    const mailData = await sendGmail({
-      appName,
-      adminSubject: `Comment Updated!`,
-      adminBody: `
-        <p>${user.values.firstName} ${user.values.lastName} just updated their comment for <a href="${href}#${comment._id}">${itemName}</a>!</p>
-        <p style="font-style: italic;">${values.text}</p>
-      `
-    })
   }
+
+
+
+export const updateValues = async (req, res) => {
+  const {
+    body: { values, href, itemName },
+    params: { _id },
+    appName,
+    user,
+  } = req
+  if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid id')
+  const comment = await Comment.findOneAndUpdate(
+    { _id, appName, user: user._id },
+    { $set: { values }},
+    { new: true }
+  )
+  .populate({
+    path: 'user',
+    select: 'values.firstName values.lastName _id'
+  })
+  res.send(comment)
+  const mailData = await sendGmail({
+    appName,
+    adminSubject: `Comment Updated!`,
+    adminBody: `
+      <p>${user.values.firstName} ${user.values.lastName} just updated their comment for <a href="${href}#${comment._id}">${itemName}</a>!</p>
+      <div style="text-decoration: underline;">${user.values.firstName}'s Comment:</div>
+      <div style="font-style: italic;">${values.text}</div>
+    `
+  })
 }
 
 
@@ -97,7 +119,6 @@ export const reportAbuse = async (req, res) => {
       <p>${user.values.firstName} ${user.values.lastName} just reported abuse regarding comment ${comment._id} <a href="${href}">${itemName}</a>!</p>
     `
   })
-
   return res.send(mailData)
 }
 
@@ -112,6 +133,7 @@ export const remove = async (req, res) => {
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Comment remove error, invalid id')
   const comment = await Comment.findOneAndRemove({ _id, appName })
+  const deletedComments = Comment.deleteMany({ parent: comment._id })
   if (!comment) throw Error('Comment remove error, comment not found')
   return res.send(comment._id)
 }

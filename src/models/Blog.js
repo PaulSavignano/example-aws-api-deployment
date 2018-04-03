@@ -4,7 +4,6 @@ import { deleteFiles } from '../utils/s3'
 const blogSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   page: { type: Schema.ObjectId, ref: 'Page' },
-  pageSlug: { type: String, trim: true, maxlength: 100 },
   section: { type: Schema.Types.ObjectId, ref: 'Section' },
   published: { Type: Boolean, default: false },
   values: {

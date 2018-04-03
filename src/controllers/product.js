@@ -73,8 +73,22 @@ export const getId = async (req, res) => {
     params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Product id not found, invalid id')
-  const product = await Product.findOne({ appName, _id })
-  return res.send(product)
+  const products = await Product.aggregate([
+    { $match: { appName, _id }},
+    { $lookup: {
+      from: 'reviews',
+      localField: '_id',
+      foreignField: 'item',
+      as: 'reviews'
+    }},
+    { $project: {
+      _id: "$$ROOT._id",
+      values: "$$ROOT.values",
+      stars: { $sum: "$reviews.values.rating" },
+      reviews: { $size: "$reviews" }
+    }}
+  ])
+  return res.send(products[0])
 }
 
 

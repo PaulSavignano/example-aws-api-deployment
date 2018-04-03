@@ -69,9 +69,23 @@ export const getId = async (req, res) => {
     params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Blog not found, invalid id')
-  const blog = await Blog.findOne({ appName, _id  })
-  if (!blog) throw Error('That blog was not found')
-  return res.send(blog)
+  const blogs = await Blog.aggregate([
+    { $match: { appName, _id  }},
+    { $lookup: {
+      from: 'reviews',
+      localField: '_id',
+      foreignField: 'item',
+      as: 'reviews'
+    }},
+    { $project: {
+      _id: "$$ROOT._id",
+      values: "$$ROOT.values",
+      stars: { $sum: "$reviews.values.rating" },
+      reviews: { $size: "$reviews" }
+    }}
+  ])
+  if (!blog[0]) throw Error('That blog was not found')
+  return res.send(blogs[0])
 }
 
 

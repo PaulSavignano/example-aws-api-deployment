@@ -14,7 +14,6 @@ import {
 const componentSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   page: { type: Schema.ObjectId, ref: 'Page' },
-  pageSlug: { type: String, trim: true, maxlength: 25 },
   section: { type: Schema.ObjectId, ref: 'Section' },
   kind: { type: String, trim: true, maxlength: 500, enum: components },
   values: {
