@@ -52,7 +52,6 @@
     "prestart": "npm run -s build",
     "build": "npm run clean && babel src -d build",
     "postbuild": "rm -rf src",
-    "start": "node build/index.js",
     "start-prod": "node build/index.js",
     "start-dev": "nodemon -r babel-register src/index.js",
     "test-watch": "nodemon --exec 'npm test'",
