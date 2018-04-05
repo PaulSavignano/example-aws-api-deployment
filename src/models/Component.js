@@ -28,6 +28,7 @@ const componentSchema = new Schema({
     elevation: { type: Number, trim: true, max: 25, min: 0 },
     flex: { type: String, trim: true, maxlength: 15, default: '1 1 auto' },
     flexFlow: { type: String, enum: flexFlow },
+    hashNav: { type: String, trim: true, maxlength: 50 },
     justifyContent: { type: String, enum: justifyContent },
     link: { type: String, trim: true, maxlength: 90 },
     margin: { type: String, trim: true, maxlength: 50 },

@@ -69,6 +69,7 @@ export const updateValues = async (req, res) => {
     user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid id')
+  const prevComment = await Comment.findOne({ _id, appName })
   const comment = await Comment.findOneAndUpdate(
     { _id, appName, user: user._id },
     { $set: { values }},
@@ -79,13 +80,17 @@ export const updateValues = async (req, res) => {
     select: 'values.firstName values.lastName _id'
   })
   res.send(comment)
+  const parentDoc = comment.parent ? await Comment.findOne({ _id: comment.parent }) : await Review.findOne({ _id: comment.review })
   const mailData = await sendGmail({
     appName,
-    adminSubject: `Comment Updated!`,
+    adminSubject: `Comment Updated for ${itemName}!`,
     adminBody: `
-      <p>${user.values.firstName} ${user.values.lastName} just updated their comment for <a href="${href}#${comment._id}">${itemName}</a>!</p>
-      <div style="text-decoration: underline;">${user.values.firstName}'s Comment:</div>
+      <p>${user.values.firstName} ${user.values.lastName} just updated their comment to ${parentDoc.user.values.firstName} ${parentDoc.user.values.lastName}'s ${comment.parent ? 'comment' : 'review'} relating to <a href="${href}#${comment._id}">${itemName}</a>!</p>
+      <div style="text-decoration: underline;">${user.values.firstName}'s previous comment:</div>
       <div style="font-style: italic;">${values.text}</div>
+      <br/>
+      <div style="text-decoration: underline;">${user.values.firstName}'s updated comment:</div>
+      <div style="font-style: italic;">${prevComment.values.text}</div>
     `
   })
 }
@@ -112,14 +117,18 @@ export const reportAbuse = async (req, res) => {
     body: { comment, href, itemName},
     user
   } = req
+  const kind = comment.kind ? 'review' : 'comment'
+  console.log('comment is ', comment)
   const mailData = await sendGmail({
     appName,
-    adminSubject: `Abuse reported on comment ${comment._id}!`,
+    adminSubject: `Abuse reported on a ${kind} for ${itemName}!`,
     adminBody: `
-      <p>${user.values.firstName} ${user.values.lastName} just reported abuse regarding comment ${comment._id} <a href="${href}">${itemName}</a>!</p>
+      <p>Abuse reported on the following ${kind} for ${itemName} <a href="${href}">${itemName}</a>!</p>
+      <div>${kind} text:</div>
+      <div style="font-style: italic;">${comment.values.text}</div>
     `
   })
-  return res.send(mailData)
+  res.send(mailData)
 }
 
 

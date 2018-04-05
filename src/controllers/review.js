@@ -28,15 +28,38 @@ export const add = async (req, res) => {
   }).save()
   const review = await Review.findOne({ _id: doc._id })
   if (!review) throw Error('New review add error')
-  res.send(review)
+
+  const agg = [
+    { $match: { appName, _id: review.item  } },
+    { $lookup: {
+      from: 'reviews',
+      localField: '_id',
+      foreignField: 'item',
+      as: 'reviews'
+    }},
+    { $project: {
+      _id: "$$ROOT._id",
+      values: "$$ROOT.values",
+      stars: { $sum: "$reviews.values.rating" },
+      reviews: { $size: "$reviews" }
+    }}
+  ]
+  const products = review.kind === 'Product' ? await Product.aggregate(agg) : null
+  const blogs = review.kind === 'Blog' ? await Blog.aggregate(agg) : null
+  const blog = blogs && blogs.length > 0 ? blogs[0] : null
+  const product = products && products.length > 0 ? products[0] : null
+  const response = { review, product, blog }
+  res.send({ ...response })
+
   const emailSummary = `
     <div style="text-decoration: underline">Review Summary</div>
     <div>Stars: ${values.rating}</div>
     <div>Review: ${values.text}</div>
   `
+  console.log('user email is ', user.values.email)
   const mailData = await sendGmail({
     appName,
-    to: user.values.email,
+    toEmail: user.values.email,
     toSubject: 'Thank you for your review!',
     toBody: `
       <p>Hi ${user.values.firstName},</p>
@@ -158,7 +181,7 @@ export const updateLikes = async (req, res) => {
   )
   .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
   if (!review) throw Error('Review update error')
-  res.send(review)
+  res.send({ review })
 }
 
 
@@ -171,8 +194,8 @@ export const updateValues = async (req, res) => {
     user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
-  const oldReview = await Review.findOne({ _id, appName })
-  const hasNewRating = oldReview.values.rating !== values.rating ? true : false
+  const prevReview = await Review.findOne({ _id, appName })
+  const hasNewRating = prevReview.values.rating !== values.rating ? true : false
   const review = await Review.findOneAndUpdate(
     { _id, appName },
     { $set: { values }},
@@ -206,10 +229,14 @@ export const updateValues = async (req, res) => {
   return res.send({ ...response })
   const mailData = await sendGmail({
     appName,
-    adminSubject: `Review Updated!`,
+    adminSubject: `Review Updated for ${itemName}!`,
     adminBody: `
       <p>${user.values.firstName} ${user.values.lastName} just updated their review for <a href="${href}#${reivew._id}">${itemName}</a>!</p>
-      <div style="text-decoration: underline">Review Summary</div>
+      <div style="text-decoration: underline">${user.values.firstName}'s previous review</div>
+      <div>Stars: ${prevReview.values.rating}</div>
+      <div>Review: ${prevReview.values.text}</div>
+      <br/>
+      <div style="text-decoration: underline">${user.values.firstName}'s updated review</div>
       <div>Stars: ${values.rating}</div>
       <div>Review: ${values.text}</div>
     `

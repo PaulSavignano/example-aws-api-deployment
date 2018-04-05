@@ -4,6 +4,7 @@ import dns from 'dns'
 import expressValidator from 'express-validator'
 import helmet from 'helmet'
 import path from 'path'
+import compression from 'compression'
 
 import mongoose from './db/mongoose'
 import setAppName from './middleware/setAppName'
@@ -31,7 +32,8 @@ import moverbase from './moverbase/routes/moverbase'
 const app = express()
 const port = process.env.PORT
 
-app.use(forceSSL)
+app.use(helmet())
+app.use(compression())
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*")

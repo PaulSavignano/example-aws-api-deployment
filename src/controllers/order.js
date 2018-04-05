@@ -125,15 +125,15 @@ const createCharge = async ({
     `
     const mailData = await sendGmail({
       appName,
-      to: user.values.email,
+      toEmail: user.values.email,
       toSubject: 'Thank you for your order!',
       toBody: `
         <p>Hi ${user.values.firstName},</p>
         <p>Thank you for your recent order ${order._id}.  We are preparing your order for delivery and will send you a confirmation once it has shipped.  Please don't hesitate to reach out regarding anything we can with in the interim.</p>
         ${htmlOrder}
       `,
-      fromSubject: `New order received!`,
-      fromBody: `
+      adminSubject: `New order received!`,
+      adminBody: `
         <p>${user.values.firstName} ${user.values.lastName} just placed order an order!</p>
         ${htmlOrder}
         <p>Once shipped, you can mark the item as shipped in at <a href="${appName}/admin/orders">${appName}/admin/orders</a> to send confirmation to ${user.values.firstName}.</p>
@@ -415,14 +415,14 @@ export const update = async (req, res) => {
     res.send(order)
     sendGmail({
       appName,
-      to: email,
+      toEmail: email,
       toSubject: 'Your order has shipped!',
       toBody: `
         <p>Hi ${firstName},</p>
         <p>Order ${order._id} is on it's way!</p>
       `,
-      fromSubject: `Order shipped!`,
-      fromBody: `
+      adminSubject: `Order shipped!`,
+      adminBody: `
         <p>Order ${order._id} has been changed to shipped!</p>
         <div>Order: ${order._id}</div>
         <div>Total: ${formatPrice(order.cart.total)}</div>

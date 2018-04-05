@@ -84,7 +84,7 @@ export const getId = async (req, res) => {
       reviews: { $size: "$reviews" }
     }}
   ])
-  if (!blog[0]) throw Error('That blog was not found')
+  if (!blogs[0]) throw Error('That blog was not found')
   return res.send(blogs[0])
 }
 

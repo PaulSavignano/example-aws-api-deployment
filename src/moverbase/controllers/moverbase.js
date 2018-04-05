@@ -15,39 +15,31 @@ export const requestEstimate = async (req, res) => {
       size,
       note
     },
-    params: { appName }
+    appName
   } = req
-  const moverbaseApiKey = await Config.findOne({ appName })
-  if (!moverbaseApiKey) throw 'Sorry, there was no moverbase api key found'
-  const auth = 'Basic ' + new Buffer(moverbaseApiKey + ':').toString('base64')
   try {
+    const config = await ApiConfig.findOne({ appName })
+    if (!config) throw 'Sorry, there was no config found'
+    const auth = `Basic ${new Buffer(config.values.moverbaseKey + ':').toString('base64')}`
     const response = await fetch(`https://api.moverbase.com/v1/leads/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: auth
+        'Authorization': auth
       },
-      body: JSON.stringify({
-       date,
-       firstName,
-       lastName,
-       phone,
-       email,
-       from: { postalCode: from },
-       to: { postalCode: to },
-       size: { title: size },
-       note
-      })
+      body: JSON.stringify(body)
     })
-    const json = await response.json()
+    const { email, firstName, phone, note } = body
     const emailInfo = await sendGmail({
       appName,
-      to: email,
+      toEmail: email,
       toSubject: 'Thank you for contacting us for a free estimate',
-      name: firstName,
-      toBody: `<p>Thank you for requesting a free estimate.  We will contact you shortly!</p>`,
-      fromSubject: `New Estimate Request`,
-      fromBody: `
+      toBody: `
+        <p>Hi ${fistName},</p>
+        <p>We have received your request for a free estimate and will contact you shortly!</p>
+      `,
+      adminSubject: `New Estimate Request`,
+      adminBody: `
         <p>${firstName} just contacted you through ${appName}.</p>
         ${phone && `<div>Phone: ${phone}</div>`}
         <div>Email: ${email}</div>

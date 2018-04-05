@@ -35,20 +35,24 @@ export const add = async (req, res) => {
   res.set('x-access-token', newAccessToken)
   res.set('x-refresh-token', newRefreshToken)
   res.send(user)
-  return sendGmail({
+  await sendGmail({
     appName,
-    to: values.email,
+    toEmail: values.email,
     toSubject: `Welcome to ${appName}!`,
     toBody: `
       <p>Hi ${values.firstName},</p>
       <p>Thank you for joining ${appName}!</p>
-      <p>I hope you enjoy our offerings.  You may modify your profile settings at <a href="${appName}/user/profile">${appName}/user/profile</a>.</p>
+      <p>You may edit your account settings at <a href="${appName}/user/account">${appName}/user/account</a>.</p>
       <p>Please let us know if there is anything we can do to better help you.</p>
     `,
-    fromSubject: `New ${appName} user!`,
-    fromBody: `
-      <p>New user ${values.firstName} ${values.lastName} just signed up at ${appName}.</p>
-      `
+    adminSubject: `New ${appName} user!`,
+    adminBody: `
+      <p>New ${appName} user!</p>
+      <div>First Name: ${values.firstName}</div>
+      <div>Last Name: ${values.lastName}</div>
+      <div>Email: ${values.email}</div>
+      <div>Phone: ${values.phone ? values.phone : 'phone number not provided'}</div>
+    `
   })
 }
 
@@ -146,7 +150,7 @@ export const recovery = async (req, res, next) => {
     toSubject: 'Reset Password',
     toBody: `
       <p>Hi ${firstName},</p>
-      <p>Click the link below to recover your password.</p>
+      <p>Click the link below to reset your password.</p>
       <a href="${path}" style="color: black; text-decoration: none;">
         ${path}
       </a>
@@ -191,17 +195,16 @@ export const contact = async (req, res) => {
     appName
   } = req
   if (!firstName || !email || !message) throw Error('All fields are required')
-  const brand = await Brand.findOne({ appName })
   if (!brand) throw Error('Contact failed')
-  const { name } = brand.business.values
   const into = await sendGmail({
     appName,
-    to: email,
-    toSubject: `Thank you for contacting ${name}!`,
-    name: firstName,
-    toBody: `<p>Thank you for contacting ${name}.  We will respond to your request shortly!</p>`,
-    fromSubject: `New Contact Request`,
-    fromBody: `
+    toEmail: email,
+    toSubject: `Thank you for contacting ${appName}!`,
+    toBody: `
+      <p>Hi ${firstName}</p>
+      <p>Thank you for contacting ${appName}.  We have received your request and will respond shortly!</p>`,
+    adminSubject: `New Contact Request`,
+    adminBody: `
       <p>${firstName} just contacted you through ${appName}.</p>
       <div>Phone: ${phone ? phone : 'not provided'}</div>
       <div>Email: ${email}</div>

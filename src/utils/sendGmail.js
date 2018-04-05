@@ -105,7 +105,7 @@ const sendGmail = async (props) => {
       </html>
     `)
 
-    if (toSubject) {
+    if (toEmail) {
       const userMail = {
         from: gmailUser,
         to: toEmail,
