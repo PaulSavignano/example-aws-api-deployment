@@ -5,33 +5,23 @@ import expressValidator from 'express-validator'
 import helmet from 'helmet'
 import path from 'path'
 import compression from 'compression'
+import RateLimit from 'express-rate-limit'
 
 import mongoose from './db/mongoose'
 import setAppName from './middleware/setAppName'
 import forceSSL from './middleware/forceSSL'
+import router from './routes/index'
 
-import addresses from './routes/addresses'
-import blogs from './routes/blogs'
-import brands from './routes/brands'
-import carts from './routes/carts'
-import catchErrors from './utils/catchErrors'
-import comments from './routes/comments'
-import components from './routes/components'
-import configs from './routes/configs'
-import orders from './routes/orders'
-import pages from './routes/pages'
-import products from './routes/products'
-import reviews from './routes/reviews'
-import searches from './routes/searches'
-import sections from './routes/sections'
-import themes from './routes/themes'
-import users from './routes/users'
-
-import moverbase from './moverbase/routes/moverbase'
+const port = process.env.PORT
+const limiter = new RateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  delayMs: 0 // disable delaying - full speed until the max limit is reached
+})
 
 const app = express()
-const port = process.env.PORT
 
+app.use(limiter)
 app.use(helmet())
 app.use(compression())
 
@@ -46,24 +36,7 @@ app.use((req, res, next) => {
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: false }))
 
-
-app.use('/api/:appName/addresses', setAppName, addresses)
-app.use('/api/:appName/blogs', setAppName, blogs)
-app.use('/api/:appName/brands', setAppName, brands)
-app.use('/api/:appName/carts', setAppName, carts)
-app.use('/api/:appName/comments', setAppName, comments)
-app.use('/api/:appName/components', setAppName, components)
-app.use('/api/:appName/configs', setAppName, configs)
-app.use('/api/:appName/orders', setAppName, orders)
-app.use('/api/:appName/pages', setAppName, pages)
-app.use('/api/:appName/products', setAppName, products)
-app.use('/api/:appName/reviews', setAppName, reviews)
-app.use('/api/:appName/searches', setAppName, searches)
-app.use('/api/:appName/sections', setAppName, sections)
-app.use('/api/:appName/themes', setAppName, themes)
-app.use('/api/:appName/users', setAppName, users)
-
-app.use('/api/:appName/moverbase', moverbase)
+app.use('/api/:appName', setAppName, router)
 
 app.get('/', (req, res) => {
   res.send(`
