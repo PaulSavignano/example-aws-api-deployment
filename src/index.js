@@ -22,6 +22,8 @@ const limiter = new RateLimit({
 const app = express()
 
 app.use(forceSSL)
+app.enable('trust proxy')
+app.use(limiter)
 app.use(helmet())
 app.use(compression())
 
