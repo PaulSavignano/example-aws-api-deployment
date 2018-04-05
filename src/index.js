@@ -21,7 +21,7 @@ const limiter = new RateLimit({
 
 const app = express()
 
-app.use(limiter)
+app.use(forceSSL)
 app.use(helmet())
 app.use(compression())
 
