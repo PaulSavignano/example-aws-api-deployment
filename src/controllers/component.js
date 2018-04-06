@@ -5,7 +5,6 @@ import { getTime } from '../utils/formatDate'
 import Component from '../models/Component'
 import handleImage from '../utils/handleImage'
 import handleItemImages from '../utils/handleItemImages'
-import Page from '../models/Page'
 import Section from '../models/Section'
 
 export const add = async (req, res) => {
@@ -94,7 +93,7 @@ export const update = async (req, res) => {
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Component update failed, invalid id')
   // delete old image files as we cannot determine if there is one to delete if an image has been removed from the items array
-  const imageDeletes = oldSrcs.length && await deleteFiles(oldSrcs)
+  oldSrcs.length && await deleteFiles(oldSrcs)
 
   // handle new background image
   const backgroundImage = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {

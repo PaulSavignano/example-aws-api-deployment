@@ -3,7 +3,6 @@ import nodemailer from 'nodemailer'
 import Config from '../models/Config'
 import Brand from '../models/Brand'
 import Theme from '../models/Theme'
-import getRgbTotal from '../utils/getRgbTotal'
 import shadows from './shadows'
 
 const sendGmail = async (props) => {

@@ -4,6 +4,7 @@ import Comment from '../models/Comment'
 import Review from '../models/Review'
 import sendGmail from '../utils/sendGmail'
 
+
 export const add = async (req, res) => {
   const {
     body: { parent, values, review, href, itemName },
@@ -24,7 +25,7 @@ export const add = async (req, res) => {
   res.send(comment)
 
   const parentDoc = parent ? await Comment.findOne({ parent }) : await Review.findOne({ _id: review })
-  const mailData = await sendGmail({
+  await sendGmail({
     appName,
     adminSubject: `New comment received!`,
     adminBody: `
@@ -43,7 +44,6 @@ export const updateLikes = async (req, res) => {
     body: { like, unlike },
     params: { _id },
     appName,
-    user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid id')
   const update = like ? { $push: { likes: like }} : unlike ? { $pull: { likes: unlike }} : null
@@ -81,7 +81,7 @@ export const updateValues = async (req, res) => {
   })
   res.send(comment)
   const parentDoc = comment.parent ? await Comment.findOne({ _id: comment.parent }) : await Review.findOne({ _id: comment.review })
-  const mailData = await sendGmail({
+  await sendGmail({
     appName,
     adminSubject: `Comment Updated for ${itemName}!`,
     adminBody: `
@@ -100,8 +100,7 @@ export const updateValues = async (req, res) => {
 export const get = async (req, res) => {
   const {
     appName,
-    query: { userId, reviewId },
-    user
+    query: { reviewId },
   } = req
   const comments = await Comment.find({ appName, review: reviewId })
   return res.send(comments)
@@ -115,7 +114,6 @@ export const reportAbuse = async (req, res) => {
   const {
     appName,
     body: { comment, href, itemName},
-    user
   } = req
   const kind = comment.kind ? 'review' : 'comment'
   console.log('comment is ', comment)
@@ -142,7 +140,7 @@ export const remove = async (req, res) => {
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Comment remove error, invalid id')
   const comment = await Comment.findOneAndRemove({ _id, appName })
-  const deletedComments = Comment.deleteMany({ parent: comment._id })
+  await Comment.deleteMany({ parent: comment._id })
   if (!comment) throw Error('Comment remove error, comment not found')
   return res.send(comment._id)
 }

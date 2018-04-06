@@ -1,6 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
 
-import Product from './Product'
 import Component from './Component'
 
 import { deleteFiles } from '../utils/s3'
@@ -36,7 +35,7 @@ const sectionSchema = new Schema({
 sectionSchema.post('remove', function(doc, next) {
   if (doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src) {
     deleteFiles([{ Key: doc.values.backgroundImage.src }])
-    .catch(err => next(Error(error)))
+    .catch(error => next(Error(error)))
   }
   if (doc.components.length > 0) {
     doc.components.forEach(component => {

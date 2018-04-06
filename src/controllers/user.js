@@ -1,15 +1,14 @@
-import { ObjectID } from 'mongodb'
 import bcrypt from 'bcryptjs'
 
-import Address from '../models/Address'
-import Brand from '../models/Brand'
 import createToken from '../utils/createToken'
 import createTokens from '../utils/createTokens'
 import CustomError from '../utils/CustomError'
-import Order from '../models/Order'
+import AccessToken from '../models/AccessToken'
+import RefreshToken from '../models/RefreshToken'
 import ResetToken from '../models/ResetToken'
 import sendGmail from '../utils/sendGmail'
 import User from '../models/User'
+
 
 export const add = async (req, res) => {
   const {
@@ -60,10 +59,7 @@ export const add = async (req, res) => {
 
 
 export const get = async (req, res) => {
-  const {
-    appName,
-    user
-  } = req
+  const { user } = req
   return res.send(user)
 }
 
@@ -128,8 +124,20 @@ export const signin = async (req, res) => {
 
 
 
+export const signout = async (req, res) => {
+  const accessToken = req.headers['x-access-token']
+  const refreshToken = req.headers['x-refresh-token']
+  const rToken = await RefreshToken.findOneAndRemove({ refreshToken })
+  if (!rToken) throw Error('Signout refresh token not found')
+  const aToken = await AccessToken.findOneAndRemove({ accessToken })
+  if (!aToken) throw Error('Signout access token not found')
+  return res.status(200).send()
+}
 
-export const recovery = async (req, res, next) => {
+
+
+
+export const recovery = async (req, res) => {
   const {
     body,
     appName
@@ -138,7 +146,7 @@ export const recovery = async (req, res, next) => {
   const user = await User.findOne({ 'values.email': body.email.toLowerCase(), appName })
   if (!user) throw new CustomError({ field: 'email', message: 'User not found', statusCode: 404 })
   const path = `${appName}/user/reset/${resetToken}`
-  const newResetToken = await new ResetToken({
+  await new ResetToken({
     appName,
     resetToken,
     user: user._id
@@ -196,7 +204,7 @@ export const contact = async (req, res) => {
   } = req
   if (!firstName || !email || !message) throw Error('All fields are required')
   if (!brand) throw Error('Contact failed')
-  const into = await sendGmail({
+  sendGmail({
     appName,
     toEmail: email,
     toSubject: `Thank you for contacting ${appName}!`,

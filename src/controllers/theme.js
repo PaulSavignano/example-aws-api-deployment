@@ -1,9 +1,8 @@
 import { ObjectID } from 'mongodb'
 
 import { getTime } from '../utils/formatDate'
-import { uploadFile, deleteFiles } from '../utils/s3'
+import { deleteFiles } from '../utils/s3'
 import handleImage from '../utils/handleImage'
-import handleItemImages from '../utils/handleItemImages'
 import Theme from '../models/Theme'
 
 
@@ -12,6 +11,8 @@ export const add = async (req, res) => {
   const theme = await new Theme({ appName }).save()
   res.send(theme)
 }
+
+
 
 
 export const get = async (req, res) => {

@@ -10,7 +10,7 @@ import User from '../models/User'
 
 const formatPrice = (cents) => `$${(cents / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
 
-export const add = async (req, res, next) => {
+export const add = async (req, res) => {
   const {
     body: {
       stripeToken,
@@ -123,7 +123,7 @@ const createCharge = async ({
       <div>${street}</div>
       <div>${city}, ${state} ${zip}</div>
     `
-    const mailData = await sendGmail({
+    await sendGmail({
       appName,
       toEmail: user.values.email,
       toSubject: 'Thank you for your order!',
@@ -219,7 +219,6 @@ export const adminGet = async (req, res) => {
 export const getSalesByYear = async (req, res) => {
   const {
     appName,
-    user
   } = req
   const sales = await Order.aggregate([
     { $match: {
@@ -269,8 +268,7 @@ export const getSalesByYear = async (req, res) => {
 
 export const getSalesByMonth = async (req, res) => {
   const {
-    appName,
-    user
+    appName
   } = req
   const sales = await Order.aggregate([
     { $match: {
@@ -323,10 +321,7 @@ export const getSalesByMonth = async (req, res) => {
 export const getSalesByDay = async (req, res) => {
   const {
     appName,
-    user
   } = req
-  const current = new Date()
-  const last = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
   const sales = await Order.aggregate([
     { $match: {
       appName,
@@ -410,10 +405,10 @@ export const update = async (req, res) => {
       { $set: { shipped: true, shipDate: new Date() }},
       { new: true }
     )
-    const { email, firstName, lastName, cart, address } = order
+    const { email, firstName, address } = order
     const { name, phone, street, city, state, zip } = address
     res.send(order)
-    sendGmail({
+    await sendGmail({
       appName,
       toEmail: email,
       toSubject: 'Your order has shipped!',

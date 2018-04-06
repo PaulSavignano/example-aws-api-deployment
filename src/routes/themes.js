@@ -5,7 +5,6 @@ import authenticate from '../middleware/authenticate'
 import {
   add,
   get,
-  getId,
   update,
   remove
 } from '../controllers/theme'

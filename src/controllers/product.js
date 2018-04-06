@@ -1,6 +1,6 @@
 import { ObjectID } from 'mongodb'
 
-import { deleteFiles, uploadFile } from '../utils/s3'
+import { deleteFiles } from '../utils/s3'
 import { getTime } from '../utils/formatDate'
 import handleImage from '../utils/handleImage'
 import Product from '../models/Product'
@@ -102,7 +102,7 @@ export const update = async (req, res) => {
     params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Product update error, invalid id')
-  const imageDeletes = oldSrcs.length && await deleteFiles(oldSrcs)
+  oldSrcs.length && await deleteFiles(oldSrcs)
   // handle new image
   const newImageValues = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,

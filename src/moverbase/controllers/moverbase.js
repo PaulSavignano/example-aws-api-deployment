@@ -4,21 +4,11 @@ import Config from '../../models/Config'
 
 export const requestEstimate = async (req, res) => {
   const {
-    body: {
-      date,
-      firstName,
-      lastName,
-      phone,
-      email,
-      from,
-      to,
-      size,
-      note
-    },
-    appName
+    body,
+    appName,
   } = req
   try {
-    const config = await ApiConfig.findOne({ appName })
+    const config = await Config.findOne({ appName })
     if (!config) throw 'Sorry, there was no config found'
     const auth = `Basic ${new Buffer(config.values.moverbaseKey + ':').toString('base64')}`
     const response = await fetch(`https://api.moverbase.com/v1/leads/`, {
@@ -29,18 +19,17 @@ export const requestEstimate = async (req, res) => {
       },
       body: JSON.stringify(body)
     })
+    if (!response) throw 'Post to moverbase failed'
     const { email, firstName, phone, note } = body
-    const emailInfo = await sendGmail({
-      appName,
-      toEmail: email,
+    await sendGmail({
+      brandName,
+      to: email,
       toSubject: 'Thank you for contacting us for a free estimate',
-      toBody: `
-        <p>Hi ${fistName},</p>
-        <p>We have received your request for a free estimate and will contact you shortly!</p>
-      `,
-      adminSubject: `New Estimate Request`,
-      adminBody: `
-        <p>${firstName} just contacted you through ${appName}.</p>
+      name: firstName,
+      toBody: `<p>Thank you for requesting a free estimate.  We will contact you shortly!</p>`,
+      fromSubject: `New Estimate Request`,
+      fromBody: `
+        <p>${firstName} just contacted you through ${brandName}.</p>
         ${phone && `<div>Phone: ${phone}</div>`}
         <div>Email: ${email}</div>
         <div>Note: ${note}</div>
@@ -48,7 +37,7 @@ export const requestEstimate = async (req, res) => {
     })
     res.status(200).send()
   } catch (error) {
-    console.error(error)
+    console.error('Error is: ', error)
     res.status(400).send({ error })
   }
 }

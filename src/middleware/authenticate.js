@@ -1,7 +1,6 @@
 import AccessToken from '../models/AccessToken'
 import RefreshToken from '../models/RefreshToken'
 import createTokens from '../utils/createTokens'
-import User from '../models/User'
 
 const hasRoles = (roles, requiredRoles) => roles.some(r => requiredRoles.indexOf(r) !== -1)
 

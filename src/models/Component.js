@@ -7,7 +7,6 @@ import {
   components,
   flexFlow,
   justifyContent,
-  textAlign,
   typographies,
 } from '../utils/fieldOptions'
 

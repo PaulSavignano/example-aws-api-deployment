@@ -1,7 +1,6 @@
 import express from 'express'
 
 import catchErrors from '../utils/catchErrors'
-import authenticate from '../middleware/authenticate'
 import {
   add,
   getId,

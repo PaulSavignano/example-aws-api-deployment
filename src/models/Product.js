@@ -7,7 +7,6 @@ const productSchema = new Schema({
   published: { Type: Boolean, default: false },
   section: { type: Schema.Types.ObjectId, ref: 'Section' },
   values: {
-    category: { type: String, minlength: 1, trim: true, maxlength: 150 },
     description: { type: String, minlength: 1, trim: true, maxlength: 500 },
     detail: { type: String, minlength: 1, trim: true, maxlength: 1000 },
     iframe: {
@@ -37,11 +36,12 @@ productSchema.index({
   'values.detail': 'text'
 })
 
-
 productSchema.post('remove', function(doc, next) {
-  if (doc.values && doc.values.image && doc.values.image.src) return deleteFiles([{ Key: doc.values.image.src }])
-  .then(() => next())
-  .catch(error => next(Error(error)))
+  if (doc.values && doc.values.image && doc.values.image.src) {
+    return deleteFiles([{ Key: doc.values.image.src }])
+    .then(() => next())
+    .catch(error => next(Error(error)))
+  }
   next()
 })
 

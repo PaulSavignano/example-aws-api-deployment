@@ -9,8 +9,6 @@ AWS.config.update({
 })
 
 const Bucket = process.env.AWS_S3_BUCKET
-const ACL = 'public-read'
-
 
 export const uploadFile = ({ Key, src, oldSrc }) => {
   const params = {

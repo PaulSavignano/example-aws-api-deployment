@@ -7,7 +7,6 @@ const blogSchema = new Schema({
   section: { type: Schema.Types.ObjectId, ref: 'Section' },
   published: { Type: Boolean, default: false },
   values: {
-    label: { type: String, minlength: 1, trim: true, maxlength: 150 },
     description: { type: String, minlength: 1, trim: true, maxlength: 150 },
     detail: { type: String, minlength: 1, trim: true, maxlength: 5000 },
     iframe: {

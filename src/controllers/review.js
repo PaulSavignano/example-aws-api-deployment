@@ -1,7 +1,6 @@
 import { ObjectID } from 'mongodb'
 
 import Blog from '../models/Blog'
-import Order from '../models/Order'
 import Product from '../models/Product'
 import Review from '../models/Review'
 import sendGmail from '../utils/sendGmail'
@@ -57,7 +56,7 @@ export const add = async (req, res) => {
     <div>Review: ${values.text}</div>
   `
   console.log('user email is ', user.values.email)
-  const mailData = await sendGmail({
+  await sendGmail({
     appName,
     toEmail: user.values.email,
     toSubject: 'Thank you for your review!',
@@ -81,7 +80,6 @@ export const get = async (req, res) => {
   const {
     appName,
     query: { kind, item, lastId, userId, limit, reviewId },
-    user
   } = req
   const kindQuery = kind && { kind }
   const itemQuery = item && { item: item }
@@ -104,60 +102,6 @@ export const get = async (req, res) => {
   const reviews = await Review.find(query)
   .limit(parseInt(limit))
   return res.send(reviews)
-
-}
-
-
-
-
-
-
-
-export const getGraph = async (req, res) => {
-  const {
-    appName,
-    query: { kind, item, lastId, userId, limit, reviewId },
-    user
-  } = req
-  const kindQuery = kind && { kind }
-  const itemQuery = item && { item: item }
-  const lastIdQuery = lastId && { _id: { $gt: lastId }}
-  const userIdQuery = userId && { user: userId }
-  const reviewIdQuery = reviewId && { _id: reviewId }
-  const query = {
-    appName,
-    ...kindQuery,
-    ...itemQuery,
-    ...lastIdQuery,
-    ...userIdQuery,
-    ...reviewIdQuery,
-  }
-  const reviews = await Review.aggregate([
-    { $match: query },
-    { $graphLookup: {
-      from: "comments",
-      startWith: "$_id",
-      connectFromField: "review",
-      connectToField: "review",
-      as: "comments"
-    }},
-    { $project: {
-      _id: "$_id",
-      user: "$user",
-      values: "$values",
-      published: "$published",
-      comments: "$comments"
-    }},
-    { $graphLookup: {
-      from: "$comments",
-      startWith: "parent",
-      connectFromField: "_id",
-      connectToField: "parent",
-      as: "subcomments"
-    }},
-  ])
-  return res.send(reviews)
-
 }
 
 
@@ -167,10 +111,9 @@ export const getGraph = async (req, res) => {
 
 export const updateLikes = async (req, res) => {
   const {
-    body: { like, unlike, href, itemName },
+    body: { like, unlike },
     appName,
     params: { _id },
-    user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
   const update = like ? { $push: { likes: like }} : unlike ? { $pull: { likes: unlike }} : null
@@ -183,6 +126,8 @@ export const updateLikes = async (req, res) => {
   if (!review) throw Error('Review update error')
   res.send({ review })
 }
+
+
 
 
 
@@ -219,15 +164,13 @@ export const updateValues = async (req, res) => {
       reviews: { $size: "$reviews" }
     }}
   ] : null
-  console.log('bool ', hasNewRating, review.kind === 'Product')
   const products = hasNewRating && review.kind === 'Product' ? await Product.aggregate(agg) : null
   const blogs = hasNewRating && review.kind === 'Blog' ? await Blog.aggregate(agg) : null
   const blog = blogs && blogs.length > 0 ? blogs[0] : null
   const product = products && products.length > 0 ? products[0] : null
   const response = { review, product, blog }
-  console.log('response is ', response)
-  return res.send({ ...response })
-  const mailData = await sendGmail({
+  res.send({ ...response })
+  await sendGmail({
     appName,
     adminSubject: `Review Updated for ${itemName}!`,
     adminBody: `
@@ -242,6 +185,9 @@ export const updateValues = async (req, res) => {
     `
   })
 }
+
+
+
 
 
 export const adminUpdate = async (req, res) => {

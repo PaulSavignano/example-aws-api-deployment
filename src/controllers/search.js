@@ -18,7 +18,6 @@ export const search = async (req, res) => {
   })
   .limit(parseInt(limit))
 
-
   const lastComponentIdQuery = lastComponentId && { _id: { $gt: lastComponentId }}
   const components = await Component.find({
     appName,
@@ -29,8 +28,6 @@ export const search = async (req, res) => {
   })
   .limit(parseInt(limit))
 
-
-
   const lastProductIdQuery = lastProductId && { _id: { $gt: lastProductId }}
   const products = await Product.find({
     appName,
@@ -40,8 +37,6 @@ export const search = async (req, res) => {
     score: { $meta: 'textScore' }
   })
   .limit(parseInt(limit))
-
-
 
   res.send({ blogs, components, products })
 }

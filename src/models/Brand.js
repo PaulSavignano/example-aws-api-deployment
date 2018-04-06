@@ -11,8 +11,6 @@ import Product from './Product'
 import Section from './Section'
 import Theme from './Theme'
 import User from './User'
-import { deleteFile } from '../utils/s3'
-import { alignItems, flexFlow, justifyContent, textAlign } from '../utils/fieldOptions'
 
 const brandSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true, unique: true },
@@ -68,8 +66,6 @@ brandSchema.post('remove', function(doc, next) {
     deleteFiles({ Key: appBar.image.src })
     .catch(err => console.error(err))
   }
-
-
 
   Address.deleteMany({ appName: doc.appName }).then(deletes => console.info('Address deleteMany', deletes)).catch(error => console.error(error))
   Config.deleteMany({ appName: doc.appName }).then(deletes => console.info('Config deleteMany', deletes)).catch(error => console.error(error))

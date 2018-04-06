@@ -1,6 +1,6 @@
 import { ObjectID } from 'mongodb'
 
-import { deleteFiles, uploadFile } from '../utils/s3'
+import { deleteFiles } from '../utils/s3'
 import { getTime } from '../utils/formatDate'
 import handleImage from '../utils/handleImage'
 import Page from '../models/Page'
@@ -60,7 +60,6 @@ export const get = async (req, res) => {
 export const update = async (req, res) => {
   const {
     body: {
-      kind,
       oldSrcs,
       pageSlug,
       values,
@@ -98,6 +97,7 @@ export const update = async (req, res) => {
 
 
 
+
 export const updateComponents = async (req, res) => {
   const {
     body: { componentIds },
@@ -112,6 +112,7 @@ export const updateComponents = async (req, res) => {
   if (!section) throw Error('Section set components failed')
   return res.send(section)
 }
+
 
 
 

@@ -207,9 +207,10 @@ themeSchema.post('remove', function(doc, next) {
   const { footer } = doc
   if (footer.image && footer.image.src) {
     deleteFile({ Key: footer.image.src })
-    .catch(err => console.error(err))
+    .then(() => next())
+    .catch(error => Error(error))
   }
-
+  next()
 })
 
 const Theme = mongoose.model('Theme', themeSchema)

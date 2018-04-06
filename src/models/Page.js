@@ -34,11 +34,11 @@ pageSchema.pre('save', async function(next) {
 
 pageSchema.post('remove', function(doc, next) {
   if (doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src) {
-    return deleteFiles([{ Key: doc.values.backgroundImage.src }]).then(() => next())
-    .catch(err => next(Error(error)))
+    deleteFiles([{ Key: doc.values.backgroundImage.src }]).then(() => next())
+    .catch(error => next(Error(error)))
   }
   if (doc.sections.length > 0) {
-    return doc.sections.forEach(section => Section.findOne({ _id: section.section })
+    doc.sections.forEach(section => Section.findOne({ _id: section.section })
     .then(section => section.remove()).then(() => next())
     .catch(error => next(Error(error))))
   }

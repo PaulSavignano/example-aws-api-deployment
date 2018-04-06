@@ -1,10 +1,8 @@
 import mongoose, { Schema } from 'mongoose'
 import validator from 'validator'
 import bcrypt from 'bcryptjs'
-import { ObjectID } from 'mongodb'
 
 import Address from './Address'
-import Order from './Order'
 
 const userSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
@@ -43,24 +41,6 @@ userSchema.methods.toJSON = function() {
   return { _id, roles, values, addresses }
 }
 
-
-userSchema.statics.findByCredentials = async function(email, password) {
-  const User = this
-  return User.findOne({ 'values.email': email.toLowerCase() })
-  .then(user => {
-    if (!user) throw new ObjectError({ email: 'User not found', status: 404 })
-    return new Promise((resolve, reject) => {
-      bcrypt.compare(password, user.password)
-      .then(res => {
-        if (res) {
-          resolve(user)
-        } else {
-          throw new ObjectError({ password: 'Password does not match', status: 404 })
-        }
-      })
-    })
-  })
-}
 
 
 userSchema.pre('save', function(next) {

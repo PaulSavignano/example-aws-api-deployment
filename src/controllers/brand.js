@@ -1,10 +1,8 @@
 import { ObjectID } from 'mongodb'
 
 import { getTime } from '../utils/formatDate'
-import { uploadFile, deleteFiles } from '../utils/s3'
+import { deleteFiles } from '../utils/s3'
 import Config from '../models/Config'
-import Blog from '../models/Blog'
-import Product from '../models/Product'
 import Brand from '../models/Brand'
 import handleImage from '../utils/handleImage'
 import Page from '../models/Page'

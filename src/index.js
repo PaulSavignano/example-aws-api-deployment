@@ -1,9 +1,6 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import dns from 'dns'
-import expressValidator from 'express-validator'
 import helmet from 'helmet'
-import path from 'path'
 import compression from 'compression'
 import RateLimit from 'express-rate-limit'
 
@@ -14,8 +11,8 @@ import router from './routes/index'
 
 const port = process.env.PORT
 const limiter = new RateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 60 * 1000, // 1 minute
+  max: 300, // limit each IP to 100 requests per windowMs
   delayMs: 0 // disable delaying - full speed until the max limit is reached
 })
 
@@ -48,7 +45,7 @@ app.get('/', (req, res) => {
   `)
 })
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   console.error('error: ', err)
   console.error('error field: ', err.field)
   console.error('error message: ', err.message)
