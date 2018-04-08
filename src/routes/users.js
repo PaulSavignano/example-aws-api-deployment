@@ -46,9 +46,9 @@ users.post('/recovery', limiter, catchErrors(recovery))
 users.post('/reset/:resetToken', limiter, catchErrors(reset))
 users.post('/contact', catchErrors(contact))
 users.post('/admin', authenticate([ 'owner' ]), catchErrors(adminAdd))
-users.patch('/admin/update-values/:_id', authenticate([ 'owner']), catchErrors(adminUpdateValues))
-users.patch('/admin/update-roles/:_id', authenticate([ 'owner']), catchErrors(adminUpdateRoles))
-users.patch('/admin/update-addresses/:_id', authenticate([ 'owner' ]), catchErrors(adminUpdateAddresses))
+users.patch('/admin/update-values/:_id', authenticate(['owner']), catchErrors(adminUpdateValues))
+users.patch('/admin/update-roles/:_id', authenticate(['owner']), catchErrors(adminUpdateRoles))
+users.patch('/admin/update-addresses/:_id', authenticate(['owner']), catchErrors(adminUpdateAddresses))
 users.delete('/admin/:_id', authenticate([ 'owner' ]), catchErrors(adminRemove))
 
 

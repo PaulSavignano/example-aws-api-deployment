@@ -131,7 +131,7 @@ export const signout = async (req, res) => {
   if (!rToken) throw Error('Signout refresh token not found')
   const aToken = await AccessToken.findOneAndRemove({ accessToken })
   if (!aToken) throw Error('Signout access token not found')
-  return res.status(200).send()
+  return res.status(200).send({ message: 'It was good seeing you, come back soon!'})
 }
 
 

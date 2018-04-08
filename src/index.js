@@ -2,7 +2,6 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import helmet from 'helmet'
 import compression from 'compression'
-import RateLimit from 'express-rate-limit'
 
 import mongoose from './db/mongoose'
 import setAppName from './middleware/setAppName'
@@ -10,17 +9,10 @@ import forceSSL from './middleware/forceSSL'
 import router from './routes/index'
 
 const port = process.env.PORT
-const limiter = new RateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 300, // limit each IP to 100 requests per windowMs
-  delayMs: 0 // disable delaying - full speed until the max limit is reached
-})
 
 const app = express()
 
 app.use(forceSSL)
-app.enable('trust proxy')
-app.use(limiter)
 app.use(helmet())
 app.use(compression())
 
@@ -47,8 +39,8 @@ app.get('/', (req, res) => {
 
 app.use((err, req, res) => {
   console.error('error: ', err)
-  console.error('error field: ', err.field)
-  console.error('error message: ', err.message)
+  //console.error('error field: ', err.field)
+  //console.error('error message: ', err.message)
   const statusCode = err.statusCode || 400
   res.status(statusCode).send(err)
 })

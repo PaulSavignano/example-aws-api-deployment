@@ -100,6 +100,7 @@ export const get = async (req, res) => {
     return res.send(reviews)
   }
   const reviews = await Review.find(query)
+  .populate('item')
   .limit(parseInt(limit))
   return res.send(reviews)
 }
