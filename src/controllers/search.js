@@ -22,7 +22,8 @@ export const search = async (req, res) => {
   const components = await Component.find({
     appName,
     ...lastComponentIdQuery,
-    $text: { $search: q }
+    $text: { $search: q },
+    kind: { $ne: 'hero' }
   }, {
     score: { $meta: 'textScore' }
   })

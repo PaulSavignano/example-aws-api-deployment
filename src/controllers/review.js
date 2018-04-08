@@ -134,7 +134,7 @@ export const updateLikes = async (req, res) => {
 
 export const updateValues = async (req, res) => {
   const {
-    body: { values, href, itemName },
+    body: { values, href, itemName, published },
     appName,
     params: { _id },
     user,
@@ -142,9 +142,10 @@ export const updateValues = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
   const prevReview = await Review.findOne({ _id, appName })
   const hasNewRating = prevReview.values.rating !== values.rating ? true : false
+  const update = values ? { $set: { values }} : { $set: { published }}
   const review = await Review.findOneAndUpdate(
     { _id, appName },
-    { $set: { values }},
+    update,
     { new: true }
   )
   .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
