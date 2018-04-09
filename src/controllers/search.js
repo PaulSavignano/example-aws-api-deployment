@@ -12,7 +12,7 @@ export const search = async (req, res) => {
   const blogs = await Blog.find({
     appName,
     ...lastBlogIdQuery,
-    $text: { $search: q }
+    $text: { $search: `\"${q}\"` }
   }, {
     score: { $meta: 'textScore' }
   })
@@ -22,7 +22,7 @@ export const search = async (req, res) => {
   const components = await Component.find({
     appName,
     ...lastComponentIdQuery,
-    $text: { $search: q },
+    $text: { $search: `\"${q}\"` },
     kind: { $ne: 'hero' }
   }, {
     score: { $meta: 'textScore' }
@@ -33,7 +33,7 @@ export const search = async (req, res) => {
   const products = await Product.find({
     appName,
     ...lastProductIdQuery,
-    $text: { $search: q }
+    $text: { $search: `\"${q}\"` }
   }, {
     score: { $meta: 'textScore' }
   })

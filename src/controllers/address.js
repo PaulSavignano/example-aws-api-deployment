@@ -26,14 +26,14 @@ export const add = async (req, res) => {
 
 export const adminAdd = async (req, res) => {
   const {
-    body,
+    body: { values },
     params: { userId },
     appName,
   } = req
   const address = await new Address({
     appName,
     user: ObjectID(userId),
-    values: body
+    values
   }).save()
   const user = await User.findOneAndUpdate(
     { _id: userId, appName },

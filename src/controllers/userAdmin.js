@@ -58,7 +58,6 @@ export const adminUpdateValues = async (req, res) => {
     appName,
     params: { _id },
   } = req
-  console.log('made it here')
   if (!ObjectID.isValid(_id)) throw Error('User update failed, invalid id')
   const existingUser = await User.findOne({ _id, appName })
   if (!existingUser) throw Error('User updated failed, user not found')

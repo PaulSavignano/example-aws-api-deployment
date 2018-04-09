@@ -116,7 +116,6 @@ export const reportAbuse = async (req, res) => {
     body: { comment, href, itemName},
   } = req
   const kind = comment.kind ? 'review' : 'comment'
-  console.log('comment is ', comment)
   const mailData = await sendGmail({
     appName,
     adminSubject: `Abuse reported on a ${kind} for ${itemName}!`,
