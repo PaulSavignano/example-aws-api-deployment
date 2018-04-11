@@ -4,7 +4,7 @@ import authenticate from '../middleware/authenticate'
 import {
   add,
   get,
-  getId,
+  adminGet,
   remove,
   update,
 } from '../controllers/blog'
@@ -14,7 +14,7 @@ const blogs = express.Router()
 
 blogs.post('/', authenticate(['admin']), catchErrors(add))
 blogs.get('/', catchErrors(get))
-blogs.get('/:_id', catchErrors(getId))
+blogs.get('/admin', authenticate(['admin']), catchErrors(adminGet))
 blogs.patch('/:_id', authenticate(['admin']), catchErrors(update))
 blogs.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 

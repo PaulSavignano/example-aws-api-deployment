@@ -59,7 +59,7 @@ export const update = async (req, res) => {
   const index = cart.items.map(i => i.productId.toHexString()).indexOf(productId)
   if (index !== -1) {
     switch (type) {
-      case 'ADD_TO_CART':
+      case 'ADD_TO_CART': {
         cart.total = cart.total + ((cart.items[index].price * productQty) + (cart.items[index].price * productQty) * .075)
         cart.subTotal = cart.subTotal + (cart.items[index].price * productQty)
         cart.quantity = cart.quantity + productQty
@@ -73,6 +73,7 @@ export const update = async (req, res) => {
         }
         const addToCart = await cart.save()
         return res.send(addToCart)
+      }
       case 'REDUCE_FROM_CART':
         if (cart.items[index].productQty - productQty > 0) {
           cart.total = cart.total - ((cart.items[index].price * productQty) + (cart.items[index].price * productQty) * .075)
@@ -98,7 +99,7 @@ export const update = async (req, res) => {
           const reduceToRemoveFromCart = await cart.save()
           return res.send(reduceToRemoveFromCart)
         }
-      case 'REMOVE_FROM_CART':
+      case 'REMOVE_FROM_CART': {
         cart.total = cart.total - ((cart.items[index].price * cart.items[index].productQty) + ((cart.items[index].price * cart.items[index].productQty) * .075))
         cart.subTotal = cart.subTotal - (cart.items[index].price * cart.items[index].productQty)
         cart.quantity = cart.quantity - cart.items[index].productQty
@@ -107,6 +108,7 @@ export const update = async (req, res) => {
         )
         const removeFromCart = await cart.save()
         return res.send(removeFromCart)
+      }
       default:
         return cart
     }

@@ -37,11 +37,19 @@ export const add = async (req, res) => {
 export const get = async (req, res) => {
   const {
     appName,
-    query: { lastId, limit },
+    query: { lastId, limit, _id },
   } = req
-  const params = lastId ? { _id: { $gt: lastId }, appName } : { appName }
+  console.log('req', req.query)
+  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const idQuery = _id && { _id: ObjectID(_id) }
+  const limitInt = limit ? parseInt(limit) : 2
   const blogs = await Blog.aggregate([
-    { $match: params },
+    { $match: {
+      appName,
+      published: true,
+      ...idQuery,
+      ...lastIdQuery,
+    }},
     { $lookup: {
       from: 'reviews',
       localField: '_id',
@@ -50,6 +58,41 @@ export const get = async (req, res) => {
     }},
     { $project: {
       _id: "$$ROOT._id",
+      published: "$$ROOT.published",
+      values: "$$ROOT.values",
+      stars: { $sum: "$reviews.values.rating" },
+      reviews: { $size: "$reviews" }
+    }}
+  ])
+  .limit(limitInt)
+  console.log('blogs', blogs)
+  return res.send(blogs)
+}
+
+
+
+export const adminGet = async (req, res) => {
+  const {
+    appName,
+    query: { lastId, limit, _id },
+  } = req
+  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const idQuery = _id && { _id }
+  const blogs = await Blog.aggregate([
+    { $match: {
+      appName,
+      ...lastIdQuery,
+      ...idQuery
+    }},
+    { $lookup: {
+      from: 'reviews',
+      localField: '_id',
+      foreignField: 'item',
+      as: 'reviews'
+    }},
+    { $project: {
+      _id: "$$ROOT._id",
+      published: "$$ROOT.published",
       values: "$$ROOT.values",
       stars: { $sum: "$reviews.values.rating" },
       reviews: { $size: "$reviews" }
@@ -62,35 +105,6 @@ export const get = async (req, res) => {
 
 
 
-
-export const getId = async (req, res) => {
-  const {
-    appName,
-    params: { _id }
-  } = req
-  if (!ObjectID.isValid(_id)) throw Error('Blog not found, invalid id')
-  const blogs = await Blog.aggregate([
-    { $match: { appName, _id  }},
-    { $lookup: {
-      from: 'reviews',
-      localField: '_id',
-      foreignField: 'item',
-      as: 'reviews'
-    }},
-    { $project: {
-      _id: "$$ROOT._id",
-      values: "$$ROOT.values",
-      stars: { $sum: "$reviews.values.rating" },
-      reviews: { $size: "$reviews" }
-    }}
-  ])
-  if (!blogs[0]) throw Error('That blog was not found')
-  return res.send(blogs[0])
-}
-
-
-
-
 export const update = async (req, res) => {
   const {
     body: { values, oldSrcs, published },
@@ -98,34 +112,23 @@ export const update = async (req, res) => {
     params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Blog update error, Invalid id')
-  if (values) {
-    oldSrcs.length && await deleteFiles(oldSrcs)
 
-    const valuesWithNewImage = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
-      ...values,
-      image: await handleImage({
-        path: `${appName}/blogs/${values.title}-${_id}-image_${getTime()}.${values.image.ext}`,
-        image: values.image,
-      })
-    } : null
-    const newValues = valuesWithNewImage ? valuesWithNewImage : values
+  const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
+    ...values,
+    image: await handleImage({
+      path: `${appName}/blogs/${values.title}-${_id}-image_${getTime()}.${values.image.ext}`,
+      image: values.image,
+    })
+  } : values
 
-    const blog = await Blog.findOneAndUpdate(
-      { _id, appName },
-      { $set: { values: newValues }},
-      { new: true }
-    )
-    if (!blog) throw Error('Blog to update was not found')
-    return res.send(blog)
-  } else {
-    const blog = await Blog.findOneAndUpdate(
-      { _id, appName },
-      { $set: { published }},
-      { new: true }
-    )
-    if (!blog) throw Error('Blog to update was not found')
-    return res.send(blog)
-  }
+  const set = values ? { values: valuesUpdate } : typeof variable === 'undefined' ? null : { published }
+  const blog = await Blog.findOneAndUpdate(
+    { _id, appName },
+    { $set: set },
+    { new: true }
+  )
+  if (!blog) throw Error('Blog to update was not found')
+  return res.send(blog)
 }
 
 

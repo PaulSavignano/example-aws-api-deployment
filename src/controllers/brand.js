@@ -6,12 +6,14 @@ import Config from '../models/Config'
 import Brand from '../models/Brand'
 import handleImage from '../utils/handleImage'
 import Page from '../models/Page'
+import Product from '../models/Product'
+import Blog from '../models/Blog'
 import Theme from '../models/Theme'
 
 
 export const add = async (req, res) => {
   const { appName } = req
-  const config = await new Config({ appName }).save()
+  await new Config({ appName }).save()
   const page = await new Page({ appName, 'values.name': 'Home', slug: 'home' }).save()
   const brand = await new Brand({ appName, pages: page._id }).save()
   const theme = await new Theme({ appName }).save()
@@ -23,10 +25,17 @@ export const add = async (req, res) => {
 }
 
 
+
 export const get = async (req, res) => {
   const { appName } = req
-  const brand = await Brand.findOne({ appName })
-  if (!brand) throw 'No brand found'
+  const brandDoc = await Brand.findOne({ appName })
+  if (!brandDoc) throw 'No brand found'
+  const product = await Product.findOne({ appName, published: true })
+  const hasProducts = product ? true : false
+  const blog = await Blog.findOne({ appName, published: true })
+  const hasBlogs = blog ? true : false
+  const brandObj = brandDoc.toObject()
+  const brand = { ...brandObj, hasBlogs, hasProducts }
   res.send(brand)
 }
 
@@ -69,8 +78,6 @@ export const update = async (req, res) => {
 
 
 
-
-
 export const updatePages = async (req, res) => {
   const {
     body: { pageIds },
@@ -85,9 +92,6 @@ export const updatePages = async (req, res) => {
   if (!brand) throw Error('Brand set pages failed')
   return res.send(brand)
 }
-
-
-
 
 
 

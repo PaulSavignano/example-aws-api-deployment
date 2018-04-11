@@ -1,6 +1,5 @@
 import bcrypt from 'bcryptjs'
 
-import createToken from '../utils/createToken'
 import createTokens from '../utils/createTokens'
 import CustomError from '../utils/CustomError'
 import AccessToken from '../models/AccessToken'
@@ -142,7 +141,7 @@ export const recovery = async (req, res) => {
     body,
     appName
   } = req
-  const resetToken = await createToken()
+  const resetToken = await crypto.randomBytes(30).toString('hex')
   const user = await User.findOne({ 'values.email': body.email.toLowerCase(), appName })
   if (!user) throw new CustomError({ field: 'email', message: 'User not found', statusCode: 404 })
   const path = `${appName}/user/reset/${resetToken}`

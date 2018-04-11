@@ -40,7 +40,7 @@ const sendGmail = async (props) => {
         text: { primary },
         primary: { main }
       },
-      typography: { fontFamily }
+      typography: { fontFamily, letterSpacing }
     } = theme
     const transporter = nodemailer.createTransport({
       service: "Gmail",
@@ -59,13 +59,13 @@ const sendGmail = async (props) => {
         <head>
           <link href="https://fonts.googleapis.com/css?family=Dancing+Script|Open+Sans+Condensed:300" rel="stylesheet">
         <style type="text/css">
-          p, div, ol {
+          * {
             font-family: ${fontFamily};
+            letter-spacing: ${letterSpacing};
           }
           a {
             text-decoration: none;
-            color: inherit !important;
-            font-family: ${fontFamily};
+            color: ${main};
           }
         </style>
         </head>
@@ -73,7 +73,7 @@ const sendGmail = async (props) => {
            <main>
             ${body}
             <br/><br/>
-            <a href="https://${appName}" style="text-decoration: none; color: ${primary}; font-family: ${name.fontFamily}; font-size: ${name.fontSize}; font-weight: ${name.fontWeight}; letter-spacing: ${name.letterSpacing};  text-shadow: ${name.textShadow};">
+            <a href="https://${appName}" style="font-size: ${name.fontSize}; font-weight: ${name.fontWeight}; letter-spacing: ${name.letterSpacing};  text-shadow: ${name.textShadow};">
               ${image && image.src ? `
                 <img
                   src="assets.savignano.io/${image.src}"
@@ -87,18 +87,15 @@ const sendGmail = async (props) => {
               </div>
             </a>
             <div>
-              <a href="mailto:${gmailUser}" style="text-decoration: none; color: ${main};">
-                ${gmailUser}
-              </a>
+              <a href="mailto:${gmailUser}">${gmailUser}</a>
             </div>
             ${phone ? `
-              <div style="font-family: ${fontFamily}">
-                <a href="tel:${phone.replace(/\D+/g, '')}" style="text-decoration: none; color: inherit;">
-                  ${phone}
-                </div>
+              <div>
+                <a href="tel:${phone.replace(/\D+/g, '')}" style="color: inherit;">${phone}</a>
+              </div>
             ` : '' }
-            ${address.street ? `<div style="font-family: ${fontFamily}">${address.street}</div>` : '' }
-            ${address.zip ? `<div style="font-family: ${fontFamily}">${address.city} ${address.state}, ${address.zip}</div>` : '' }
+            ${address.street ? `<div>${address.street}</div>` : '' }
+            ${address.zip ? `<div>${address.city} ${address.state}, ${address.zip}</div>` : '' }
            </main>
         </body>
       </html>

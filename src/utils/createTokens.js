@@ -1,11 +1,12 @@
+import crypto from 'crypto'
+
 import AccessToken from '../models/AccessToken'
 import RefreshToken from '../models/RefreshToken'
-import createToken from '../utils/createToken'
 
 const createTokens = async (user, appName) => {
   try {
-    const newAccessToken = await createToken()
-    const newRefreshToken = await createToken()
+    const newAccessToken = await crypto.randomBytes(30).toString('hex')
+    const newRefreshToken = await crypto.randomBytes(30).toString('hex')
     await new AccessToken({
       accessToken: newAccessToken,
       appName,

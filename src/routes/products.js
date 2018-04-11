@@ -5,7 +5,7 @@ import authenticate from '../middleware/authenticate'
 import {
   add,
   get,
-  getId,
+  adminGet,
   remove,
   update,
 } from '../controllers/product'
@@ -14,7 +14,7 @@ const products = express.Router()
 
 products.post('/', authenticate(['admin']), catchErrors(add))
 products.get('/', catchErrors(get))
-products.get('/:_id', catchErrors(getId))
+products.get('/admin', authenticate(['admin']), catchErrors(adminGet))
 products.patch('/:_id', authenticate(['admin']), catchErrors(update))
 products.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 

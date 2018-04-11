@@ -42,11 +42,48 @@ export const add = async (req, res) => {
 export const get = async (req, res) => {
   const {
     appName,
-    query: { lastId, limit },
+    query: { lastId, limit, _id },
   } = req
-  const params = lastId ? { _id: { $gt: lastId }, appName } : { appName }
+  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const idQuery = _id && { _id }
   const products = await Product.aggregate([
-    { $match: params },
+    { $match: {
+      appName,
+      published: true,
+      ...lastIdQuery,
+      ...idQuery
+    }},
+    { $lookup: {
+      from: 'reviews',
+      localField: '_id',
+      foreignField: 'item',
+      as: 'reviews'
+    }},
+    { $project: {
+      _id: "$$ROOT._id",
+      values: "$$ROOT.values",
+      stars: { $sum: "$reviews.values.rating" },
+      reviews: { $size: "$reviews" }
+    }}
+  ])
+  .limit(parseInt(limit))
+  return res.send(products)
+}
+
+
+export const adminGet = async (req, res) => {
+  const {
+    appName,
+    query: { lastId, limit, _id },
+  } = req
+  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const idQuery = _id && { _id }
+  const products = await Product.aggregate([
+    { $match: {
+      appName,
+      ...lastIdQuery,
+      ...idQuery
+    }},
     { $lookup: {
       from: 'reviews',
       localField: '_id',
@@ -67,31 +104,6 @@ export const get = async (req, res) => {
 
 
 
-export const getId = async (req, res) => {
-  const {
-    appName,
-    params: { _id }
-  } = req
-  if (!ObjectID.isValid(_id)) throw Error('Product id not found, invalid id')
-  const products = await Product.aggregate([
-    { $match: { appName, _id }},
-    { $lookup: {
-      from: 'reviews',
-      localField: '_id',
-      foreignField: 'item',
-      as: 'reviews'
-    }},
-    { $project: {
-      _id: "$$ROOT._id",
-      values: "$$ROOT.values",
-      stars: { $sum: "$reviews.values.rating" },
-      reviews: { $size: "$reviews" }
-    }}
-  ])
-  return res.send(products[0])
-}
-
-
 
 
 
@@ -107,7 +119,7 @@ export const update = async (req, res) => {
   const newImageValues = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${appName}/products/${slugIt(values.name)}-${_id}-image_${formatDate(new Date())}.${values.image.ext}`,
+      path: `${appName}/products/${slugIt(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
   } : null

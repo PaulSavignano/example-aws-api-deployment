@@ -207,8 +207,8 @@ themeSchema.post('remove', function(doc, next) {
   const { footer } = doc
   if (footer.image && footer.image.src) {
     deleteFile({ Key: footer.image.src })
-    .then(() => next())
-    .catch(error => Error(error))
+    .then(() => next)
+    .catch(error => Promise.reject(error))
   }
   next()
 })

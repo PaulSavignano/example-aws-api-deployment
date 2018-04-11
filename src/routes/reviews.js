@@ -4,10 +4,10 @@ import catchErrors from '../utils/catchErrors'
 import authenticate from '../middleware/authenticate'
 import {
   add,
+  adminGet,
   adminRemove,
   adminUpdate,
   get,
-  getGraph,
   remove,
   updateLikes,
   updateValues,
@@ -17,10 +17,10 @@ const reviews = express.Router()
 
 reviews.post('/', authenticate(['user', 'admin', 'owner']), catchErrors(add))
 reviews.get('/', catchErrors(get))
-reviews.get('/graph', catchErrors(getGraph))
+reviews.get('/admin', authenticate(['admin']), catchErrors(adminGet))
 reviews.patch('/likes/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(updateLikes))
 reviews.patch('/values/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(updateValues))
-reviews.patch('/admin/:_id', authenticate(['admin', 'owner']), catchErrors(adminUpdate))
+reviews.patch('/admin/:_id', authenticate(['admin']), catchErrors(adminUpdate))
 reviews.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 reviews.delete('/admin/:_id', authenticate(['admin']), catchErrors(adminRemove))
 

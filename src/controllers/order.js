@@ -10,6 +10,8 @@ import User from '../models/User'
 
 const formatPrice = (cents) => `$${(cents / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
 
+
+
 export const add = async (req, res) => {
   const {
     body: {
@@ -24,12 +26,12 @@ export const add = async (req, res) => {
       cart
     },
     appName,
-    user
   } = req
-  if (fullAddress === 'newAddress') {
-    const address = await new Address({
+  const hasNewAddress = fullAddress === 'newAddress' ? true : false
+  const address = hasNewAddress ?
+    await new Address({
       appName,
-      user: ObjectID(user._id),
+      user: ObjectID(req.user._id),
       values: {
         name,
         phone,
@@ -39,113 +41,92 @@ export const add = async (req, res) => {
         state
       }
     }).save()
-    const updatedUser = await User.findOneAndUpdate(
+    :
+    await Address.findOne({ _id: fullAddress, appName })
+
+  const user = hasNewAddress ?
+    await User.findOneAndUpdate(
       { _id: user._id, appName },
       { $push: { addresses: address._id }},
       { new: true }
-    ).populate({ path: 'addresses',  select: '-user' })
+    )
+    .populate({ path: 'addresses',  select: '-user' })
+    :
+    req.user
 
-    await createCharge({
-      address: address.values,
-      cart,
-      stripeToken,
-      appName,
-      res,
-      user: updatedUser,
-      newUserAddress: true,
-    })
-  } else {
-    const address = await Address.findOne({ _id: fullAddress, appName })
-    if (!address) throw Error('That address does not exist')
-    await createCharge({
-      address: address.values,
-      cart,
-      stripeToken,
-      appName,
-      res,
-      user,
-    })
-  }
-}
+  const config = await Config.findOne({ appName })
+  const { values: { stripeSkLive, stripeSkTest }} = config
+  if (!stripeSkLive && !stripeSkTest) throw Error('Unable to create charge, no stripe api key found')
+  const stripe = require("stripe")(stripeSkLive || stripeSkTest)
 
-const createCharge = async ({
-  address,
-  cart,
-  appName,
-  res,
-  stripeToken,
-  user,
-  newUserAddress,
-}) => {
-  try {
-    const config = await Config.findOne({ appName })
-    const { values: { stripeSkLive, stripeSkTest }} = config
-    if (!stripeSkLive && !stripeSkTest) throw Error('Unable to create charge, no stripe api key found')
-    const stripe = require("stripe")(stripeSkLive || stripeSkTest)
-    const charge = await stripe.charges.create({
-      amount: Math.round(cart.total),
-      currency: "usd",
-      source: stripeToken,
-      description: `${appName} Order`
-    })
-    const order = await new Order({
-      address,
-      appName,
-      cart,
-      email: user.values.email,
-      firstName: user.values.firstName,
-      lastName: user.values.lastName,
-      paymentId: charge.id,
-      shipped: false,
-      total: cart.total,
-      user: user._id,
-    }).save()
-    await Cart.findOneAndRemove({ _id: cart._id })
-    const response = newUserAddress ? { order, user } : { order }
-    res.send(response)
-    const { name, phone, street, city, state, zip } = address
-    const htmlOrder = `
-      <div style="font-weight: 900">Order Summary</div>
-      <div>Order: ${order._id}</div>
-      <div>Total: ${formatPrice(order.cart.total)}</div>
-      <div>Quantity: ${order.cart.quantity}</div>
-      <div>Items:</div>
-      <ol>
-        ${order.cart.items.map(item => (
-          `<li style="display:flex;flex-flow:row wrap;align-items:center;font-family:inherit;">
-            ${item.productQty} of <img src="${process.env.REACT_APP_IMAGE_ENDPOINT/item.image.src}" alt="order item" height="32px" width="auto" style="margin-left:8px;margin-right:8px"/> ${item.name} ${item.productId}
-          </li>`
-        ))}
-      </ol>
-      <div style="font-weight: 900">Delivery Summary</div>
-      <div>${name}</div>
-      <div>${phone}</div>
-      <div>${street}</div>
-      <div>${city}, ${state} ${zip}</div>
-    `
-    await sendGmail({
-      appName,
-      toEmail: user.values.email,
-      toSubject: 'Thank you for your order!',
-      toBody: `
-        <p>Hi ${user.values.firstName},</p>
-        <p>Thank you for your recent order ${order._id}.  We are preparing your order for delivery and will send you a confirmation once it has shipped.  Please don't hesitate to reach out regarding anything we can with in the interim.</p>
-        ${htmlOrder}
-      `,
-      adminSubject: `New order received!`,
-      adminBody: `
-        <p>${user.values.firstName} ${user.values.lastName} just placed order an order!</p>
-        ${htmlOrder}
-        <p>Once shipped, you can mark the item as shipped in at <a href="${appName}/admin/orders">${appName}/admin/orders</a> to send confirmation to ${user.values.firstName}.</p>
-      `
-    })
-  } catch (err) {
+  const charge = await stripe.charges.create({
+    amount: Math.round(cart.total),
+    currency: "usd",
+    source: stripeToken,
+    description: `${appName} Order`
+  })
+  .catch(err => {
     if (err.type === 'StripeCardError') {
       throw new CustomError({ field: 'card', message: err.message, statusCode: err.statusCode})
     }
     return Promise.reject(err)
-  }
+  })
+
+  const order = await new Order({
+    address,
+    appName,
+    cart,
+    email: user.values.email,
+    firstName: user.values.firstName,
+    lastName: user.values.lastName,
+    paymentId: charge.id,
+    shipped: false,
+    total: cart.total,
+    user: user._id,
+  }).save()
+
+  await Cart.findOneAndRemove({ _id: cart._id })
+
+  const response = hasNewAddress ? { order, user } : { order }
+  res.send(response)
+
+  const htmlOrder = `
+    <div style="font-weight: 900">Order Summary</div>
+    <div>Order: ${order._id}</div>
+    <div>Total: ${formatPrice(order.cart.total)}</div>
+    <div>Quantity: ${order.cart.quantity}</div>
+    <div>Items:</div>
+    <ol>
+      ${order.cart.items.map(item => (
+        `<li style="display: flex; flex-flow: row wrap; align-items: center; font-family: inherit;">
+          ${item.productQty} of <img src="${process.env.REACT_APP_IMAGE_ENDPOINT/item.image.src}" alt="order item" height="32px" width="auto" style="margin-left:8px;margin-right:8px"/> ${item.name} ${item.productId}
+        </li>`
+      ))}
+    </ol>
+    <div style="font-weight: 900">Delivery Summary</div>
+    <div>${name}</div>
+    <div>${phone}</div>
+    <div>${street}</div>
+    <div>${city}, ${state} ${zip}</div>
+  `
+  await sendGmail({
+    appName,
+    toEmail: user.values.email,
+    toSubject: 'Thank you for your order!',
+    toBody: `
+      <p>Hi ${user.values.firstName},</p>
+      <p>Thank you for your recent order ${order._id}.  We are preparing your order for delivery and will send you a confirmation once it has shipped.  Please don't hesitate to reach out regarding anything we can with in the interim.</p>
+      ${htmlOrder}
+    `,
+    adminSubject: `New order received!`,
+    adminBody: `
+      <p>${user.values.firstName} ${user.values.lastName} just placed order an order!</p>
+      ${htmlOrder}
+      <p>Once shipped, you can mark the item as shipped in at <a href="${appName}/admin/orders">${appName}/admin/orders</a> to send confirmation to ${user.values.firstName}.</p>
+    `
+  })
 }
+
 
 
 

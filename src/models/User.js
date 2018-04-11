@@ -61,8 +61,8 @@ userSchema.pre('save', function(next) {
 userSchema.post('remove', function(doc, next) {
   if (doc.addresses.length > 0) {
     return Address.deleteMany({ user: doc._id })
-    .then(() => next())
-    .catch(error => next(Error(error)))
+    .then(() => next)
+    .catch(error => Promise.reject(error))
   }
   next()
 })

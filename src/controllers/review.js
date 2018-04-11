@@ -55,7 +55,7 @@ export const add = async (req, res) => {
     <div>Stars: ${values.rating}</div>
     <div>Review: ${values.text}</div>
   `
-  console.log('user email is ', user.values.email)
+
   await sendGmail({
     appName,
     toEmail: user.values.email,
@@ -79,20 +79,21 @@ export const add = async (req, res) => {
 export const get = async (req, res) => {
   const {
     appName,
-    query: { kind, item, lastId, userId, limit, reviewId },
+    query: { kind, item, lastId, userId, limit, _id },
   } = req
   const kindQuery = kind && { kind }
   const itemQuery = item && { item: item }
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const userIdQuery = userId && { user: userId }
-  const reviewIdQuery = reviewId && { _id: reviewId }
+  const idQuery = _id && { _id }
   const query = {
     appName,
+    published: true,
     ...kindQuery,
     ...itemQuery,
     ...lastIdQuery,
     ...userIdQuery,
-    ...reviewIdQuery,
+    ...idQuery,
   }
   if (item) {
     const reviews = await Review.find(query)
@@ -100,7 +101,37 @@ export const get = async (req, res) => {
     return res.send(reviews)
   }
   const reviews = await Review.find(query)
-  .populate('item')
+  .populate({ path: 'item', select: '_id values.name values.title values.image' })
+  .limit(parseInt(limit))
+  return res.send(reviews)
+}
+
+
+export const adminGet = async (req, res) => {
+  const {
+    appName,
+    query: { kind, item, lastId, userId, limit, _id },
+  } = req
+  const kindQuery = kind && { kind }
+  const itemQuery = item && { item: item }
+  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const userIdQuery = userId && { user: userId }
+  const idQuery = _id && { _id }
+  const query = {
+    appName,
+    ...kindQuery,
+    ...itemQuery,
+    ...lastIdQuery,
+    ...userIdQuery,
+    ...idQuery,
+  }
+  if (item) {
+    const reviews = await Review.find(query)
+    .limit(parseInt(limit))
+    return res.send(reviews)
+  }
+  const reviews = await Review.find(query)
+  .populate({ path: 'item', select: '_id values.name values.title values.image' })
   .limit(parseInt(limit))
   return res.send(reviews)
 }
@@ -134,7 +165,7 @@ export const updateLikes = async (req, res) => {
 
 export const updateValues = async (req, res) => {
   const {
-    body: { values, href, itemName, published },
+    body: { values, href, itemName },
     appName,
     params: { _id },
     user,
@@ -149,6 +180,7 @@ export const updateValues = async (req, res) => {
     { new: true }
   )
   .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
+  .populate({ path: 'item', select: '_id values.name values.title values.image' })
   if (!review) throw Error('Review update error')
 
   const agg = hasNewRating ? [
@@ -176,7 +208,8 @@ export const updateValues = async (req, res) => {
     appName,
     adminSubject: `Review Updated for ${itemName}!`,
     adminBody: `
-      <p>${user.values.firstName} ${user.values.lastName} just updated their review for <a href="${href}#${reivew._id}">${itemName}</a>!</p>
+      <p>${user.values.firstName} ${user.values.lastName} just updated their review for <a href="${href}#${review._id}">${itemName}</a>!</p>
+      <br/>
       <div style="text-decoration: underline">${user.values.firstName}'s previous review</div>
       <div>Stars: ${prevReview.values.rating}</div>
       <div>Review: ${prevReview.values.text}</div>
@@ -194,20 +227,20 @@ export const updateValues = async (req, res) => {
 
 export const adminUpdate = async (req, res) => {
   const {
-    body: { update },
+    body: { published },
     appName,
     params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
   const review = await Review.findOneAndUpdate(
     { _id, appName },
-    { $set: { ...update }},
+    { $set: { published }},
     { new: true }
   )
   .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
-  .populate('item')
+  .populate({ path: 'item', select: '_id values.name values.title values.image' })
   if (!review) throw Error('Review update error')
-  return res.send(review)
+  return res.send({ review })
 }
 
 

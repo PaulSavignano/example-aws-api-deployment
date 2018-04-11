@@ -39,8 +39,8 @@ productSchema.index({
 productSchema.post('remove', function(doc, next) {
   if (doc.values && doc.values.image && doc.values.image.src) {
     return deleteFiles([{ Key: doc.values.image.src }])
-    .then(() => next())
-    .catch(error => next(Error(error)))
+    .then(() => next)
+    .catch(error => Promise.reject(error))
   }
   next()
 })
