@@ -46,12 +46,13 @@ export const get = async (req, res) => {
   } = req
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = _id && { _id }
+  const limitInt = limit ? parseInt(limit) : 2
   const products = await Product.aggregate([
     { $match: {
       appName,
       published: true,
+      ...idQuery,
       ...lastIdQuery,
-      ...idQuery
     }},
     { $lookup: {
       from: 'reviews',
@@ -59,14 +60,23 @@ export const get = async (req, res) => {
       foreignField: 'item',
       as: 'reviews'
     }},
-    { $project: {
+    { $unwind: "$reviews"},
+    { $group: {
       _id: "$$ROOT._id",
-      values: "$$ROOT.values",
-      stars: { $sum: "$reviews.values.rating" },
-      reviews: { $size: "$reviews" }
+      stars: {$sum: {$cond: [{$eq:["$reviews.published", true]}, "$reviews.values.rating", 0]}},
+      reviews: {$sum: {$cond: [{$eq:["$reviews.published", true]}, 1, 0]}},
+      published: { $last: "$$ROOT.published"},
+      values: { $last: "$$ROOT.values"},
+    }},
+    { $project: {
+      _id: "$_id",
+      published: "$published",
+      values: "$values",
+      stars: "$stars",
+      reviews: "$reviews"
     }}
   ])
-  .limit(parseInt(limit))
+  .limit(limitInt)
   return res.send(products)
 }
 
@@ -78,11 +88,12 @@ export const adminGet = async (req, res) => {
   } = req
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = _id && { _id }
+  const limitInt = limit ? parseInt(limit) : 2
   const products = await Product.aggregate([
     { $match: {
       appName,
+      ...idQuery,
       ...lastIdQuery,
-      ...idQuery
     }},
     { $lookup: {
       from: 'reviews',
@@ -90,14 +101,23 @@ export const adminGet = async (req, res) => {
       foreignField: 'item',
       as: 'reviews'
     }},
-    { $project: {
+    { $unwind: "$reviews"},
+    { $group: {
       _id: "$$ROOT._id",
-      values: "$$ROOT.values",
-      stars: { $sum: "$reviews.values.rating" },
-      reviews: { $size: "$reviews" }
+      stars: {$sum: {$cond: [{$eq:["$reviews.published", true]}, "$reviews.values.rating", 0]}},
+      reviews: {$sum: {$cond: [{$eq:["$reviews.published", true]}, 1, 0]}},
+      published: { $last: "$$ROOT.published"},
+      values: { $last: "$$ROOT.values"},
+    }},
+    { $project: {
+      _id: "$_id",
+      published: "$published",
+      values: "$values",
+      stars: "$stars",
+      reviews: "$reviews"
     }}
   ])
-  .limit(parseInt(limit))
+  .limit(limitInt)
   return res.send(products)
 }
 
@@ -109,30 +129,28 @@ export const adminGet = async (req, res) => {
 
 export const update = async (req, res) => {
   const {
-    body: { values, oldSrcs },
+    body: { values, oldSrcs, published },
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Product update error, invalid id')
-  oldSrcs.length && await deleteFiles(oldSrcs)
-  // handle new image
-  const newImageValues = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
+  if (!ObjectID.isValid(_id)) throw Error('Blog update error, Invalid id')
+
+  oldSrcs && oldSrcs.length && await deleteFiles(oldSrcs)
+  const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${appName}/products/${slugIt(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
+      path: `${appName}/blogs/${values.title}-${_id}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
-  } : null
+  } : values
 
-  const newValues = newImageValues ? newImageValues : values
-
+  const set = values ? { values: valuesUpdate } : typeof published === 'undefined' ? null : { published }
   const product = await Product.findOneAndUpdate(
     { _id, appName },
-    { $set: { values: newValues }},
+    { $set: set },
     { new: true }
   )
-  if (!product) throw Error('Product to update was not found')
-
+  if (!product) throw Error('Blog to update was not found')
   return res.send(product)
 }
 

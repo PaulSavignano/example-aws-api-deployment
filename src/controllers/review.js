@@ -86,6 +86,7 @@ export const get = async (req, res) => {
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const userIdQuery = userId && { user: userId }
   const idQuery = _id && { _id }
+  const limitInt = limit ? parseInt(limit) : 2
   const query = {
     appName,
     published: true,
@@ -102,7 +103,7 @@ export const get = async (req, res) => {
   }
   const reviews = await Review.find(query)
   .populate({ path: 'item', select: '_id values.name values.title values.image' })
-  .limit(parseInt(limit))
+  .limit(limitInt)
   return res.send(reviews)
 }
 
@@ -110,13 +111,17 @@ export const get = async (req, res) => {
 export const adminGet = async (req, res) => {
   const {
     appName,
-    query: { kind, item, lastId, userId, limit, _id },
+    query: { kind, item, lastId, userId, limit, _id, published },
   } = req
+  console.log('admin get query', req.query)
   const kindQuery = kind && { kind }
-  const itemQuery = item && { item: item }
+  const itemQuery = item && { item }
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const userIdQuery = userId && { user: userId }
   const idQuery = _id && { _id }
+  const limitInt = limit ? parseInt(limit) : 2
+  const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
+  console.log('publishedQ', publishedQuery)
   const query = {
     appName,
     ...kindQuery,
@@ -124,6 +129,7 @@ export const adminGet = async (req, res) => {
     ...lastIdQuery,
     ...userIdQuery,
     ...idQuery,
+    ...publishedQuery
   }
   if (item) {
     const reviews = await Review.find(query)
@@ -132,7 +138,7 @@ export const adminGet = async (req, res) => {
   }
   const reviews = await Review.find(query)
   .populate({ path: 'item', select: '_id values.name values.title values.image' })
-  .limit(parseInt(limit))
+  .limit(limitInt)
   return res.send(reviews)
 }
 

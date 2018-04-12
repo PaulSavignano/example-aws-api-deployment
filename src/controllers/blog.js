@@ -34,6 +34,8 @@ export const add = async (req, res) => {
 
 
 
+
+
 export const get = async (req, res) => {
   const {
     appName,
@@ -42,7 +44,7 @@ export const get = async (req, res) => {
   console.log('req', req.query)
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = _id && { _id: ObjectID(_id) }
-  const limitInt = limit ? parseInt(limit) : 2
+  const limitInt = limit ? parseInt(limit) : 3
   const blogs = await Blog.aggregate([
     { $match: {
       appName,
@@ -56,12 +58,20 @@ export const get = async (req, res) => {
       foreignField: 'item',
       as: 'reviews'
     }},
-    { $project: {
+    { $unwind: "$reviews"},
+    { $group: {
       _id: "$$ROOT._id",
-      published: "$$ROOT.published",
-      values: "$$ROOT.values",
-      stars: { $sum: "$reviews.values.rating" },
-      reviews: { $size: "$reviews" }
+      stars: {$sum: {$cond: [{$eq:["$reviews.published", true]}, "$reviews.values.rating", 0]}},
+      reviews: {$sum: {$cond: [{$eq:["$reviews.published", true]}, 1, 0]}},
+      published: { $last: "$$ROOT.published"},
+      values: { $last: "$$ROOT.values"},
+    }},
+    { $project: {
+      _id: "$_id",
+      published: "$published",
+      values: "$values",
+      stars: "$stars",
+      reviews: "$reviews"
     }}
   ])
   .limit(limitInt)
@@ -71,18 +81,20 @@ export const get = async (req, res) => {
 
 
 
+
 export const adminGet = async (req, res) => {
   const {
     appName,
     query: { lastId, limit, _id },
   } = req
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
-  const idQuery = _id && { _id }
+  const idQuery = _id && { _id: ObjectID(_id) }
+  const limitInt = limit ? parseInt(limit) : 3
   const blogs = await Blog.aggregate([
     { $match: {
       appName,
+      ...idQuery,
       ...lastIdQuery,
-      ...idQuery
     }},
     { $lookup: {
       from: 'reviews',
@@ -90,15 +102,24 @@ export const adminGet = async (req, res) => {
       foreignField: 'item',
       as: 'reviews'
     }},
-    { $project: {
+    { $unwind: "$reviews"},
+    { $group: {
       _id: "$$ROOT._id",
-      published: "$$ROOT.published",
-      values: "$$ROOT.values",
-      stars: { $sum: "$reviews.values.rating" },
-      reviews: { $size: "$reviews" }
+      stars: {$sum: {$cond: [{$eq:["$reviews.published", true]}, "$reviews.values.rating", 0]}},
+      reviews: {$sum: {$cond: [{$eq:["$reviews.published", true]}, 1, 0]}},
+      published: { $last: "$$ROOT.published"},
+      values: { $last: "$$ROOT.values"},
+    }},
+    { $project: {
+      _id: "$_id",
+      published: "$published",
+      values: "$values",
+      stars: "$stars",
+      reviews: "$reviews"
     }}
   ])
-  .limit(parseInt(limit))
+  .limit(limitInt)
+  console.log('adminBlogs', blogs)
   return res.send(blogs)
 }
 
@@ -111,8 +132,10 @@ export const update = async (req, res) => {
     appName,
     params: { _id }
   } = req
+  console.log('req.body', req.body, '_id', _id)
   if (!ObjectID.isValid(_id)) throw Error('Blog update error, Invalid id')
 
+  oldSrcs && oldSrcs.length && await deleteFiles(oldSrcs)
   const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
@@ -121,7 +144,7 @@ export const update = async (req, res) => {
     })
   } : values
 
-  const set = values ? { values: valuesUpdate } : typeof variable === 'undefined' ? null : { published }
+  const set = values ? { values: valuesUpdate } : typeof published === 'undefined' ? null : { published }
   const blog = await Blog.findOneAndUpdate(
     { _id, appName },
     { $set: set },
