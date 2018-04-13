@@ -1,10 +1,11 @@
 import { ObjectID } from 'mongodb'
 
 import { deleteFiles } from '../utils/s3'
-import { getTime } from '../utils/formatDate'
+import getTime from '../utils/getTime'
 import handleImage from '../utils/handleImage'
 import Page from '../models/Page'
 import Section from '../models/Section'
+
 
 
 export const add = async (req, res) => {
@@ -47,11 +48,13 @@ export const add = async (req, res) => {
 
 
 
+
 export const get = async (req, res) => {
   const { appName } = req
   const sections = await Section.find({ appName })
   return res.send(sections)
 }
+
 
 
 
@@ -112,7 +115,6 @@ export const updateComponents = async (req, res) => {
   if (!section) throw Error('Section set components failed')
   return res.send(section)
 }
-
 
 
 

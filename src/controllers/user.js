@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
 import createTokens from '../utils/createTokens'
 import CustomError from '../utils/CustomError'
@@ -7,6 +8,7 @@ import RefreshToken from '../models/RefreshToken'
 import ResetToken from '../models/ResetToken'
 import sendGmail from '../utils/sendGmail'
 import User from '../models/User'
+
 
 
 export const add = async (req, res) => {
@@ -57,6 +59,8 @@ export const add = async (req, res) => {
 
 
 
+
+
 export const get = async (req, res) => {
   const { user } = req
   return res.send(user)
@@ -78,6 +82,9 @@ export const update = async (req, res) => {
 
 
 
+
+
+
 export const updateAddresses = async (req, res) => {
   const {
     body: { addresses },
@@ -95,12 +102,15 @@ export const updateAddresses = async (req, res) => {
 
 
 
+
+
 export const remove = async (req, res) => {
   const { appName } = req
   const user = await User.findOne({ _id: req.user._id, appName })
   await user.remove()
   return res.status(200).send(user._id)
 }
+
 
 
 
@@ -123,6 +133,9 @@ export const signin = async (req, res) => {
 
 
 
+
+
+
 export const signout = async (req, res) => {
   const accessToken = req.headers['x-access-token']
   const refreshToken = req.headers['x-refresh-token']
@@ -132,6 +145,8 @@ export const signout = async (req, res) => {
   if (!aToken) throw Error('Signout access token not found')
   return res.status(200).send({ message: 'It was good seeing you, come back soon!'})
 }
+
+
 
 
 
@@ -191,6 +206,8 @@ export const reset = async (req, res) => {
 
 
 
+
+
 export const contact = async (req, res) => {
   const {
     body: {
@@ -202,8 +219,7 @@ export const contact = async (req, res) => {
     appName
   } = req
   if (!firstName || !email || !message) throw Error('All fields are required')
-  if (!brand) throw Error('Contact failed')
-  sendGmail({
+  await sendGmail({
     appName,
     toEmail: email,
     toSubject: `Thank you for contacting ${appName}!`,
@@ -218,6 +234,5 @@ export const contact = async (req, res) => {
       <div>Message: ${message}</div>
     `
   })
-  if (!info) throw Error('Contact email send failed')
   return res.send({ message: 'Thank you for contacting us, we will respond to you shortly!'})
 }

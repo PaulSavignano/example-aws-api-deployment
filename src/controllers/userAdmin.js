@@ -3,6 +3,8 @@ import { ObjectID } from 'mongodb'
 import CustomError from '../utils/CustomError'
 import User from '../models/User'
 
+
+
 export const adminAdd = async (req, res) => {
   const {
     body: {
@@ -27,6 +29,8 @@ export const adminAdd = async (req, res) => {
 
 
 
+
+
 export const adminGet = async (req, res) => {
   const {
     appName,
@@ -47,6 +51,7 @@ export const adminGet = async (req, res) => {
   .limit(parseInt(limit))
   return res.send(users)
 }
+
 
 
 
@@ -97,6 +102,7 @@ export const adminUpdateRoles = async (req, res) => {
   )
   return res.send(user)
 }
+
 
 
 

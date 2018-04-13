@@ -4,6 +4,7 @@ import Cart from '../models/Cart'
 import Product from '../models/Product'
 
 
+
 export const add = async (req, res) => {
   const {
     body: { productId, productQty },
@@ -28,6 +29,9 @@ export const add = async (req, res) => {
   res.set('cartId', cart._id)
   return res.send(cart)
 }
+
+
+
 
 
 
@@ -130,6 +134,8 @@ export const update = async (req, res) => {
     return res.send(addNewToCart)
   }
 }
+
+
 
 
 

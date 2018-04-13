@@ -1,9 +1,10 @@
 import { ObjectID } from 'mongodb'
 
-import { getTime } from '../utils/formatDate'
+import getTime from '../utils/getTime'
 import { deleteFiles } from '../utils/s3'
 import handleImage from '../utils/handleImage'
 import Theme from '../models/Theme'
+
 
 
 export const add = async (req, res) => {
@@ -11,6 +12,7 @@ export const add = async (req, res) => {
   const theme = await new Theme({ appName }).save()
   res.send(theme)
 }
+
 
 
 
@@ -25,7 +27,8 @@ export const get = async (req, res) => {
 
 
 
-// Update theme
+
+
 export const update = async (req, res) => {
   const {
     body: {
@@ -93,7 +96,6 @@ export const update = async (req, res) => {
 
 
 
-// Delete
 export const remove = async (req, res) => {
   const {
     appName,

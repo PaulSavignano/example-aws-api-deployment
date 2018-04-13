@@ -1,10 +1,10 @@
 import { ObjectID } from 'mongodb'
 
 import { deleteFiles } from '../utils/s3'
-import { getTime } from '../utils/formatDate'
+import getTime from '../utils/getTime'
 import handleImage from '../utils/handleImage'
 import Product from '../models/Product'
-import slugIt from '../utils/slugIt'
+import getSlug from '../utils/getSlug'
 
 
 
@@ -15,20 +15,18 @@ export const add = async (req, res) => {
   } = req
   const _id = new ObjectID()
   // handle new background image and return object
-  const newImageValues = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
+  const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${appName}/products/${slugIt(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
+      path: `${appName}/products/${getSlug(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
-  } : null
-
-  const newValues = newImageValues ? newImageValues : values
+  } : values
 
   const product = await new Product({
     _id,
     appName,
-    values: newValues,
+    values: valuesUpdate,
   }).save()
   if (!product) throw Error('No product was found')
   return res.send(product)
@@ -81,6 +79,10 @@ export const get = async (req, res) => {
 }
 
 
+
+
+
+
 export const adminGet = async (req, res) => {
   const {
     appName,
@@ -120,7 +122,6 @@ export const adminGet = async (req, res) => {
   .limit(limitInt)
   return res.send(products)
 }
-
 
 
 

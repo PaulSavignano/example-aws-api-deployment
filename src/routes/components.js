@@ -7,15 +7,15 @@ import {
   get,
   remove,
   update,
-  updateOrder
+  updateOrder,
 } from '../controllers/component'
 
 const components = express.Router()
 
-components.post('/', authenticate(['admin']), catchErrors(add))
+components.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 components.get('/', catchErrors(get))
 components.patch('/:_id', authenticate(['admin']), catchErrors(update))
 components.patch('/:sectionId', authenticate(['admin']), catchErrors(updateOrder))
-components.delete('/:_id', authenticate(['admin']), catchErrors(remove))
+components.post('/', authenticate(['admin']), catchErrors(add))
 
 export default components

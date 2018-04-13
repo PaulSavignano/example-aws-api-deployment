@@ -1,5 +1,5 @@
 import handleImage from './handleImage'
-import { getTime } from './formatDate'
+import getTime from './getTime'
 import { ObjectID } from 'mongodb'
 
 const handleItemImages = async ({

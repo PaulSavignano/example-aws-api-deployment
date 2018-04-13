@@ -1,9 +1,11 @@
 import { ObjectID } from 'mongodb'
 
 import { deleteFiles } from '../utils/s3'
-import { getTime } from '../utils/formatDate'
+import getTime from '../utils/getTime'
 import Blog from '../models/Blog'
 import handleImage from '../utils/handleImage'
+
+
 
 export const add = async (req, res) => {
   const {
@@ -82,6 +84,8 @@ export const get = async (req, res) => {
 
 
 
+
+
 export const adminGet = async (req, res) => {
   const {
     appName,
@@ -126,6 +130,8 @@ export const adminGet = async (req, res) => {
 
 
 
+
+
 export const update = async (req, res) => {
   const {
     body: { values, oldSrcs, published },
@@ -153,6 +159,7 @@ export const update = async (req, res) => {
   if (!blog) throw Error('Blog to update was not found')
   return res.send(blog)
 }
+
 
 
 

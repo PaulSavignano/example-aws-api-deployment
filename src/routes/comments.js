@@ -6,19 +6,18 @@ import {
   add,
   get,
   remove,
+  reportAbuse,
   updateLikes,
   updateValues,
-  reportAbuse,
 } from '../controllers/comments'
 
 const comments = express.Router()
 
-comments.post('/', authenticate(['user', 'admin', 'owner']), catchErrors(add))
-comments.post('/report-abuse', catchErrors(reportAbuse))
+comments.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 comments.get('/', catchErrors(get))
 comments.patch('/likes/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(updateLikes))
 comments.patch('/values/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(updateValues))
-comments.delete('/:_id', authenticate(['admin']), catchErrors(remove))
-
+comments.post('/', authenticate(['user', 'admin', 'owner']), catchErrors(add))
+comments.post('/report-abuse', catchErrors(reportAbuse))
 
 export default comments

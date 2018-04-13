@@ -8,9 +8,9 @@ import Order from '../models/Order'
 import sendGmail from '../utils/sendGmail'
 import User from '../models/User'
 
+
+
 const formatPrice = (cents) => `$${(cents / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
-
-
 
 export const add = async (req, res) => {
   const {
@@ -132,22 +132,21 @@ export const add = async (req, res) => {
 
 
 
-
-
-
 export const get = async (req, res) => {
   const {
     appName,
-    query: { lastId, limit, orderId },
+    query: { lastId, limit, orderId, shipped },
     user
   } = req
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = orderId && { _id: orderId }
+  const shippedQuery = shipped === 'true' ? { shipped: true } : shipped === 'false' ? { shipped: false } : null
   const query = {
     appName,
     user: user._id,
     ...lastIdQuery,
     ...idQuery,
+    ...shippedQuery,
   }
   if (orderId) {
     const order = await Order.findOne(query)
@@ -157,22 +156,27 @@ export const get = async (req, res) => {
   .limit(parseInt(limit))
   return res.send(orders)
 }
+
+
+
 
 
 
 export const adminGet = async (req, res) => {
   const {
     appName,
-    query: { lastId, limit, orderId, userId },
+    query: { lastId, limit, orderId, userId, shipped },
   } = req
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = orderId && { _id: orderId }
   const userQuery = userId && { user: userId }
+  const shippedQuery = shipped === 'true' ? { shipped: true } : shipped === 'false' ? { shipped: false } : null
   const query = {
     appName,
     ...lastIdQuery,
     ...idQuery,
     ...userQuery,
+    ...shippedQuery,
   }
   if (orderId) {
     const order = await Order.findOne(query)
@@ -182,15 +186,6 @@ export const adminGet = async (req, res) => {
   .limit(parseInt(limit))
   return res.send(orders)
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -247,6 +242,9 @@ export const getSalesByYear = async (req, res) => {
 
 
 
+
+
+
 export const getSalesByMonth = async (req, res) => {
   const {
     appName
@@ -296,6 +294,9 @@ export const getSalesByMonth = async (req, res) => {
   ])
   return res.send(sales)
 }
+
+
+
 
 
 
@@ -357,19 +358,14 @@ export const getSalesByDay = async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
 export const getAdmin = async (req, res) => {
   const { appName } = req
   const orders = await Order.find({ appName })
   return res.send(orders)
 }
+
+
+
 
 
 

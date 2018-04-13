@@ -5,6 +5,7 @@ import Review from '../models/Review'
 import sendGmail from '../utils/sendGmail'
 
 
+
 export const add = async (req, res) => {
   const {
     body: { parent, values, review, href, itemName },
@@ -39,6 +40,7 @@ export const add = async (req, res) => {
 
 
 
+
 export const updateLikes = async (req, res) => {
   const {
     body: { like, unlike },
@@ -57,7 +59,10 @@ export const updateLikes = async (req, res) => {
     select: 'values.firstName values.lastName _id'
   })
   res.send(comment)
-  }
+}
+
+
+
 
 
 
@@ -97,6 +102,9 @@ export const updateValues = async (req, res) => {
 
 
 
+
+
+
 export const get = async (req, res) => {
   const {
     appName,
@@ -105,6 +113,7 @@ export const get = async (req, res) => {
   const comments = await Comment.find({ appName, review: reviewId })
   return res.send(comments)
 }
+
 
 
 
@@ -127,6 +136,7 @@ export const reportAbuse = async (req, res) => {
   })
   res.send(mailData)
 }
+
 
 
 

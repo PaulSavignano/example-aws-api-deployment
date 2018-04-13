@@ -1,11 +1,13 @@
 import { ObjectID } from 'mongodb'
 
 import { deleteFiles } from '../utils/s3'
-import { getTime } from '../utils/formatDate'
 import Component from '../models/Component'
+import getTime from '../utils/getTime'
 import handleImage from '../utils/handleImage'
 import handleItemImages from '../utils/handleItemImages'
 import Section from '../models/Section'
+
+
 
 export const add = async (req, res) => {
   const {
@@ -69,12 +71,13 @@ export const add = async (req, res) => {
 
 
 
-// Read
+
 export const get = async (req, res) => {
   const { appName } = req
   const components = await Component.find({ appName })
   return res.send(components)
 }
+
 
 
 
@@ -132,6 +135,7 @@ export const update = async (req, res) => {
 
   return res.send(component)
 }
+
 
 
 

@@ -1,14 +1,15 @@
 import { ObjectID } from 'mongodb'
 
-import { getTime } from '../utils/formatDate'
 import { deleteFiles } from '../utils/s3'
-import Config from '../models/Config'
+import Blog from '../models/Blog'
 import Brand from '../models/Brand'
+import Config from '../models/Config'
+import getTime from '../utils/getTime'
 import handleImage from '../utils/handleImage'
 import Page from '../models/Page'
 import Product from '../models/Product'
-import Blog from '../models/Blog'
 import Theme from '../models/Theme'
+
 
 
 export const add = async (req, res) => {
@@ -23,6 +24,9 @@ export const add = async (req, res) => {
     theme,
   })
 }
+
+
+
 
 
 
@@ -41,7 +45,9 @@ export const get = async (req, res) => {
 
 
 
-// Update brand
+
+
+
 export const update = async (req, res) => {
   const {
     body: { brandParam, oldImageSrc, values },

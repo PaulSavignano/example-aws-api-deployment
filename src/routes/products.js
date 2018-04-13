@@ -4,18 +4,18 @@ import catchErrors from '../utils/catchErrors'
 import authenticate from '../middleware/authenticate'
 import {
   add,
-  get,
   adminGet,
+  get,
   remove,
   update,
 } from '../controllers/product'
 
 const products = express.Router()
 
-products.post('/', authenticate(['admin']), catchErrors(add))
+products.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 products.get('/', catchErrors(get))
 products.get('/admin', authenticate(['admin']), catchErrors(adminGet))
 products.patch('/:_id', authenticate(['admin']), catchErrors(update))
-products.delete('/:_id', authenticate(['admin']), catchErrors(remove))
+products.post('/', authenticate(['admin']), catchErrors(add))
 
 export default products

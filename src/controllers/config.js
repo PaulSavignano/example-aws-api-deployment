@@ -2,6 +2,8 @@ import { ObjectID } from 'mongodb'
 
 import Config from '../models/Config'
 
+
+
 export const add = async (req, res) => {
   const {
     appName,
@@ -12,12 +14,20 @@ export const add = async (req, res) => {
 }
 
 
+
+
+
+
 export const get = async (req, res) => {
   const { appName } = req
   const config = await Config.findOne({ appName })
   if (!config) throw Error('No config found')
   return res.send(config)
 }
+
+
+
+
 
 
 export const update = async (req, res) => {
@@ -36,6 +46,9 @@ export const update = async (req, res) => {
   if (!config) throw Error('Update failed, could not find the config')
   return res.send(config)
 }
+
+
+
 
 
 

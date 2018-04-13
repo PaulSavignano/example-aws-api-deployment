@@ -1,6 +1,7 @@
 import express from 'express'
 
 import addresses from './addresses'
+import apps from './apps'
 import blogs from './blogs'
 import brands from './brands'
 import carts from './carts'
@@ -20,8 +21,8 @@ import moverbase from '../moverbase/routes/moverbase'
 
 const router = express.Router()
 
-
 router.use('/addresses', addresses)
+router.use('/apps', apps)
 router.use('/blogs', blogs)
 router.use('/brands', brands)
 router.use('/carts', carts)

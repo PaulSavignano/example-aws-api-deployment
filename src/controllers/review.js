@@ -5,6 +5,8 @@ import Product from '../models/Product'
 import Review from '../models/Review'
 import sendGmail from '../utils/sendGmail'
 
+
+
 export const add = async (req, res) => {
   const {
     body: {
@@ -55,7 +57,6 @@ export const add = async (req, res) => {
     <div>Stars: ${values.rating}</div>
     <div>Review: ${values.text}</div>
   `
-
   await sendGmail({
     appName,
     toEmail: user.values.email,
@@ -76,16 +77,19 @@ export const add = async (req, res) => {
 
 
 
+
+
 export const get = async (req, res) => {
   const {
     appName,
-    query: { kind, item, lastId, userId, limit, _id },
+    query: { kind, item, lastId, userId, limit, _id, published },
   } = req
   const kindQuery = kind && { kind }
   const itemQuery = item && { item: item }
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const userIdQuery = userId && { user: userId }
   const idQuery = _id && { _id }
+  const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
   const limitInt = limit ? parseInt(limit) : 2
   const query = {
     appName,
@@ -95,6 +99,7 @@ export const get = async (req, res) => {
     ...lastIdQuery,
     ...userIdQuery,
     ...idQuery,
+    ...publishedQuery,
   }
   if (item) {
     const reviews = await Review.find(query)
@@ -106,6 +111,10 @@ export const get = async (req, res) => {
   .limit(limitInt)
   return res.send(reviews)
 }
+
+
+
+
 
 
 export const adminGet = async (req, res) => {
@@ -164,6 +173,7 @@ export const updateLikes = async (req, res) => {
   if (!review) throw Error('Review update error')
   res.send({ review })
 }
+
 
 
 
@@ -231,6 +241,7 @@ export const updateValues = async (req, res) => {
 
 
 
+
 export const adminUpdate = async (req, res) => {
   const {
     body: { published },
@@ -248,6 +259,9 @@ export const adminUpdate = async (req, res) => {
   if (!review) throw Error('Review update error')
   return res.send({ review })
 }
+
+
+
 
 
 
