@@ -89,16 +89,19 @@ export const get = async (req, res) => {
 export const adminGet = async (req, res) => {
   const {
     appName,
-    query: { lastId, limit, _id },
+    query: { lastId, limit, _id, published },
   } = req
+  console.log('adminBlogs query', req.query)
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = _id && { _id: ObjectID(_id) }
+  const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
   const limitInt = limit ? parseInt(limit) : 3
   const blogs = await Blog.aggregate([
     { $match: {
       appName,
       ...idQuery,
       ...lastIdQuery,
+      ...publishedQuery,
     }},
     { $lookup: {
       from: 'reviews',

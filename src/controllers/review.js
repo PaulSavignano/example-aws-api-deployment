@@ -82,23 +82,20 @@ export const add = async (req, res) => {
 export const get = async (req, res) => {
   const {
     appName,
-    query: { kind, item, lastId, userId, limit, _id, published },
+    query: { kind, item, lastId, userId, limit, _id, published, sort },
   } = req
-  const kindQuery = kind && { kind }
-  const itemQuery = item && { item: item }
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const userIdQuery = userId && { user: userId }
-  const idQuery = _id && { _id }
   const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
   const limitInt = limit ? parseInt(limit) : 2
   const query = {
     appName,
     published: true,
-    ...kindQuery,
-    ...itemQuery,
+    ...kind,
+    ...item,
+    ..._id,
     ...lastIdQuery,
     ...userIdQuery,
-    ...idQuery,
     ...publishedQuery,
   }
   if (item) {
