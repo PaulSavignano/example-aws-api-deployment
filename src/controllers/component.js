@@ -94,7 +94,7 @@ export const update = async (req, res) => {
     appName,
     params: { _id },
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Component update failed, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Component update failed, invalid _id')
   // delete old image files as we cannot determine if there is one to delete if an image has been removed from the items array
   oldSrcs.length && await deleteFiles(oldSrcs)
 
@@ -146,7 +146,7 @@ export const remove = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Component remove failed, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Component remove failed, invalid _id')
   const component = await Component.findOne({ _id, appName })
   await component.remove()
   if (!component) throw 'Component remove Component.findOneAndRemove() error'

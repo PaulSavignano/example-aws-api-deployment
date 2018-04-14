@@ -40,7 +40,7 @@ export const getId = async (req, res) => {
     appName,
     params: { _id },
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Get cart by id failed, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Get cart by id failed, invalid _id')
   const cart = await Cart.findOne({ _id, appName })
   if (!cart) throw Error('No cart found')
   return res.send(cart)
@@ -57,7 +57,7 @@ export const update = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Cart update failed, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Cart update failed, invalid _id')
   const cart = await Cart.findOne({ _id, appName })
   if (!cart) throw Error('cart not found')
   const index = cart.items.map(i => i.productId.toHexString()).indexOf(productId)
@@ -145,7 +145,7 @@ export const remove = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Cart remove failed, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Cart remove failed, invalid _id')
   const cart = await Cart.findOneAndRemove({ _id, appName })
   return res.send(cart._id)
 }

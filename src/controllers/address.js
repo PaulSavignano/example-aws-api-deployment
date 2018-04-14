@@ -113,7 +113,7 @@ export const update = async (req, res) => {
     appName,
     params: { _id },
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Update address failed, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Update address failed, invalid _id')
   const address = await Address.findOneAndUpdate(
     { _id, user: req.user._id, appName },
     { $set: { values }},
@@ -130,7 +130,7 @@ export const adminUpdate = async (req, res) => {
     appName,
     params: { _id },
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Address update failed, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Address update failed, invalid _id')
   const isOwner = req.user.roles.some(role => role === 'owner')
   if (!isOwner) throw Error('Update address failed, unauthorized')
   const address = await Address.findOneAndUpdate(
@@ -149,7 +149,7 @@ export const remove = async (req, res) => {
     appName,
     params: { _id },
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Address remove failed, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Address remove failed, invalid _id')
   const address = await Address.findOneAndRemove({ _id, user: req.user._id })
   const user = await User.findOneAndUpdate(
     { _id: req.user._id, appName },
@@ -167,7 +167,7 @@ export const adminRemove = async (req, res) => {
     appName,
     params: { _id, userId },
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Address remove failed, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Address remove failed, invalid _id')
   const address = await Address.findOneAndRemove({ _id, appName })
   const user = await User.findOneAndUpdate(
     { _id: userId, appName },

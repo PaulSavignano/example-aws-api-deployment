@@ -31,13 +31,13 @@ export const get = async (req, res) => {
 
 
 export const update = async (req, res) => {
-  if (!ObjectID.isValid(req.params._id)) return res.status(404).send({ error: 'Invalid id' })
+  if (!ObjectID.isValid(req.params._id)) return res.status(404).send({ error: 'invalid _id' })
   const {
     body: { values },
     appName,
     params: { _id },
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Config update failed, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Config update failed, invalid _id')
   const config = await Config.findOneAndUpdate(
     { _id, appName },
     { $set: { values }},
@@ -53,7 +53,7 @@ export const update = async (req, res) => {
 
 
 export const remove = async (req, res) => {
-  if (!ObjectID.isValid(req.params._id)) return res.status(404).send({ error: 'Invalid id'})
+  if (!ObjectID.isValid(req.params._id)) return res.status(404).send({ error: 'invalid _id'})
   const {
     appName,
     params: { _id }

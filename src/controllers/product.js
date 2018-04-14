@@ -134,7 +134,7 @@ export const update = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Blog update error, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Blog update error, invalid _id')
 
   oldSrcs && oldSrcs.length && await deleteFiles(oldSrcs)
   const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
@@ -165,7 +165,7 @@ export const remove = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Product delete error, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Product delete error, invalid _id')
   const product = await Product.findOne({ _id, appName })
   await product.remove()
   if (!product) throw Error('Product remove failed')

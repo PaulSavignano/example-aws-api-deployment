@@ -40,7 +40,7 @@ export const update = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Theme update failed, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Theme update failed, invalid _id')
   oldImageSrc && await deleteFiles([{ Key: oldImageSrc }])
 
   const valuesWithNewImage = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
@@ -101,7 +101,7 @@ export const remove = async (req, res) => {
     appName,
     params: { _id },
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Theme remove failed, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Theme remove failed, invalid _id')
   const theme = await Theme.findOne({ _id, appName })
   await theme.remove()
   if (!theme) throw 'Theme remove Theme.findOneAndRemove() error'

@@ -159,7 +159,7 @@ export const updateLikes = async (req, res) => {
     appName,
     params: { _id },
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid _id')
   const update = like ? { $push: { likes: like }} : unlike ? { $pull: { likes: unlike }} : null
   const review = await Review.findOneAndUpdate(
     { _id, appName },
@@ -183,7 +183,7 @@ export const updateValues = async (req, res) => {
     params: { _id },
     user,
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid _id')
   const prevReview = await Review.findOne({ _id, appName })
   const hasNewRating = prevReview.values.rating !== values.rating ? true : false
   const update = values ? { $set: { values }} : { $set: { published }}
@@ -245,7 +245,7 @@ export const adminUpdate = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid _id')
   const review = await Review.findOneAndUpdate(
     { _id, appName },
     { $set: { published }},
@@ -267,7 +267,7 @@ export const remove = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Review remove error, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Review remove error, invalid _id')
   const review = await Review.findOneAndRemove({ _id, appName })
   if (!review) throw Error('Review remove error, review not found')
   return res.send(review._id)

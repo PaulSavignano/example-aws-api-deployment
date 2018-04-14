@@ -43,7 +43,6 @@ export const get = async (req, res) => {
     appName,
     query: { lastId, limit, _id },
   } = req
-  console.log('req', req.query)
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = _id && { _id: ObjectID(_id) }
   const limitInt = limit ? parseInt(limit) : 3
@@ -77,7 +76,6 @@ export const get = async (req, res) => {
     }}
   ])
   .limit(limitInt)
-  console.log('blogs', blogs)
   return res.send(blogs)
 }
 
@@ -91,7 +89,6 @@ export const adminGet = async (req, res) => {
     appName,
     query: { lastId, limit, _id, published },
   } = req
-  console.log('adminBlogs query', req.query)
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = _id && { _id: ObjectID(_id) }
   const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
@@ -126,7 +123,6 @@ export const adminGet = async (req, res) => {
     }}
   ])
   .limit(limitInt)
-  console.log('adminBlogs', blogs)
   return res.send(blogs)
 }
 
@@ -142,7 +138,7 @@ export const update = async (req, res) => {
     params: { _id }
   } = req
   console.log('req.body', req.body, '_id', _id)
-  if (!ObjectID.isValid(_id)) throw Error('Blog update error, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Blog update error, invalid _id')
 
   oldSrcs && oldSrcs.length && await deleteFiles(oldSrcs)
   const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
@@ -173,7 +169,7 @@ export const remove = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Blog remove error, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Blog remove error, invalid _id')
   const blog = await Blog.findOne({ _id, appName })
   await blog.remove()
   if (!blog) throw Error('That blog was not found')

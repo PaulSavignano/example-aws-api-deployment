@@ -375,7 +375,7 @@ export const update = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Order update failed, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Order update failed, invalid _id')
   if (type === 'SHIPPED') {
     const order = await Order.findOneAndUpdate(
       { _id, appName },

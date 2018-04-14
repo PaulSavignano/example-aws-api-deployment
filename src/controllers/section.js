@@ -70,7 +70,7 @@ export const update = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Section update failed, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Section update failed, invalid _id')
   oldSrcs.length && await deleteFiles(oldSrcs)
 
   // handle new background image
@@ -126,7 +126,7 @@ export const remove = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Section remove failed, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Section remove failed, invalid _id')
   const section = await Section.findOne({ _id, appName })
   if (!section) throw Error('Section delete failed, no section found')
   await section.remove()

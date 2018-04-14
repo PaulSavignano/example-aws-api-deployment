@@ -63,7 +63,7 @@ export const adminUpdateValues = async (req, res) => {
     appName,
     params: { _id },
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('User update failed, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('User update failed, invalid _id')
   const existingUser = await User.findOne({ _id, appName })
   if (!existingUser) throw Error('User updated failed, user not found')
   const updatedUser = await User.findOneAndUpdate(
@@ -85,7 +85,7 @@ export const adminUpdateRoles = async (req, res) => {
     appName,
     params: { _id },
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('User update failed, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('User update failed, invalid _id')
   const existingUser = await User.findOne({ _id, appName })
   if (!existingUser) throw Error('User updated failed, user not found')
   const roles = values.owner ?

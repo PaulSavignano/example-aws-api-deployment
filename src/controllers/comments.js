@@ -47,7 +47,7 @@ export const updateLikes = async (req, res) => {
     params: { _id },
     appName,
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid _id')
   const update = like ? { $push: { likes: like }} : unlike ? { $pull: { likes: unlike }} : null
   const comment = await Comment.findOneAndUpdate(
     { _id, appName },
@@ -73,7 +73,7 @@ export const updateValues = async (req, res) => {
     appName,
     user,
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid _id')
   const prevComment = await Comment.findOne({ _id, appName })
   const comment = await Comment.findOneAndUpdate(
     { _id, appName, user: user._id },
@@ -147,7 +147,7 @@ export const remove = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('Comment remove error, invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('Comment remove error, invalid _id')
   const comment = await Comment.findOneAndRemove({ _id, appName })
   await Comment.deleteMany({ parent: comment._id })
   if (!comment) throw Error('Comment remove error, comment not found')

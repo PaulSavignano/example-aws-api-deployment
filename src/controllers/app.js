@@ -57,7 +57,7 @@ export const update = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('App update failed, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('App update failed, invalid _id')
   oldImageSrc && await deleteFiles([{ Key: oldImageSrc }])
 
   const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
@@ -113,7 +113,7 @@ export const remove = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  if (!ObjectID.isValid(_id)) throw Error('App remove failed, Invalid id')
+  if (!ObjectID.isValid(_id)) throw Error('App remove failed, invalid _id')
   const app = await App.findOne({ _id, appName })
   await app.remove()
   if (!app) throw 'App remove App.findOneAndRemove() error'
