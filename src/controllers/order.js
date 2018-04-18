@@ -97,11 +97,12 @@ export const add = async (req, res) => {
     <div>Quantity: ${order.cart.quantity}</div>
     <div>Items:</div>
     <ol>
-      ${order.cart.items.map(item => (
-        `<li style="display: flex; flex-flow: row wrap; align-items: center; font-family: inherit;">
+      ${order.cart.items.map(item => (`
+        <li style="display: flex; flex-flow: row wrap; align-items: center; font-family: inherit;">
           ${item.productQty} of <img src="${process.env.REACT_APP_IMAGE_ENDPOINT/item.image.src}" alt="order item" height="32px" width="auto" style="margin-left:8px;margin-right:8px"/> ${item.name} ${item.productId}
-        </li>`
-      ))}
+        </li>
+        `)
+      )}
     </ol>
     <div style="font-weight: 900">Delivery Summary</div>
     <div>${name}</div>
@@ -141,6 +142,7 @@ export const get = async (req, res) => {
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = orderId && { _id: orderId }
   const shippedQuery = shipped === 'true' ? { shipped: true } : shipped === 'false' ? { shipped: false } : null
+  const limitInt = limit ? parseInt(limit) : 3
   const query = {
     appName,
     user: user._id,
@@ -153,7 +155,7 @@ export const get = async (req, res) => {
     return res.send(order)
   }
   const orders = await Order.find(query)
-  .limit(parseInt(limit))
+  .limit(limitInt)
   return res.send(orders)
 }
 
@@ -167,23 +169,24 @@ export const adminGet = async (req, res) => {
     appName,
     query: { lastId, limit, orderId, userId, shipped },
   } = req
-  const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = orderId && { _id: orderId }
-  const userQuery = userId && { user: userId }
+  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const limitInt = limit ? parseInt(limit) : 3
   const shippedQuery = shipped === 'true' ? { shipped: true } : shipped === 'false' ? { shipped: false } : null
+  const userQuery = userId && { user: userId }
   const query = {
     appName,
-    ...lastIdQuery,
     ...idQuery,
-    ...userQuery,
+    ...lastIdQuery,
     ...shippedQuery,
+    ...userQuery,
   }
   if (orderId) {
     const order = await Order.findOne(query)
     return res.send(order)
   }
   const orders = await Order.find(query)
-  .limit(parseInt(limit))
+  .limit(limitInt)
   return res.send(orders)
 }
 
@@ -401,7 +404,13 @@ export const update = async (req, res) => {
         <div>Quantity: ${order.cart.quantity}</div>
         <div>Items:</div>
         <ul>
-          ${order.cart.items.map(item => `<li>${item.productQty} of ${item.name} ${item.productId}</li>`)}
+          ${order.cart.items.map(item => `
+            <li>
+              <img src="${process.env.REACT_APP_IMAGE_ENDPOINT/item.image.src}"/>
+              ${item.name} ${item.productId} quantity ${item.productQty} ${formatPrice(item.total)}
+            </li>
+            `
+          )}
         </ul>
         <div>Address:</div>
         <div>${name}</div>

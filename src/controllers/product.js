@@ -86,16 +86,18 @@ export const get = async (req, res) => {
 export const adminGet = async (req, res) => {
   const {
     appName,
-    query: { lastId, limit, _id },
+    query: { lastId, limit, _id, published },
   } = req
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const idQuery = _id && { _id }
   const limitInt = limit ? parseInt(limit) : 2
+  const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
   const products = await Product.aggregate([
     { $match: {
       appName,
       ...idQuery,
       ...lastIdQuery,
+      ...publishedQuery,
     }},
     { $lookup: {
       from: 'reviews',

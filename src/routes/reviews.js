@@ -8,6 +8,7 @@ import {
   adminRemove,
   adminUpdate,
   get,
+  userGet,
   remove,
   updateLikes,
   updateValues,
@@ -18,6 +19,7 @@ const reviews = express.Router()
 reviews.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 reviews.delete('/admin/:_id', authenticate(['admin']), catchErrors(adminRemove))
 reviews.get('/', catchErrors(get))
+reviews.get('/user', authenticate(['user']), catchErrors(userGet))
 reviews.get('/admin', authenticate(['admin']), catchErrors(adminGet))
 reviews.patch('/admin/:_id', authenticate(['admin']), catchErrors(adminUpdate))
 reviews.patch('/likes/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(updateLikes))

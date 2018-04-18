@@ -137,7 +137,6 @@ export const update = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  console.log('req.body', req.body, '_id', _id)
   if (!ObjectID.isValid(_id)) throw Error('Blog update error, invalid _id')
 
   oldSrcs && oldSrcs.length && await deleteFiles(oldSrcs)

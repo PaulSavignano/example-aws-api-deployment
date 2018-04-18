@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 
 import Config from '../models/Config'
-import Brand from '../models/Brand'
+import App from '../models/App'
 import Theme from '../models/Theme'
 import shadows from './shadows'
 
@@ -24,9 +24,9 @@ const sendGmail = async (props) => {
       oauthClientSecret,
       oauthRefreshToken
     } = config.values
-    const brand = await Brand.findOne({ appName })
+    const app = await App.findOne({ appName })
     const theme = await Theme.findOne({ appName })
-    if (!brand) throw Error('Could not find brand, email not sent')
+    if (!app) throw Error('Could not find app, email not sent')
     const {
       business: {
         address,
@@ -34,7 +34,7 @@ const sendGmail = async (props) => {
         name,
         phone,
       },
-    } = brand
+    } = app
     const {
       palette: {
         text: { primary },

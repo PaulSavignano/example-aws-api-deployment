@@ -109,7 +109,9 @@ export const get = async (req, res) => {
   const {
     appName,
     query: { reviewId },
+    body
   } = req
+  console.log('comment query', req.query.test)
   const comments = await Comment.find({ appName, review: reviewId })
   return res.send(comments)
 }

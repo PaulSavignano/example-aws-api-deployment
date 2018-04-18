@@ -82,29 +82,84 @@ export const add = async (req, res) => {
 export const get = async (req, res) => {
   const {
     appName,
-    query: { kind, item, lastId, userId, limit, _id, published, sort },
+    query: {
+      _id,
+      item,
+      kind,
+      lastId,
+      limit,
+      userId,
+    },
   } = req
+  const _idQuery = _id && { _id }
+  const itemQuery = item && { item }
+  const kindQuery = kind && { kind }
   const lastIdQuery = lastId && { _id: { $gt: lastId }}
   const userIdQuery = userId && { user: userId }
-  const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
-  const limitInt = limit ? parseInt(limit) : 2
+  const limitInt = limit ? parseInt(limit) : 3
   const query = {
     appName,
     published: true,
-    ...kind,
-    ...item,
-    ..._id,
+    ..._idQuery,
+    ...itemQuery,
+    ...kindQuery,
     ...lastIdQuery,
     ...userIdQuery,
-    ...publishedQuery,
   }
   if (item) {
     const reviews = await Review.find(query)
-    .limit(parseInt(limit))
+    .sort({ createdAt: -1 })
+    .limit(limitInt)
     return res.send(reviews)
   }
   const reviews = await Review.find(query)
   .populate({ path: 'item', select: '_id values.name values.title values.image' })
+  .sort({ createdAt: -1 })
+  .limit(limitInt)
+  console.log('reviews get', reviews)
+  return res.send(reviews)
+}
+
+
+
+export const userGet = async (req, res) => {
+  const {
+    appName,
+    query: {
+      _id,
+      item,
+      kind,
+      lastId,
+      limit,
+      published,
+      userId,
+    },
+  } = req
+  const _idQuery = _id && { _id }
+  const itemQuery = item && { item }
+  const kindQuery = kind && { kind }
+  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const userQuery = userId && { user: req.user._id }
+  const limitInt = limit ? parseInt(limit) : 3
+  const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
+  const query = {
+    appName,
+    ..._idQuery,
+    ...itemQuery,
+    ...kindQuery,
+    ...lastIdQuery,
+    ...userQuery,
+    ...publishedQuery,
+  }
+  if (item) {
+    const reviews = await Review.find(query)
+    .sort({ createdAt: -1 })
+    .limit(limitInt)
+    return res.send(reviews)
+  }
+  const reviews = await Review.find(query)
+  .populate({ path: 'item', select: '_id values.name values.title values.image' })
+  .sort({ createdAt: -1 })
   .limit(limitInt)
   return res.send(reviews)
 }
@@ -117,33 +172,47 @@ export const get = async (req, res) => {
 export const adminGet = async (req, res) => {
   const {
     appName,
-    query: { kind, item, lastId, userId, limit, _id, published },
+    query: {
+      _id,
+      item,
+      kind,
+      lastId,
+      limit,
+      published,
+      sort,
+      userId,
+    },
   } = req
-  console.log('admin get query', req.query)
-  const kindQuery = kind && { kind }
+  const _idQuery = _id && { _id }
   const itemQuery = item && { item }
-  const lastIdQuery = lastId && { _id: { $gt: lastId }}
-  const userIdQuery = userId && { user: userId }
-  const idQuery = _id && { _id }
-  const limitInt = limit ? parseInt(limit) : 2
+  const kindQuery = kind && { kind }
+  console.log('lastId', lastId)
+  console.log('sort', sort)
+  const lastIdQuery = lastId && sort === 'date-desc-rank' ? { _id: { $lt: lastId }} : lastId && sort === 'date-asc-rank' ? { _id: { $gt: lastId }} : lastId ? { _id: { $lt: lastId}} : null
+  const cursorSort = sort && sort === 'date-desc-rank' ? { _id: -1 } : sort === 'date-asc-rank' ? { _id: 1 } : { _id: -1 }
+
+  const limitInt = limit ? parseInt(limit) : 3
   const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
-  console.log('publishedQ', publishedQuery)
+  const userIdQuery = userId && { user: userId }
   const query = {
     appName,
-    ...kindQuery,
+    ..._idQuery,
     ...itemQuery,
+    ...kindQuery,
     ...lastIdQuery,
+    ...publishedQuery,
     ...userIdQuery,
-    ...idQuery,
-    ...publishedQuery
   }
+  console.log('query', query)
   if (item) {
     const reviews = await Review.find(query)
-    .limit(parseInt(limit))
+    .sort({ ...cursorSort })
+    .limit(limitInt)
     return res.send(reviews)
   }
   const reviews = await Review.find(query)
   .populate({ path: 'item', select: '_id values.name values.title values.image' })
+  .sort({ ...cursorSort })
   .limit(limitInt)
   return res.send(reviews)
 }
@@ -186,10 +255,9 @@ export const updateValues = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid _id')
   const prevReview = await Review.findOne({ _id, appName })
   const hasNewRating = prevReview.values.rating !== values.rating ? true : false
-  const update = values ? { $set: { values }} : { $set: { published }}
   const review = await Review.findOneAndUpdate(
     { _id, appName },
-    update,
+    { $set: { values }},
     { new: true }
   )
   .populate({ path: 'user', select: 'values.firstName values.lastName _id' })

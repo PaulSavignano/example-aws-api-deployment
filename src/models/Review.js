@@ -15,6 +15,10 @@ const reviewSchema = new Schema({
   timestamps: true
 })
 
+reviewSchema.index({
+  'values.rating': 'text'
+})
+
 function autopopulate(next) {
   this.populate({
     path: 'user',

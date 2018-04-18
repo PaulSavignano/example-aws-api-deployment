@@ -3,7 +3,6 @@ import express from 'express'
 import addresses from './addresses'
 import apps from './apps'
 import blogs from './blogs'
-import brands from './brands'
 import carts from './carts'
 import comments from './comments'
 import components from './components'
@@ -24,7 +23,6 @@ const router = express.Router()
 router.use('/addresses', addresses)
 router.use('/apps', apps)
 router.use('/blogs', blogs)
-router.use('/brands', brands)
 router.use('/carts', carts)
 router.use('/comments', comments)
 router.use('/components', components)
