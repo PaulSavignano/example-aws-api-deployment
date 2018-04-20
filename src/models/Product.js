@@ -5,6 +5,11 @@ import { deleteFiles } from '../utils/s3'
 const productSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   published: { Type: Boolean, default: false },
+  rating: {
+    avg: { type: Number, min: 0, max: 5 },
+    stars: { type: Number, min: 0, max: 1000000 },
+    reviews: { type: Number, min: 0, max: 1000000 },
+  },
   section: { type: Schema.Types.ObjectId, ref: 'Section' },
   values: {
     description: { type: String, minlength: 1, trim: true, maxlength: 500 },

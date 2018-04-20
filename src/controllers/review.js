@@ -166,7 +166,31 @@ export const userGet = async (req, res) => {
 
 
 
+ const buildLastQuery = ({ lastId, lastRating, sort }) => {
+   if (lastId && sort) {
+     if (sort === 'date-desc-rank') return { _id: { $lt: lastId }}
+     if (sort === 'date-asc-rank') return { _id: { $gt: lastId }}
+     if (sort === 'rating-desc' && lastRating) return {
+       $or: [{
+         'values.rating': { $lt: lastRating }
+       }, {
+         'values.rating': lastRating,
+         _id: { $lt: lastId }
+       }]
+     }
+   }
+   if (lastId) return { _id: { $lt: lastId }}
+   return {}
+ }
 
+ const buildCursorSort = ({ sort }) => {
+   if (sort) {
+      if (sort === 'date-desc-rank') return { _id: -1 }
+      if (sort === 'date-asc-rank') return { _id: 1 }
+      if (sort === 'rating-desc') return { 'values.rating': -1, _id: -1 }
+   }
+   return { _id: -1 }
+ }
 
 
 export const adminGet = async (req, res) => {
@@ -177,6 +201,7 @@ export const adminGet = async (req, res) => {
       item,
       kind,
       lastId,
+      lastRating,
       limit,
       published,
       sort,
@@ -186,10 +211,12 @@ export const adminGet = async (req, res) => {
   const _idQuery = _id && { _id }
   const itemQuery = item && { item }
   const kindQuery = kind && { kind }
-  console.log('lastId', lastId)
-  console.log('sort', sort)
-  const lastIdQuery = lastId && sort === 'date-desc-rank' ? { _id: { $lt: lastId }} : lastId && sort === 'date-asc-rank' ? { _id: { $gt: lastId }} : lastId ? { _id: { $lt: lastId}} : null
-  const cursorSort = sort && sort === 'date-desc-rank' ? { _id: -1 } : sort === 'date-asc-rank' ? { _id: 1 } : { _id: -1 }
+
+  const lastQuery = buildLastQuery({ lastId, lastRating: parseInt(lastRating), sort })
+  console.log('lastQuery', lastQuery)
+
+  const cursorSort = buildCursorSort({ sort })
+  console.log('cursorSort', cursorSort)
 
   const limitInt = limit ? parseInt(limit) : 3
   const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
@@ -199,7 +226,7 @@ export const adminGet = async (req, res) => {
     ..._idQuery,
     ...itemQuery,
     ...kindQuery,
-    ...lastIdQuery,
+    ...lastQuery,
     ...publishedQuery,
     ...userIdQuery,
   }
@@ -255,6 +282,34 @@ export const updateValues = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid _id')
   const prevReview = await Review.findOne({ _id, appName })
   const hasNewRating = prevReview.values.rating !== values.rating ? true : false
+
+  if (hasNewRating && prevReview.kind === 'Blog') {
+    const blog = await Blog.findOne({ _id: prevReview.item })
+    const stars = prevReview.published && blog.rating.stars > prevReview.values.rating ? blog.rating.stars - prevReview.values.rating : blog.rating.stars + prevReview.values.rating
+    const reviews = prevReview.published && blog.rating.reviews > prevReview.values.rating && blog.rating.reviews > 0 ? blog.rating.reviews - 1 : 0
+    const avg = prevReview.published ? (reviews / stars).toFixed(1) : prevReview.rating.avg
+    const rating = { avg, reviews, stars }
+    blog.rating = rating
+    await blog.save()
+    return res.send({
+      blog,
+      review: prevReview,
+    })
+  }
+  if (prevReview.kind === 'Product') {
+    const product = await Product.findOne({ _id: prevReview.item })
+    const stars = prevReview.published && product.rating.stars > prevReview.values.rating ? product.rating.stars - prevReview.values.rating : product.rating.stars + prevReview.values.rating
+    const reviews = prevReview.published && product.rating.reviews > prevReview.values.rating && product.rating.reviews > 0 ? product.rating.reviews - 1 : 0
+    const avg = prevReview.published ? (reviews / stars).toFixed(1) : prevReview.rating.avg
+    const rating = { avg, reviews, stars }
+    product.rating = rating
+    await product.save()
+    return res.send({
+      product,
+      review: prevReview,
+    })
+  }
+
   const review = await Review.findOneAndUpdate(
     { _id, appName },
     { $set: { values }},
@@ -264,27 +319,7 @@ export const updateValues = async (req, res) => {
   .populate({ path: 'item', select: '_id values.name values.title values.image' })
   if (!review) throw Error('Review update error')
 
-  const agg = hasNewRating ? [
-    { $match: { appName, _id: review.item  } },
-    { $lookup: {
-      from: 'reviews',
-      localField: '_id',
-      foreignField: 'item',
-      as: 'reviews'
-    }},
-    { $project: {
-      _id: "$$ROOT._id",
-      values: "$$ROOT.values",
-      stars: { $sum: "$reviews.values.rating" },
-      reviews: { $size: "$reviews" }
-    }}
-  ] : null
-  const products = hasNewRating && review.kind === 'Product' ? await Product.aggregate(agg) : null
-  const blogs = hasNewRating && review.kind === 'Blog' ? await Blog.aggregate(agg) : null
-  const blog = blogs && blogs.length > 0 ? blogs[0] : null
-  const product = products && products.length > 0 ? products[0] : null
-  const response = { review, product, blog }
-  res.send({ ...response })
+  res.send({ review })
   await sendGmail({
     appName,
     adminSubject: `Review Updated for ${itemName}!`,
@@ -307,6 +342,12 @@ export const updateValues = async (req, res) => {
 
 
 
+
+
+
+
+
+
 export const adminUpdate = async (req, res) => {
   const {
     body: { published },
@@ -322,7 +363,34 @@ export const adminUpdate = async (req, res) => {
   .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
   .populate({ path: 'item', select: '_id values.name values.title values.image' })
   if (!review) throw Error('Review update error')
-  return res.send({ review })
+
+  if (review.kind === 'Blog') {
+    const blog = await Blog.findOne({ _id: review.item })
+    const stars = published ? blog.rating.stars + review.values.rating : blog.rating.stars - review.values.rating
+    const reviews = published ? blog.rating.reviews + 1 : blog.rating.reviews > 0 ? blog.rating.reviews - 1 : 0
+    const avg = (reviews / stars).toFixed(1)
+    const rating = { avg, reviews, stars }
+    blog.rating = rating
+    await blog.save()
+    return res.send({
+      blog,
+      review,
+    })
+  }
+  if (review.kind === 'Product') {
+    const product = await Product.findOne({ _id: review.item })
+    const stars = published ? product.rating.stars + review.values.rating : product.rating.stars - review.values.rating
+    const reviews = published ? product.rating.reviews + 1 : product.rating.reviews > 0 ? product.rating.reviews - 1 : 0
+    const avg = (reviews / stars).toFixed(1)
+    const rating = { avg, reviews, stars }
+    product.rating = rating
+    await product.save()
+    return res.send({
+      product,
+      review,
+    })
+  }
+
 }
 
 

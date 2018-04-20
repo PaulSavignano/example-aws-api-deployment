@@ -4,8 +4,13 @@ import { deleteFiles } from '../utils/s3'
 const blogSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   page: { type: Schema.ObjectId, ref: 'Page' },
-  section: { type: Schema.Types.ObjectId, ref: 'Section' },
   published: { Type: Boolean, default: false },
+  rating: {
+    avg: { type: Number, min: 0, max: 5 },
+    stars: { type: Number, min: 0, max: 1000000 },
+    reviews: { type: Number, min: 0, max: 1000000 },
+  },
+  section: { type: Schema.Types.ObjectId, ref: 'Section' },
   values: {
     description: { type: String, minlength: 1, trim: true, maxlength: 150 },
     detail: { type: String, minlength: 1, trim: true, maxlength: 5000 },
