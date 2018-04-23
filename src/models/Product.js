@@ -6,11 +6,10 @@ const productSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   published: { Type: Boolean, default: false },
   rating: {
-    avg: { type: Number, min: 0, max: 5 },
-    stars: { type: Number, min: 0, max: 1000000 },
-    reviews: { type: Number, min: 0, max: 1000000 },
+    avg: { type: Number, min: 0, max: 5, default: 0 },
+    stars: { type: Number, min: 0, max: 1000000, default: 0 },
+    reviews: { type: Number, min: 0, max: 1000000, default: 0 },
   },
-  section: { type: Schema.Types.ObjectId, ref: 'Section' },
   values: {
     description: { type: String, minlength: 1, trim: true, maxlength: 500 },
     detail: { type: String, minlength: 1, trim: true, maxlength: 1000 },
@@ -36,9 +35,11 @@ const productSchema = new Schema({
 })
 
 productSchema.index({
-  'values.name': 'text',
   'values.description': 'text',
-  'values.detail': 'text'
+  'values.detail': 'text',
+  'values.name': 'text',
+  'rating.avg': 1,
+  createdAt: 1
 })
 
 productSchema.post('remove', function(doc, next) {

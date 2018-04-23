@@ -3,14 +3,12 @@ import { deleteFiles } from '../utils/s3'
 
 const blogSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
-  page: { type: Schema.ObjectId, ref: 'Page' },
   published: { Type: Boolean, default: false },
   rating: {
-    avg: { type: Number, min: 0, max: 5 },
-    stars: { type: Number, min: 0, max: 1000000 },
-    reviews: { type: Number, min: 0, max: 1000000 },
+    avg: { type: Number, min: 0, max: 5, default: 0 },
+    stars: { type: Number, min: 0, max: 1000000, default: 0 },
+    reviews: { type: Number, min: 0, max: 1000000, default: 0 },
   },
-  section: { type: Schema.Types.ObjectId, ref: 'Section' },
   values: {
     description: { type: String, minlength: 1, trim: true, maxlength: 150 },
     detail: { type: String, minlength: 1, trim: true, maxlength: 5000 },
@@ -35,9 +33,11 @@ const blogSchema = new Schema({
 })
 
 blogSchema.index({
-  'values.title': 'text',
   'values.description': 'text',
-  'values.detail': 'text'
+  'values.detail': 'text',
+  'values.title': 'text',
+  'rating.avg': 1,
+  createdAt: 1,
 })
 
 

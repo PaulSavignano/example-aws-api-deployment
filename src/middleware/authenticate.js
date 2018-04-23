@@ -4,6 +4,7 @@ import createTokens from '../utils/createTokens'
 
 const handleAuth = (roles, requiredRoles) => roles.some(r => requiredRoles.indexOf(r) !== -1)
 
+
 const authenticate = (requiredRoles) => async (req, res, next) => {
   const accessToken = req.headers['x-access-token']
   const refreshToken = req.headers['x-refresh-token']

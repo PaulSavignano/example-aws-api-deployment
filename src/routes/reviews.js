@@ -6,7 +6,7 @@ import {
   add,
   adminGet,
   adminRemove,
-  adminUpdate,
+  updatePublish,
   get,
   userGet,
   remove,
@@ -21,7 +21,7 @@ reviews.delete('/admin/:_id', authenticate(['admin']), catchErrors(adminRemove))
 reviews.get('/', catchErrors(get))
 reviews.get('/user', authenticate(['user']), catchErrors(userGet))
 reviews.get('/admin', authenticate(['admin']), catchErrors(adminGet))
-reviews.patch('/admin/:_id', authenticate(['admin']), catchErrors(adminUpdate))
+reviews.patch('/publish/:_id', authenticate(['admin']), catchErrors(updatePublish))
 reviews.patch('/likes/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(updateLikes))
 reviews.patch('/values/:_id', authenticate(['admin', 'owner', 'user']), catchErrors(updateValues))
 reviews.post('/', authenticate(['user', 'admin', 'owner']), catchErrors(add))

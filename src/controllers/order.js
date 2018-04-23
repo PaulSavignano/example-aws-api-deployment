@@ -7,6 +7,8 @@ import CustomError from '../utils/CustomError'
 import Order from '../models/Order'
 import sendGmail from '../utils/sendGmail'
 import User from '../models/User'
+import getQuery from '../utils/getQuery'
+import getCursorSort from '../utils/getCursorSort'
 
 
 
@@ -133,28 +135,39 @@ export const add = async (req, res) => {
 
 
 
+
 export const get = async (req, res) => {
   const {
     appName,
-    query: { lastId, limit, orderId, shipped },
+    query: {
+      _id,
+      lastId,
+      lastShipped,
+      lastPlaced,
+      lastTotal,
+      limit,
+      shipped,
+      sort,
+    },
     user
   } = req
-  const lastIdQuery = lastId && { _id: { $gt: lastId }}
-  const idQuery = orderId && { _id: orderId }
-  const shippedQuery = shipped === 'true' ? { shipped: true } : shipped === 'false' ? { shipped: false } : null
-  const limitInt = limit ? parseInt(limit) : 3
-  const query = {
+  const query = getQuery({
     appName,
-    user: user._id,
-    ...lastIdQuery,
-    ...idQuery,
-    ...shippedQuery,
-  }
-  if (orderId) {
-    const order = await Order.findOne(query)
-    return res.send(order)
-  }
-  const orders = await Order.find(query)
+    _id,
+    lastId,
+    lastShipped,
+    lastPlaced,
+    lastTotal,
+    limit,
+    shipped,
+    sort,
+    userId: user._id,
+  })
+  const cursorSort = getCursorSort({ sort })
+  const limitInt = limit ? parseInt(limit) : 3
+  const orders = await Order
+  .find(query)
+  .sort(cursorSort)
   .limit(limitInt)
   return res.send(orders)
 }
@@ -167,25 +180,37 @@ export const get = async (req, res) => {
 export const adminGet = async (req, res) => {
   const {
     appName,
-    query: { lastId, limit, orderId, userId, shipped },
+    query: {
+      _id,
+      lastId,
+      lastShipped,
+      lastPlaced,
+      lastTotal,
+      limit,
+      shipped,
+      sort,
+      userId,
+    },
   } = req
-  const idQuery = orderId && { _id: orderId }
-  const lastIdQuery = lastId && { _id: { $gt: lastId }}
-  const limitInt = limit ? parseInt(limit) : 3
-  const shippedQuery = shipped === 'true' ? { shipped: true } : shipped === 'false' ? { shipped: false } : null
-  const userQuery = userId && { user: userId }
-  const query = {
+  console.log('shipped', shipped, 'sort', sort)
+  const query = getQuery({
     appName,
-    ...idQuery,
-    ...lastIdQuery,
-    ...shippedQuery,
-    ...userQuery,
-  }
-  if (orderId) {
-    const order = await Order.findOne(query)
-    return res.send(order)
-  }
-  const orders = await Order.find(query)
+    _id,
+    lastId,
+    lastShipped,
+    lastPlaced,
+    lastTotal,
+    limit,
+    shipped,
+    sort,
+    userId,
+  })
+  console.log('query', query)
+  const cursorSort = getCursorSort({ sort })
+  const limitInt = limit ? parseInt(limit) : 3
+  const orders = await Order
+  .find(query)
+  .sort(cursorSort)
   .limit(limitInt)
   return res.send(orders)
 }
