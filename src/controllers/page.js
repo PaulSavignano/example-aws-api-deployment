@@ -15,12 +15,15 @@ export const add = async (req, res) => {
     body: { values },
     appName
   } = req
-  const existingPage = await Page.findOne({ 'values.name': values.name, appName })
+  const existingPage = await Page.findOne({ name: values.name, appName })
   if (existingPage) throw new CustomError({ field: 'name', message: 'That name already exists', statusCode: 400 })
+  const slug = getSlug(values.name)
   const page = await new Page({
     appName,
-    slug: getSlug(values.name),
-    values
+    name: values.name,
+    slug,
+    path: `/${slug}`,
+    'values.description': `Page ${values.name}`
   }).save()
   if (!page) throw Error('Page add failed')
   const appPages = await AppPages.findOneAndUpdate(
@@ -29,7 +32,7 @@ export const add = async (req, res) => {
     { new: true }
   )
   if (!appPages) throw Error('AppPages push page failed')
-  return res.send({ page, pageIds: appPages.pages })
+  return res.send({ page, appPages })
 }
 
 
@@ -40,8 +43,7 @@ export const add = async (req, res) => {
 export const get = async (req, res) => {
   const { appName } = req
   const pages = await Page.find({ appName })
-  const appPages = await AppPages.findOne({ appName })
-  return res.send({ pages, pageIds: appPages.pages })
+  return res.send(pages)
 }
 
 
@@ -87,18 +89,19 @@ export const update = async (req, res) => {
 
 export const updateName = async (req, res) => {
   const {
-    body: { values },
+    body: { value },
     appName,
     params: { _id }
   } = req
+  console.log('value is ', value)
   if (!ObjectID.isValid(_id)) throw Error('Page update failed, invalid _id')
-  const existingPage = await Page.findOne({ appName, 'values.name': values.name })
+  const existingPage = await Page.findOne({ appName, name: value })
   if (existingPage) throw new CustomError({ field: 'name', message: 'That name already exists', statusCode: 406 })
   const page = await Page.findOneAndUpdate(
     { _id, appName },
     { $set: {
-      slug: getSlug(values.name),
-      'values.name': values.name
+      slug: getSlug(value),
+      name: value
     }},
     { new: true }
   )
@@ -110,12 +113,13 @@ export const updateName = async (req, res) => {
 
 
 
-export const updatePageIdsOrder = async (req, res) => {
+export const updateOrder = async (req, res) => {
   const {
     body: { pageIds },
     appName,
     params: { _id }
   } = req
+  console.log('updateOrder', _id, appName)
   const appPages = await AppPages.findOneAndUpdate(
     { _id, appName },
     { $set: { pages: pageIds }},
@@ -145,6 +149,26 @@ export const updateSections = async (req, res) => {
   return res.send(page)
 }
 
+
+
+
+export const updateKey = async (req, res) => {
+  const {
+    body: { key, value },
+    appName,
+    params: { _id }
+  } = req
+  if (!ObjectID.isValid(_id)) throw Error('Page update failed, invalid _id')
+
+  const set = { $set: {}}
+  set.$set[key] = value
+  const page = await Page.findOneAndUpdate(
+    { _id, appName },
+    set,
+    { new: true }
+  )
+  return res.send(page)
+}
 
 
 
@@ -188,5 +212,5 @@ export const remove = async (req, res) => {
     { new: true }
   )
   if (!appPages) throw Error('AppPages pull page failed')
-  return res.send({ _id: page._id, pageIds: appPages.pages })
+  return res.send({ _id: page._id, appPages })
 }

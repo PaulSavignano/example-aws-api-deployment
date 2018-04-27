@@ -7,6 +7,8 @@ const pageSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true, },
   sections: [{ type: Schema.Types.ObjectId, ref: 'Section' }],
   slug: { type: String, maxlength: 90 },
+  url: { type: String, trim: true, maxlength: 90 },
+  name: { type: String, trim: true, minlength: 1, maxlength: 100 },
   values: {
     backgroundColor: { type: String, trim: true, maxlength: 50 },
     backgroundImage: {
@@ -14,23 +16,11 @@ const pageSchema = new Schema({
       backgroundPosition: { type: String, trim: true, maxlength: 50 },
     },
     description: { type: String, trim: true, minlength: 1, maxlength: 1000},
-    name: { type: String, trim: true, minlength: 1, maxlength: 100 },
   },
 }, {
   timestamps: true
 })
 
-
-pageSchema.pre('save', async function(next) {
-  const page = this
-  try {
-    const existingPage = await Page.findOne({ appName: page.appName, 'values.name': page.values.name })
-    if (existingPage) throw 'try a different name, that page already exists'
-  } catch (error) {
-    next(Error(error))
-  }
-  next()
-})
 
 pageSchema.post('remove', async function(doc, next) {
   try {

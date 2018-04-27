@@ -16,7 +16,14 @@ import Theme from '../models/Theme'
 export const add = async (req, res) => {
   const { appName } = req
   await new Config({ appName }).save()
-  const page = await new Page({ appName, 'values.name': 'Home', slug: 'home', published: true }).save()
+  const page = await new Page({
+    appName,
+    name: 'Home',
+    path: '/',
+    slug: 'home',
+    published: true,
+    'values.description': appName
+  }).save()
   const app = await new App({ appName }).save()
   const appPages = await new AppPages({ appName, pages: page._id }).save()
   const theme = await new Theme({ appName }).save()
@@ -43,7 +50,7 @@ export const get = async (req, res) => {
   const hasBlogs = blog ? true : false
   const appObj = appDoc.toObject()
   const app = { ...appObj, hasBlogs, hasProducts }
-  res.send(app)
+  return res.send(app)
 }
 
 

@@ -1,12 +1,24 @@
+const parseBoolean = (bool) => bool === 'true' ? true : false
+
+
 const getSortQuery = ({
   lastId,
+  lastPrice,
   lastRating,
   lastTotal,
   sort
 }) => {
   if (lastId && sort) {
-    if (sort === 'date-desc') return { _id: { $lt: lastId }}
-    if (sort === 'date-asc') return { _id: { $gt: lastId }}
+    if (sort === 'created-desc') return { _id: { $lt: lastId }}
+    if (sort === 'created-asc') return { _id: { $gt: lastId }}
+    if (sort === 'price-desc' && lastPrice) return {
+      $or: [{
+        'values.price': { $lt: lastPrice }
+      }, {
+        'values.price': lastPrice,
+        _id: { $lt: lastId }
+      }]
+    }
     if (sort === 'rating-desc' && lastRating) return {
       $or: [{
         'values.rating': { $lt: lastRating }
@@ -36,21 +48,26 @@ const getQuery = ({
   item,
   kind,
   lastId,
+  lastPrice,
   lastRating,
   lastTotal,
-  shipped,
   published,
+  shipped,
   sort,
   userId,
 }) => {
-  console.log('lastTotal', lastTotal)
   const _idQuery = _id && { _id }
   const itemQuery = item && { item }
   const kindQuery = kind && { kind }
-  const lastQuery = getSortQuery({ lastId, lastRating: parseInt(lastRating), sort, lastTotal: parseInt(lastTotal) })
-  console.log('lastQuery', lastQuery)
-  const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
-  const shippedQuery = shipped === 'true' ? { shipped: true } : shipped === 'false' ? { shipped: false } : null
+  const lastQuery = getSortQuery({
+    lastId,
+    lastPrice: parseInt(lastPrice),
+    lastRating: parseInt(lastRating),
+    lastTotal: parseInt(lastTotal),
+    sort,
+  })
+  const publishedQuery = published && { published: parseBoolean(published) }
+  const shippedQuery = shipped && { shipped: parseBoolean(shipped) }
   const userIdQuery = userId && { user: userId }
   const query = {
     appName,

@@ -3,9 +3,52 @@ import { ObjectID } from 'mongodb'
 import Blog from '../models/Blog'
 import Product from '../models/Product'
 import Review from '../models/Review'
+import Comment from '../models/Comment'
 import sendGmail from '../utils/sendGmail'
 import getQuery from '../utils/getQuery'
 import getCursorSort from '../utils/getCursorSort'
+
+
+
+const handleItem = async ({ item, kind }) => {
+  console.log('item', item)
+  const itemRating = await Review.aggregate([
+    { $match: {
+      item,
+      published: true
+    }},
+    { $group: {
+      _id: null,
+      stars: { $sum: "$values.rating" },
+      avg: { $avg: "$values.rating" },
+      reviews: { $sum: 1 },
+    }}
+  ])
+  console.log('itemRating', itemRating)
+  const { stars, avg, reviews } = itemRating[0]
+  if (kind === 'Blog') {
+    const blog = await Blog.findOne({ _id: item })
+    blog.rating.avg = (avg).toFixed(1)
+    blog.rating.stars = stars
+    blog.rating.reviews = reviews
+    await blog.save()
+    return {
+      blog,
+      product: null
+    }
+  }
+  if (kind === 'Product') {
+    const product = await Product.findOne({ _id: item })
+    product.rating.avg = (avg).toFixed(1)
+    product.rating.stars = stars
+    product.rating.reviews = reviews
+    await product.save()
+    return {
+      blog: null,
+      product
+    }
+  }
+}
 
 
 
@@ -26,13 +69,18 @@ export const add = async (req, res) => {
     appName,
     item,
     kind,
+    published: values.rating < 3 ? false : true,
     user: user._id,
     values,
   }).save()
-  const review = await Review.findOne({ _id: doc._id })
-  if (!review) throw Error('New review add error')
 
-  res.send({ review })
+  const review = values.rating < 3 ? null : await Review.findOne({ _id: doc._id })
+  if (values.rating < 3) {
+    res.send({ review })
+  } else {
+    const { blog, product } = await handleItem({ item: review.item, kind: review.kind })
+    res.send({ blog, product, review })
+  }
 
   const emailSummary = `
     <div style="text-decoration: underline">Review Summary</div>
@@ -62,6 +110,7 @@ export const add = async (req, res) => {
 
 
 export const get = async (req, res) => {
+  console.log('reg get')
   const {
     appName,
     query: {
@@ -83,7 +132,7 @@ export const get = async (req, res) => {
     lastId,
     lastRating,
     limit,
-    published: true,
+    published: 'true',
     sort,
     userId
   })
@@ -101,6 +150,7 @@ export const get = async (req, res) => {
 
 
 export const userGet = async (req, res) => {
+  console.log('user get')
   const {
     appName,
     query: {
@@ -112,8 +162,8 @@ export const userGet = async (req, res) => {
       limit,
       published,
       sort,
-      userId,
     },
+    user,
   } = req
   const query = getQuery({
     _id,
@@ -125,7 +175,7 @@ export const userGet = async (req, res) => {
     limit,
     published,
     sort,
-    userId,
+    userId: user._id,
   })
   const cursorSort = getCursorSort({ sort, rating: 'values.rating' })
   const limitInt = limit ? parseInt(limit) : 3
@@ -147,6 +197,7 @@ export const userGet = async (req, res) => {
 
 
 export const adminGet = async (req, res) => {
+  console.log('admin get')
   const {
     appName,
     query: {
@@ -227,10 +278,14 @@ export const updateValues = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid _id')
   const oldReview = await Review.findOne({ _id, appName })
   const hasNewRating = oldReview.values.rating !== values.rating ? true : false
+  const published = hasNewRating && values.rating < 3 ? false : true
 
   const review = await Review.findOneAndUpdate(
     { _id, appName },
-    { $set: { values }},
+    { $set: {
+      values,
+      published
+    }},
     { new: true }
   )
   .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
@@ -238,30 +293,14 @@ export const updateValues = async (req, res) => {
   if (!review) throw Error('Review update error')
 
   if (review.published && hasNewRating) {
-    if (review.kind === 'Blog') {
-      const blog = await Blog.findOne({ _id: review.item })
-      const stars = blog.rating.stars > review.values.rating ? blog.rating.stars - review.values.rating : blog.rating.stars + review.values.rating
-      const avg = (blog.rating.reviews / stars).toFixed(1)
-      blog.rating.avg = avg
-      blog.rating.stars = stars
-      await blog.save()
-      res.send({
-        blog,
-        review,
-      })
-    }
-    if (oldReview.kind === 'Product') {
-      const product = await Product.findOne({ _id: oldReview.item })
-      const stars = product.rating.stars > review.values.rating ? product.rating.stars - review.values.rating : product.rating.stars + review.values.rating
-      const avg = (product.rating.reviews / stars).toFixed(1)
-      product.rating.avg = avg
-      product.rating.stars = stars
-      await product.save()
-      res.send({
-        product,
-        review,
-      })
-    }
+    const { blog, product } = await handleItem({ item: review.item._id, kind: review.kind })
+    res.send({
+      blog,
+      product,
+      review,
+    })
+  } else {
+    res.send({ review })
   }
 
   await sendGmail({
@@ -309,33 +348,12 @@ export const updatePublish = async (req, res) => {
   .populate({ path: 'item', select: '_id values.name values.title values.image' })
   if (!review) throw Error('Review update error')
 
-  if (review.kind === 'Blog') {
-    const blog = await Blog.findOne({ _id: review.item })
-    const stars = published ? blog.rating.stars + review.values.rating : blog.rating.stars - review.values.rating
-    const reviews = published ? blog.rating.reviews + 1 : blog.rating.reviews > 0 ? blog.rating.reviews - 1 : 0
-    const avg = (stars / reviews).toFixed(1)
-    const rating = { avg, reviews, stars }
-    blog.rating = rating
-    await blog.save()
-    return res.send({
-      blog,
-      review,
-    })
-  }
-  if (review.kind === 'Product') {
-    const product = await Product.findOne({ _id: review.item })
-    const stars = published ? product.rating.stars + review.values.rating : product.rating.stars - review.values.rating
-    const reviews = published ? product.rating.reviews + 1 : product.rating.reviews > 0 ? product.rating.reviews - 1 : 0
-    const avg = (stars / reviews).toFixed(1)
-    const rating = { avg, reviews, stars }
-    product.rating = rating
-    await product.save()
-    return res.send({
-      product,
-      review,
-    })
-  }
-
+  const { blog, product } = await handleItem({ item: review.item._id, kind: review.kind })
+  res.send({
+    blog,
+    product,
+    review,
+  })
 }
 
 
@@ -352,33 +370,11 @@ export const remove = async (req, res) => {
   const review = await Review.findOneAndRemove({ _id, appName })
   if (!review) throw Error('Review remove error, review not found')
 
-  if (review.kind === 'Blog') {
-    const blog = await Blog.findOne({ _id: review.item })
-    const stars = review.published ? blog.rating.stars - review.values.rating : blog.rating.stars
-    const reviews = review.published && blog.rating.reviews > 0 ? blog.rating.reviews - 1 : blog.rating.reviews
-    const avg = review.published ? (stars / reviews).toFixed(1) : blog.rating.avg
-    const rating = { avg, reviews, stars }
-    blog.rating = rating
-    await blog.save()
-    return res.send({
-      blog,
-      review,
-    })
-  }
-  if (review.kind === 'Product') {
-    const product = await Product.findOne({ _id: review.item })
-    const stars = review.published ? product.rating.stars - review.values.rating : product.rating.stars
-    const reviews = review.published && product.rating.reviews > 0 ? product.rating.reviews - 1 : product.rating.reviews
-    const avg = review.published ? (stars / reviews).toFixed(1) : product.rating.avg
-    const rating = { avg, reviews, stars }
-    product.rating = rating
-    await product.save()
-    return res.send({
-      product,
-      review,
-    })
-  }
-
-
-  return res.send(review._id)
+  const { blog, product } = await handleItem({ item: review.item, kind: review.kind })
+  res.send({
+    blog,
+    product,
+    review,
+  })
+  await Comment.deleteMany({ review: review._id })
 }

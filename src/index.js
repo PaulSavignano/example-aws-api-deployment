@@ -7,7 +7,7 @@ import mongoose from './db/mongoose'
 import setAppName from './middleware/setAppName'
 import forceSSL from './middleware/forceSSL'
 import router from './routes/index'
-import notFound from './utils/notFound'
+import notFound from './routes/notFound'
 
 const port = process.env.PORT
 
@@ -40,10 +40,16 @@ app.get('/', (req, res) => {
 
 app.use(notFound)
 
-app.use((err, req, res) => {
-  console.error('error: ', err)
+app.use((err, req, res, next) => {
+  console.error(err)
+  const { name, field, message } = err
+  const error = {
+    name,
+    field,
+    message,
+  }
   const statusCode = err.statusCode || 400
-  res.status(statusCode).send(err.message)
+  res.status(statusCode).send(error)
 })
 
 app.listen(port, () => console.info(`Server running at port: ${port}`))

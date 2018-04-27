@@ -2,6 +2,7 @@ import express from 'express'
 
 import addresses from './addresses'
 import apps from './apps'
+import appPages from './appPages'
 import blogs from './blogs'
 import carts from './carts'
 import comments from './comments'
@@ -16,12 +17,12 @@ import sections from './sections'
 import themes from './themes'
 import users from './users'
 
-import moverbase from '../moverbase/routes/moverbase'
 
 const router = express.Router()
 
 router.use('/addresses', addresses)
 router.use('/apps', apps)
+router.use('/app-pages', appPages)
 router.use('/blogs', blogs)
 router.use('/carts', carts)
 router.use('/comments', comments)
@@ -36,6 +37,5 @@ router.use('/sections', sections)
 router.use('/themes', themes)
 router.use('/users', users)
 
-router.use('/moverbase', moverbase)
 
 export default router

@@ -1,4 +1,4 @@
-export const getTime = () => {
+const getTime = () => {
   const date = new Date()
   const year = date.getFullYear()
   const month = date.getMonth() + 1
@@ -9,3 +9,5 @@ export const getTime = () => {
   const milliSeconds = date.getMilliseconds()
   return `${year}-${month}-${day}_${hours}-${minutes}${amPm}-${milliSeconds}`
 }
+
+export default getTime

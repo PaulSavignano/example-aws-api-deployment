@@ -11,6 +11,7 @@ const authenticate = (requiredRoles) => async (req, res, next) => {
   try {
     if (accessToken) {
       const aToken = await AccessToken.findOne({ accessToken }).populate('user')
+      if (!aToken) throw Error('Access denied')
       const aTokenHasRoles = handleAuth(aToken.user.roles, requiredRoles)
       if (!aTokenHasRoles) throw Error('Access denied')
       req.user = aToken.user

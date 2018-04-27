@@ -34,7 +34,7 @@ const themeSchema = new Schema({
     },
     text: {
       color: { type: String, trim: true, maxlength: 50, default: '#ffffff' },
-      alignItems: { type: String, enum: alignItems },
+      alignItems: { type: String, enum: alignItems, default: 'center' },
     }
   },
   palette: {

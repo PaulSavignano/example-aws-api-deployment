@@ -5,6 +5,8 @@ import getTime from '../utils/getTime'
 import handleImage from '../utils/handleImage'
 import Product from '../models/Product'
 import getSlug from '../utils/getSlug'
+import getQuery from '../utils/getQuery'
+import getCursorSort from '../utils/getCursorSort'
 
 
 
@@ -40,40 +42,29 @@ export const add = async (req, res) => {
 export const get = async (req, res) => {
   const {
     appName,
-    query: { lastId, limit, _id },
+    query: {
+      _id,
+      lastId,
+      lastRating,
+      sort,
+      limit,
+      userId,
+    },
   } = req
-  const lastIdQuery = lastId && { _id: { $gt: lastId }}
-  const idQuery = _id && { _id }
-  const limitInt = limit ? parseInt(limit) : 2
-  const products = await Product.aggregate([
-    { $match: {
-      appName,
-      published: true,
-      ...idQuery,
-      ...lastIdQuery,
-    }},
-    { $lookup: {
-      from: 'reviews',
-      localField: '_id',
-      foreignField: 'item',
-      as: 'reviews'
-    }},
-    { $unwind: "$reviews"},
-    { $group: {
-      _id: "$$ROOT._id",
-      stars: {$sum: {$cond: [{$eq:["$reviews.published", true]}, "$reviews.values.rating", 0]}},
-      reviews: {$sum: {$cond: [{$eq:["$reviews.published", true]}, 1, 0]}},
-      published: { $last: "$$ROOT.published"},
-      values: { $last: "$$ROOT.values"},
-    }},
-    { $project: {
-      _id: "$_id",
-      published: "$published",
-      values: "$values",
-      stars: "$stars",
-      reviews: "$reviews"
-    }}
-  ])
+  const query = getQuery({
+    appName,
+    _id,
+    lastId,
+    lastRating,
+    limit,
+    published: 'true',
+    sort,
+    userId
+  })
+  const cursorSort = getCursorSort({ sort, rating: 'values.rating' })
+  const limitInt = limit ? parseInt(limit) : 3
+  const products = await Product.find(query)
+  .sort(cursorSort)
   .limit(limitInt)
   return res.send(products)
 }
@@ -86,41 +77,32 @@ export const get = async (req, res) => {
 export const adminGet = async (req, res) => {
   const {
     appName,
-    query: { lastId, limit, _id, published },
+    query: {
+      _id,
+      lastId,
+      lastPrice,
+      lastRating,
+      limit,
+      published,
+      sort,
+      userId,
+    },
   } = req
-  const lastIdQuery = lastId && { _id: { $gt: lastId }}
-  const idQuery = _id && { _id }
-  const limitInt = limit ? parseInt(limit) : 2
-  const publishedQuery = published === 'true' ? { published: true } : published === 'false' ? { published: false } : null
-  const products = await Product.aggregate([
-    { $match: {
-      appName,
-      ...idQuery,
-      ...lastIdQuery,
-      ...publishedQuery,
-    }},
-    { $lookup: {
-      from: 'reviews',
-      localField: '_id',
-      foreignField: 'item',
-      as: 'reviews'
-    }},
-    { $unwind: "$reviews"},
-    { $group: {
-      _id: "$$ROOT._id",
-      stars: {$sum: {$cond: [{$eq:["$reviews.published", true]}, "$reviews.values.rating", 0]}},
-      reviews: {$sum: {$cond: [{$eq:["$reviews.published", true]}, 1, 0]}},
-      published: { $last: "$$ROOT.published"},
-      values: { $last: "$$ROOT.values"},
-    }},
-    { $project: {
-      _id: "$_id",
-      published: "$published",
-      values: "$values",
-      stars: "$stars",
-      reviews: "$reviews"
-    }}
-  ])
+  const query = getQuery({
+    _id,
+    appName,
+    lastId,
+    lastPrice,
+    lastRating,
+    limit,
+    published,
+    sort,
+    userId
+  })
+  const cursorSort = getCursorSort({ sort, rating: 'values.rating' })
+  const limitInt = limit ? parseInt(limit) : 3
+  const products = await Product.find(query)
+  .sort(cursorSort)
   .limit(limitInt)
   return res.send(products)
 }
