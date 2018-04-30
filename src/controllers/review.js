@@ -11,7 +11,6 @@ import getCursorSort from '../utils/getCursorSort'
 
 
 const handleItem = async ({ item, kind }) => {
-  console.log('item', item)
   const itemRating = await Review.aggregate([
     { $match: {
       item,
@@ -24,7 +23,6 @@ const handleItem = async ({ item, kind }) => {
       reviews: { $sum: 1 },
     }}
   ])
-  console.log('itemRating', itemRating)
   const { stars, avg, reviews } = itemRating[0]
   if (kind === 'Blog') {
     const blog = await Blog.findOne({ _id: item })
@@ -75,6 +73,7 @@ export const add = async (req, res) => {
   }).save()
 
   const review = values.rating < 3 ? null : await Review.findOne({ _id: doc._id })
+
   if (values.rating < 3) {
     res.send({ review })
   } else {
@@ -110,7 +109,6 @@ export const add = async (req, res) => {
 
 
 export const get = async (req, res) => {
-  console.log('reg get')
   const {
     appName,
     query: {
@@ -150,7 +148,6 @@ export const get = async (req, res) => {
 
 
 export const userGet = async (req, res) => {
-  console.log('user get')
   const {
     appName,
     query: {
@@ -197,7 +194,6 @@ export const userGet = async (req, res) => {
 
 
 export const adminGet = async (req, res) => {
-  console.log('admin get')
   const {
     appName,
     query: {
@@ -270,18 +266,18 @@ export const updateLikes = async (req, res) => {
 
 export const updateValues = async (req, res) => {
   const {
-    body: { values, href, itemName },
+    body: { values, href, itemName, populateItem, },
     appName,
     params: { _id },
     user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Review update error, invalid _id')
-  const oldReview = await Review.findOne({ _id, appName })
+  const oldReview = await Review.findOne({ _id, appName, user })
   const hasNewRating = oldReview.values.rating !== values.rating ? true : false
   const published = hasNewRating && values.rating < 3 ? false : true
 
-  const review = await Review.findOneAndUpdate(
-    { _id, appName },
+  const review = populateItem ? await Review.findOneAndUpdate(
+    { _id, appName, user },
     { $set: {
       values,
       published
@@ -290,10 +286,23 @@ export const updateValues = async (req, res) => {
   )
   .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
   .populate({ path: 'item', select: '_id values.name values.title values.image' })
-  if (!review) throw Error('Review update error')
+  :
+  await Review.findOneAndUpdate(
+    { _id, appName, user },
+    { $set: {
+      values,
+      published
+    }},
+    { new: true }
+  )
+  .populate({ path: 'user', select: 'values.firstName values.lastName _id' })
 
+  if (!review) throw Error('Review update error')
   if (review.published && hasNewRating) {
-    const { blog, product } = await handleItem({ item: review.item._id, kind: review.kind })
+    const { blog, product } = await handleItem({
+      item: populateItem ? review.item._id : review.item,
+      kind: review.kind
+    })
     res.send({
       blog,
       product,
@@ -302,7 +311,6 @@ export const updateValues = async (req, res) => {
   } else {
     res.send({ review })
   }
-
   await sendGmail({
     appName,
     adminSubject: `Review Updated for ${itemName}!`,
@@ -319,11 +327,6 @@ export const updateValues = async (req, res) => {
     `
   })
 }
-
-
-
-
-
 
 
 
@@ -362,6 +365,30 @@ export const updatePublish = async (req, res) => {
 
 
 export const remove = async (req, res) => {
+  const {
+    appName,
+    params: { _id },
+    user,
+  } = req
+  if (!ObjectID.isValid(_id)) throw Error('Review remove error, invalid _id')
+  const review = await Review.findOneAndRemove({ _id, appName, user })
+  if (!review) throw Error('Review remove error, review not found')
+
+  const { blog, product } = await handleItem({ item: review.item, kind: review.kind })
+  res.send({
+    blog,
+    product,
+    review,
+  })
+  await Comment.deleteMany({ review: review._id })
+}
+
+
+
+
+
+
+export const adminRemove = async (req, res) => {
   const {
     appName,
     params: { _id }

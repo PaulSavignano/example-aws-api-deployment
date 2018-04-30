@@ -139,10 +139,13 @@ export const signin = async (req, res) => {
 export const signout = async (req, res) => {
   const accessToken = req.headers['x-access-token']
   const refreshToken = req.headers['x-refresh-token']
-  const rToken = await RefreshToken.findOneAndRemove({ refreshToken })
-  if (!rToken) throw Error('Signout refresh token not found')
-  const aToken = await AccessToken.findOneAndRemove({ accessToken })
+
+  const aTokenPromise = AccessToken.findOneAndRemove({ accessToken })
+  const rTokenPromise = RefreshToken.findOneAndRemove({ refreshToken })
+
+  const [ aToken, rToken ] = await Promise.all([ aTokenPromise, rTokenPromise ])
   if (!aToken) throw Error('Signout access token not found')
+  if (!rToken) throw Error('Signout refresh token not found')
   return res.status(200).send({ message: 'It was good seeing you, come back soon!'})
 }
 
@@ -156,8 +159,9 @@ export const recovery = async (req, res) => {
     body,
     appName
   } = req
-  const resetToken = await crypto.randomBytes(30).toString('hex')
-  const user = await User.findOne({ 'values.email': body.email.toLowerCase(), appName })
+  const resetTokenPromise = crypto.randomBytes(30).toString('hex')
+  const userPromise = User.findOne({ 'values.email': body.email.toLowerCase(), appName })
+  const [ resetToken, user ] = await Promise.all([ resetTokenPromise, userPromise ])
   if (!user) throw new CustomError({ field: 'email', message: 'User not found', statusCode: 404 })
   const path = `${appName}/user/reset/${resetToken}`
   await new ResetToken({
@@ -166,9 +170,12 @@ export const recovery = async (req, res) => {
     user: user._id
   }).save()
   const { firstName, email } = user.values
-  sendGmail({
+
+  res.send({ message: `A password recovery email has been sent to ${email}.`})
+
+  await sendGmail({
     appName,
-    to: email,
+    toEmail: email,
     toSubject: 'Reset Password',
     toBody: `
       <p>Hi ${firstName},</p>
@@ -178,7 +185,6 @@ export const recovery = async (req, res) => {
       </a>
       `
   })
-  return res.send({ message: `A password recovery email has been sent to ${email}.`})
 }
 
 
@@ -219,6 +225,7 @@ export const contact = async (req, res) => {
     appName
   } = req
   if (!firstName || !email || !message) throw Error('All fields are required')
+  res.send({ message: 'Thank you for contacting us, we will respond to you shortly!'})
   await sendGmail({
     appName,
     toEmail: email,
@@ -234,5 +241,4 @@ export const contact = async (req, res) => {
       <div>Message: ${message}</div>
     `
   })
-  return res.send({ message: 'Thank you for contacting us, we will respond to you shortly!'})
 }

@@ -8,19 +8,11 @@ import Page from '../models/Page'
 
 
 
-
-
-
-
-
-
 export const get = async (req, res) => {
   const { appName } = req
   const appPages = await AppPages.findOne({ appName })
   return res.send(appPages)
 }
-
-
 
 
 

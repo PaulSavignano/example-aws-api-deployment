@@ -6,6 +6,7 @@ import Theme from '../models/Theme'
 import shadows from './shadows'
 
 const sendGmail = async (props) => {
+  console.log('inside email')
   const {
     appName,
     toEmail,
@@ -15,8 +16,15 @@ const sendGmail = async (props) => {
     adminBody,
   } = props
   try {
-    const config = await Config.findOne({ appName })
-    if (!config) throw Error('No config found, email not sent')
+    const appPromise = App.findOne({ appName })
+    const configPromise = Config.findOne({ appName })
+    const themePromise = Theme.findOne({ appName })
+
+    const [ app, config, theme ] = await Promise.all([ appPromise, configPromise, themePromise ])
+
+    if (!app) throw Error('Send email error, no app found')
+    if (!config) throw Error('Send email error, no config found')
+    if (!theme) throw Error('Send email error, no theme found')
     const {
       gmailUser,
       oauthAccessToken,
@@ -24,9 +32,7 @@ const sendGmail = async (props) => {
       oauthClientSecret,
       oauthRefreshToken
     } = config.values
-    const app = await App.findOne({ appName })
-    const theme = await Theme.findOne({ appName })
-    if (!app) throw Error('Could not find app, email not sent')
+
     const {
       business: {
         address,
@@ -72,7 +78,7 @@ const sendGmail = async (props) => {
         <body>
            <main>
             ${body}
-            <br/><br/>
+            <br/><br/><br/>
             <a href="https://${appName}" style="font-size: ${name.fontSize}; font-weight: ${name.fontWeight}; letter-spacing: ${name.letterSpacing};  text-shadow: ${name.textShadow};">
               ${image && image.src ? `
                 <img
@@ -109,7 +115,7 @@ const sendGmail = async (props) => {
         html: emailTemplate(toBody)
       }
       const userEmail = await transporter.sendMail(userMail)
-      console.info('sendGmail userEmail: ', userEmail)
+      console.info('send email success! ', userEmail)
     }
 
     if (adminSubject) {
@@ -120,9 +126,8 @@ const sendGmail = async (props) => {
         html: emailTemplate(adminBody)
       }
       const adminEmail = await transporter.sendMail(adminMail)
-      console.info('sendGmail adminEmail: ', adminEmail)
+      console.info('send admin email success! ', adminEmail)
     }
-
     return
   } catch (error) {
     return Promise.reject(error)

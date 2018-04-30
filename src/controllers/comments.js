@@ -74,7 +74,7 @@ export const updateValues = async (req, res) => {
     user,
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Comment update error, invalid _id')
-  const prevComment = await Comment.findOne({ _id, appName })
+
   const comment = await Comment.findOneAndUpdate(
     { _id, appName, user: user._id },
     { $set: { values }},
@@ -85,7 +85,9 @@ export const updateValues = async (req, res) => {
     select: 'values.firstName values.lastName _id'
   })
   res.send(comment)
-  const parentDoc = comment.parent ? await Comment.findOne({ _id: comment.parent }) : await Review.findOne({ _id: comment.review })
+  const prevCommentPromise = Comment.findOne({ _id, appName })
+  const parentDocPromise = comment.parent ? Comment.findOne({ _id: comment.parent }) : Review.findOne({ _id: comment.review })
+  const [ prevComment, parentDoc ] = await Promise.all([ prevCommentPromise, parentDocPromise ])
   await sendGmail({
     appName,
     adminSubject: `Comment Updated for ${itemName}!`,
@@ -130,7 +132,7 @@ export const reportAbuse = async (req, res) => {
     appName,
     adminSubject: `Abuse reported on a ${kind} for ${itemName}!`,
     adminBody: `
-      <p>Abuse reported on the following ${kind} for ${itemName} <a href="${href}">${itemName}</a>!</p>
+      <p>Abuse reported on the following ${kind} for <a href="${href}">${itemName}</a>!</p>
       <div>${kind} text:</div>
       <div style="font-style: italic;">${comment.values.text}</div>
     `

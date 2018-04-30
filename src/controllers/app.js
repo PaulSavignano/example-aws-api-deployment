@@ -15,8 +15,9 @@ import Theme from '../models/Theme'
 
 export const add = async (req, res) => {
   const { appName } = req
-  await new Config({ appName }).save()
-  const page = await new Page({
+  const appPromise = new App({ appName }).save()
+  const configPromise = new Config({ appName }).save()
+  const pagePromise = new Page({
     appName,
     name: 'Home',
     path: '/',
@@ -24,9 +25,9 @@ export const add = async (req, res) => {
     published: true,
     'values.description': appName
   }).save()
-  const app = await new App({ appName }).save()
+  const themePromise = new Theme({ appName }).save()
+  const [ app, config, page, theme ] = await Promise.all([ appPromise, configPromise, pagePromise, themePromise ])
   const appPages = await new AppPages({ appName, pages: page._id }).save()
-  const theme = await new Theme({ appName }).save()
   return res.send({
     app,
     appPages,
@@ -42,12 +43,14 @@ export const add = async (req, res) => {
 
 export const get = async (req, res) => {
   const { appName } = req
-  const appDoc = await App.findOne({ appName })
+  const appPromise = App.findOne({ appName })
+  const productPromise = Product.findOne({ appName, published: true })
+  const blogPromise = Blog.findOne({ appName, published: true })
+
+  const [ appDoc, product, blog ] = await Promise.all([ appPromise, productPromise, blogPromise ])
   if (!appDoc) throw 'No app found'
-  const product = await Product.findOne({ appName, published: true })
-  const hasProducts = product ? true : false
-  const blog = await Blog.findOne({ appName, published: true })
   const hasBlogs = blog ? true : false
+  const hasProducts = product ? true : false
   const appObj = appDoc.toObject()
   const app = { ...appObj, hasBlogs, hasProducts }
   return res.send(app)
@@ -60,7 +63,7 @@ export const get = async (req, res) => {
 
 export const update = async (req, res) => {
   const {
-    body: { key, oldImageSrc, values },
+    body: { appKey, oldImageSrc, values },
     appName,
     params: { _id }
   } = req
@@ -70,16 +73,16 @@ export const update = async (req, res) => {
   const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${appName}/${key}-image_${getTime()}.${values.image.ext}`,
+      path: `${appName}/${appKey}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
   } : values
 
-  if (key) {
+  if (appKey) {
     const app = await App.findOneAndUpdate(
       { _id, appName },
       { $set: {
-        [key]: valuesUpdate
+        [appKey]: valuesUpdate
       }},
       { new: true }
     )

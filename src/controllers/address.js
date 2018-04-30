@@ -131,8 +131,6 @@ export const adminUpdate = async (req, res) => {
     params: { _id },
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Address update failed, invalid _id')
-  const isOwner = req.user.roles.some(role => role === 'owner')
-  if (!isOwner) throw Error('Update address failed, unauthorized')
   const address = await Address.findOneAndUpdate(
     { _id, appName },
     { $set: { values }},

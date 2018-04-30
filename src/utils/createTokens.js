@@ -5,18 +5,20 @@ import RefreshToken from '../models/RefreshToken'
 
 const createTokens = async (user, appName) => {
   try {
-    const newAccessToken = await crypto.randomBytes(30).toString('hex')
-    const newRefreshToken = await crypto.randomBytes(30).toString('hex')
-    await new AccessToken({
+    const newAccessTokenPromise = crypto.randomBytes(30).toString('hex')
+    const newRefreshTokenPromise = crypto.randomBytes(30).toString('hex')
+    const [ newAccessToken, newRefreshToken ] = await Promise.all([ newAccessTokenPromise, newRefreshTokenPromise ])
+    const accessTokenPromise = new AccessToken({
       accessToken: newAccessToken,
       appName,
       user: user._id
     }).save()
-    await new RefreshToken({
+    const refreshTokenPromise = new RefreshToken({
       refreshToken: newRefreshToken,
       appName,
       user: user._id
     }).save()
+    await Promise.all([ accessTokenPromise, refreshTokenPromise ])
     return {
       newAccessToken,
       newRefreshToken

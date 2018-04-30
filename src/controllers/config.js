@@ -31,7 +31,7 @@ export const get = async (req, res) => {
 
 
 export const update = async (req, res) => {
-  if (!ObjectID.isValid(req.params._id)) return res.status(404).send({ error: 'invalid _id' })
+  if (!ObjectID.isValid(req.params._id)) throw Error('Config update failed, invalid _id')
   const {
     body: { values },
     appName,
@@ -53,7 +53,7 @@ export const update = async (req, res) => {
 
 
 export const remove = async (req, res) => {
-  if (!ObjectID.isValid(req.params._id)) return res.status(404).send({ error: 'invalid _id'})
+  if (!ObjectID.isValid(req.params._id)) throw Error('Config remove failed, invalid _id')
   const {
     appName,
     params: { _id }

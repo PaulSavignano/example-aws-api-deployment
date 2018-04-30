@@ -16,7 +16,7 @@ import {
 
 const reviews = express.Router()
 
-reviews.delete('/:_id', authenticate(['admin']), catchErrors(remove))
+reviews.delete('/:_id', authenticate(['user']), catchErrors(remove))
 reviews.delete('/admin/:_id', authenticate(['admin']), catchErrors(adminRemove))
 reviews.get('/', catchErrors(get))
 reviews.get('/user', authenticate(['user']), catchErrors(userGet))

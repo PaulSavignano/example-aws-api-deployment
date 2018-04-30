@@ -87,7 +87,6 @@ export const add = async (req, res) => {
     user: user._id,
   }).save()
 
-  await Cart.findOneAndRemove({ _id: cart._id })
 
   const response = hasNewAddress ? { order, user } : { order }
   res.send(response)
@@ -112,7 +111,9 @@ export const add = async (req, res) => {
     <div>${street}</div>
     <div>${city}, ${state} ${zip}</div>
   `
-  await sendGmail({
+
+  const cartPromise = Cart.findOneAndRemove({ _id: cart._id })
+  const emailPromise = sendGmail({
     appName,
     toEmail: user.values.email,
     toSubject: 'Thank you for your order!',
@@ -128,6 +129,7 @@ export const add = async (req, res) => {
       <p>Once shipped, you can mark the item as shipped in at <a href="${appName}/admin/orders">${appName}/admin/orders</a> to send confirmation to ${user.values.firstName}.</p>
     `
   })
+  await Promise.all([ cartPromise, emailPromise ])
 }
 
 
@@ -192,7 +194,6 @@ export const adminGet = async (req, res) => {
       userId,
     },
   } = req
-  console.log('shipped', shipped, 'sort', sort)
   const query = getQuery({
     appName,
     _id,
@@ -205,7 +206,6 @@ export const adminGet = async (req, res) => {
     sort,
     userId,
   })
-  console.log('query', query)
   const cursorSort = getCursorSort({ sort })
   const limitInt = limit ? parseInt(limit) : 3
   const orders = await Order

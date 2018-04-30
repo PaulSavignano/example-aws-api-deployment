@@ -30,7 +30,7 @@ const authenticate = (requiredRoles) => async (req, res, next) => {
       }
       return next()
     } else {
-      return next(Error('Access denied'))
+      throw Error('Access denied')
     }
   } catch (error) {
     return next(error)

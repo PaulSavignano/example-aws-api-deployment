@@ -93,7 +93,6 @@ export const updateName = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  console.log('value is ', value)
   if (!ObjectID.isValid(_id)) throw Error('Page update failed, invalid _id')
   const existingPage = await Page.findOne({ appName, name: value })
   if (existingPage) throw new CustomError({ field: 'name', message: 'That name already exists', statusCode: 406 })
@@ -119,7 +118,6 @@ export const updateOrder = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  console.log('updateOrder', _id, appName)
   const appPages = await AppPages.findOneAndUpdate(
     { _id, appName },
     { $set: { pages: pageIds }},
