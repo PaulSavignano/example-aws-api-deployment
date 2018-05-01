@@ -33,20 +33,20 @@ app.use('/api/:appName', setAppName, router)
 app.get('/', (req, res) => {
   res.send(`
     <html>
-      <style>
-        .text-container {
-          display: flex;
-          flex-flow: column;
-          justify-content: center;
-          align-items: center;
-          height: 85vh;
-        }
-        h1 {
-          font-weight: 300;
-          font-family: Helvetica Neue, Open Sans, sans-serif;
-        }
-      </style>
       <head>
+        <style>
+          .text-container {
+            display: flex;
+            flex-flow: column;
+            justify-content: center;
+            align-items: center;
+            height: 85vh;
+          }
+          h1 {
+            font-weight: 300;
+            font-family: Helvetica Neue, Open Sans, sans-serif;
+          }
+        </style>
         <title>Savignano.io API</title>
         <meta name="description" content="Savignano.io api"/>
       </head>
