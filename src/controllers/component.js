@@ -24,7 +24,7 @@ export const add = async (req, res) => {
 
   const backgroundImage = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     backgroundImage: await handleImage({
-      path: `${appName}/${pageSlug}/component-${kind}-background-image-${_id}_${getTime()}.${values.backgroundImage.ext}`,
+      path: `${appName}/page-${pageSlug}/component-${kind}-background-image-${_id}_${getTime()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : {}
@@ -101,7 +101,7 @@ export const update = async (req, res) => {
   // handle new background image
   const backgroundImage = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     backgroundImage: await handleImage({
-      path: `${appName}/${pageSlug}/component-${kind}-background-image-${_id}_${getTime()}.${values.backgroundImage.ext}`,
+      path: `${appName}/page-${pageSlug}/component-${kind}-background-image-${_id}_${getTime()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : {}

@@ -22,7 +22,6 @@ export const add = async (req, res) => {
     appName,
     name: values.name,
     slug,
-    path: `/${slug}`,
     'values.description': `Page ${values.name}`
   }).save()
   if (!page) throw Error('Page add failed')
@@ -67,7 +66,7 @@ export const update = async (req, res) => {
   const valuesUpdate = values && values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     ...values,
     backgroundImage: await handleImage({
-      path: `${appName}/${pageSlug}/background-image-${_id}_${getTime()}.${values.backgroundImage.ext}`,
+      path: `${appName}/page-${pageSlug}/background-image-${_id}_${getTime()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : values
