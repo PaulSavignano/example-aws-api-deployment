@@ -48,7 +48,7 @@ export const get = async (req, res) => {
   const blogPromise = Blog.findOne({ appName, published: true })
 
   const [ appDoc, product, blog ] = await Promise.all([ appPromise, productPromise, blogPromise ])
-  if (!appDoc) throw 'No app found'
+  if (!appDoc) throw Error('No app found')
   const hasBlogs = blog ? true : false
   const hasProducts = product ? true : false
   const appObj = appDoc.toObject()
@@ -126,6 +126,6 @@ export const remove = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('App remove failed, invalid _id')
   const app = await App.findOne({ _id, appName })
   await app.remove()
-  if (!app) throw 'App remove App.findOneAndRemove() error'
+  if (!app) throw Error('App remove error, no app found')
   return res.send(app._id)
 }

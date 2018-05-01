@@ -20,7 +20,7 @@ export const add = async (req, res) => {
 export const get = async (req, res) => {
   const { appName } = req
   const theme = await Theme.findOne({ appName })
-  if (!theme) throw 'No theme found'
+  if (!theme) throw Error('No theme found')
   return res.send(theme)
 }
 
@@ -104,6 +104,6 @@ export const remove = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('Theme remove failed, invalid _id')
   const theme = await Theme.findOne({ _id, appName })
   await theme.remove()
-  if (!theme) throw 'Theme remove Theme.findOneAndRemove() error'
+  if (!theme) throw Error('Theme remove error, no theme found')
   return res.send(theme._id)
 }

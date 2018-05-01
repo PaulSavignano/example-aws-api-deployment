@@ -149,7 +149,7 @@ export const remove = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('Component remove failed, invalid _id')
   const component = await Component.findOne({ _id, appName })
   await component.remove()
-  if (!component) throw 'Component remove Component.findOneAndRemove() error'
+  if (!component) throw Error('Component remove error, no component found')
   const section = await Section.findOneAndUpdate(
     { _id: component.section, appName },
     { $pull: { components: component._id }},
