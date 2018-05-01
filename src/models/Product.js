@@ -40,6 +40,8 @@ productSchema.index({
   'values.name': 'text',
   'rating.avg': 1,
   createdAt: 1
+}, {
+  name: 'product'
 })
 
 productSchema.post('remove', function(doc, next) {

@@ -38,6 +38,8 @@ blogSchema.index({
   'values.title': 'text',
   'rating.avg': 1,
   createdAt: 1,
+}, {
+  name: 'blog'
 })
 
 

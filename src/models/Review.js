@@ -18,6 +18,8 @@ const reviewSchema = new Schema({
 reviewSchema.index({
   'values.rating': 1,
   createdAt: 1,
+}, {
+  name: 'review'
 })
 
 function autopopulate(next) {

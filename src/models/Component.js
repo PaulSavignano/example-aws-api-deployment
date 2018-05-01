@@ -74,6 +74,8 @@ const componentSchema = new Schema({
 componentSchema.index({
   'values.items.typographies.content': 'text',
   'values.items.wysiwyg.content': 'text'
+}, {
+  name: 'component'
 })
 
 componentSchema.post('remove', function(doc, next) {

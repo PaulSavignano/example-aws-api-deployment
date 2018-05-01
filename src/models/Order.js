@@ -24,6 +24,8 @@ orderSchema.index({
   createdAt: 1,
   shipDate: 1,
   total: 1,
+}, {
+  name: 'order'
 })
 
 const Order = mongoose.model('Order', orderSchema)
