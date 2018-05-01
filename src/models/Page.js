@@ -28,8 +28,9 @@ pageSchema.post('remove', async function(doc, next) {
       await deleteFiles([{ Key: doc.values.backgroundImage.src }])
     }
     if (doc.sections.length > 0) {
-      doc.sections.forEach(async (section) => await Section.findOne({ _id: section.section })
+      doc.sections.forEach(async (section) => await Section.findOne({ _id: section })
       .then(section => section.remove()))
+      .catch(error => Promise.reject(error))
     }
     next()
   } catch (error) {

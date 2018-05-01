@@ -39,9 +39,8 @@ sectionSchema.post('remove', async function(doc, next) {
     }
     if (doc.components.length > 0) {
       doc.components.forEach((component) => {
-        return Component.findOne({ _id: component.component })
+        return Component.findOne({ _id: component })
         .then(component => component.remove())
-        .then(() => next)
         .catch(error => Promise.reject(error))
       })
     }

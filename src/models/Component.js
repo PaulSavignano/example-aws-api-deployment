@@ -84,7 +84,7 @@ componentSchema.post('remove', function(doc, next) {
   const deletes = [ ...backgroundImageSrc, ...itemSrcs]
   if (deletes.length > 0) {
     return deleteFiles(deletes)
-    .then(() => next)
+    .then(() => next())
     .catch(error => Promise.reject(error))
   }
   next()

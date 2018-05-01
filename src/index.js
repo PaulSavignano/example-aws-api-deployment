@@ -70,6 +70,7 @@ app.use((err, req, res, next) => {
     message,
   }
   const statusCode = err.statusCode || 400
+  console.log('this is my error', error)
   res.status(statusCode).send(error)
 })
 

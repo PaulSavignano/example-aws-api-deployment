@@ -124,7 +124,7 @@ export const update = async (req, res) => {
   const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${appName}/blogs/${values.title}-${_id}-image_${getTime()}.${values.image.ext}`,
+      path: `${appName}/products/${getSlug(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
   } : values

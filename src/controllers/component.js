@@ -21,10 +21,9 @@ export const add = async (req, res) => {
     appName
   } = req
   const _id = new ObjectID()
-
   const backgroundImage = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     backgroundImage: await handleImage({
-      path: `${appName}/page-${pageSlug}/component-${kind}-background-image-${_id}_${getTime()}.${values.backgroundImage.ext}`,
+      path: `${appName}/page-${pageSlug}/component-${_id}-${kind}-background-image_${getTime()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : {}
@@ -101,7 +100,7 @@ export const update = async (req, res) => {
   // handle new background image
   const backgroundImage = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
     backgroundImage: await handleImage({
-      path: `${appName}/page-${pageSlug}/component-${kind}-background-image-${_id}_${getTime()}.${values.backgroundImage.ext}`,
+      path: `${appName}/page-${pageSlug}/component-${_id}-${kind}-background-image_${getTime()}.${values.backgroundImage.ext}`,
       image: values.backgroundImage,
     })
   } : {}
@@ -146,10 +145,11 @@ export const remove = async (req, res) => {
     appName,
     params: { _id }
   } = req
+  console.log('id is ', _id)
   if (!ObjectID.isValid(_id)) throw Error('Component remove failed, invalid _id')
   const component = await Component.findOne({ _id, appName })
-  await component.remove()
   if (!component) throw Error('Component remove error, no component found')
+  await component.remove()
   const section = await Section.findOneAndUpdate(
     { _id: component.section, appName },
     { $pull: { components: component._id }},

@@ -20,7 +20,6 @@ export const add = async (req, res) => {
 export const get = async (req, res) => {
   const { appName } = req
   const theme = await Theme.findOne({ appName })
-  if (!theme) throw Error('No theme found')
   return res.send(theme)
 }
 
