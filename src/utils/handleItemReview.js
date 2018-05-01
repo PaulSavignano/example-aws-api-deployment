@@ -1,7 +1,7 @@
 import Blog from '../models/Blog'
 import Product from '../models/Product'
 
-const handleItemReview = ({
+const handleItemReview = await ({
   blog,
   previousReview,
   product,
