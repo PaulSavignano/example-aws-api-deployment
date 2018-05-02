@@ -6,7 +6,6 @@ import Theme from '../models/Theme'
 import shadows from './shadows'
 
 const sendGmail = async (props) => {
-  console.log('inside email')
   const {
     appName,
     toEmail,
@@ -32,6 +31,10 @@ const sendGmail = async (props) => {
       oauthClientSecret,
       oauthRefreshToken
     } = config.values
+
+    if (!gmailUser || !oauthAccessToken || !oauthClientId || !oauthClientSecret || !oauthRefreshToken) {
+      throw Error('Send email error, no admin mail values')
+    }
 
     const {
       business: {
@@ -67,6 +70,7 @@ const sendGmail = async (props) => {
         <style type="text/css">
           * {
             font-family: ${fontFamily};
+            color: ${primary};
             letter-spacing: ${letterSpacing};
           }
           a {

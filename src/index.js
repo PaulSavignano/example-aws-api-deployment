@@ -63,6 +63,7 @@ app.use(notFound)
 
 app.use((err, req, res, next) => {
   console.error(err)
+  if (res.headersSent) return
   const { name, field, message } = err
   const error = {
     name,
@@ -70,7 +71,6 @@ app.use((err, req, res, next) => {
     message,
   }
   const statusCode = err.statusCode || 400
-  console.log('this is my error', error)
   res.status(statusCode).send(error)
 })
 
