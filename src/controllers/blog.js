@@ -1,6 +1,7 @@
 import { ObjectID } from 'mongodb'
 
 import { deleteFiles } from '../utils/s3'
+import getSlug from '../utils/getSlug'
 import getTime from '../utils/getTime'
 import Blog from '../models/Blog'
 import handleImage from '../utils/handleImage'
@@ -19,7 +20,7 @@ export const add = async (req, res) => {
   const valuesWithNewImage = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${appName}/blogs/${values.title}-${_id}-image_${getTime()}.${values.image.ext}`,
+      path: `${appName}/blogs/${getSlug(values.title)}-${_id}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
   } : null
@@ -123,7 +124,7 @@ export const update = async (req, res) => {
   const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
     image: await handleImage({
-      path: `${appName}/blogs/${values.title}-${_id}-image_${getTime()}.${values.image.ext}`,
+      path: `${appName}/blogs/${getSlug(values.title)}-${_id}-image_${getTime()}.${values.image.ext}`,
       image: values.image,
     })
   } : values

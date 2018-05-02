@@ -4,7 +4,7 @@ import { deleteFiles } from '../utils/s3'
 
 const productSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
-  published: { Type: Boolean, default: false },
+  published: { type: Boolean, default: false },
   rating: {
     avg: { type: Number, min: 0, max: 5, default: 0 },
     stars: { type: Number, min: 0, max: 1000000, default: 0 },

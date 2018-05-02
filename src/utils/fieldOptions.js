@@ -3,7 +3,9 @@ export const alignItems = [
   'center',
   'flex-end',
   'flex-start',
-  'stretch'
+  'inherit',
+  'normal',
+  'stretch',
 ]
 
 export const components = [
