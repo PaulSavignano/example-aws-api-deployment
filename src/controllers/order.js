@@ -46,7 +46,6 @@ export const add = async (req, res) => {
     }).save()
     :
     await Address.findOne({ _id: fullAddress, appName })
-  console.log('address is ', address)
 
   const user = hasNewAddress ?
     await User.findOneAndUpdate(
@@ -76,7 +75,7 @@ export const add = async (req, res) => {
     return Promise.reject(err)
   })
 
-  const order = await new Order({
+  const orderPromise = new Order({
     address: {
       _id: address._id,
       ...address.values,
@@ -92,7 +91,10 @@ export const add = async (req, res) => {
     user: user._id,
   }).save()
 
-  const response = hasNewAddress ? { order, user } : { order }
+  const cartPromise = Cart.findOneAndRemove({ _id: cart._id })
+
+  const [ order, cartDoc ] = await Promise.all([ orderPromise, cartPromise ])
+  const response = hasNewAddress ? { cart: cartDoc, order, user, address } : { cart, order }
   res.send(response)
 
   const htmlOrder = `
@@ -116,8 +118,8 @@ export const add = async (req, res) => {
     <div>${city}, ${state} ${zip}</div>
   `
 
-  const cartPromise = Cart.findOneAndRemove({ _id: cart._id })
-  const emailPromise = sendGmail({
+
+  await sendGmail({
     appName,
     toEmail: user.values.email,
     toSubject: 'Thank you for your order!',
@@ -133,7 +135,7 @@ export const add = async (req, res) => {
       <p>Once shipped, you can mark the item as shipped in at <a href="${appName}/admin/orders">${appName}/admin/orders</a> to send confirmation to ${user.values.firstName}.</p>
     `
   })
-  await Promise.all([ cartPromise, emailPromise ])
+
 }
 
 
