@@ -1,9 +1,15 @@
 import mongoose, { Schema } from 'mongoose'
 
-import { addressValuesSchema } from '../utils/schemas'
-
 const orderSchema = new Schema({
-  address: addressValuesSchema,
+  address: {
+    _id: { type: Schema.Types.ObjectId, ref: 'Address' },
+    name: { type: String, trim: true, minlength: 1, maxlength: 50 },
+    phone: { type: String, trim: true, minlength: 1, maxlength: 20 },
+    street: { type: String, trim: true, minlength: 1, maxlength: 50 },
+    city: { type: String, trim: true, minlength: 1, maxlength: 50 },
+    zip: { type: String, trim: true, minlength: 1, maxlength: 12 },
+    state: { type: String, trim: true, minlength: 1, maxlength: 6 }
+  },
   appName: { type: String, maxlength: 90, required: true },
   cart: { type: Object, required: true },
   email: { type: String, required: true, maxlength: 100 },

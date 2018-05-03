@@ -29,6 +29,7 @@ export const add = async (req, res) => {
     },
     appName,
   } = req
+  console.log('fullAddress', fullAddress)
   const hasNewAddress = fullAddress === 'newAddress' ? true : false
   const address = hasNewAddress ?
     await new Address({
@@ -45,10 +46,11 @@ export const add = async (req, res) => {
     }).save()
     :
     await Address.findOne({ _id: fullAddress, appName })
+  console.log('address is ', address)
 
   const user = hasNewAddress ?
     await User.findOneAndUpdate(
-      { _id: user._id, appName },
+      { _id: req.user._id, appName },
       { $push: { addresses: address._id }},
       { new: true }
     )
@@ -75,7 +77,10 @@ export const add = async (req, res) => {
   })
 
   const order = await new Order({
-    address,
+    address: {
+      _id: address._id,
+      ...address.values,
+    },
     appName,
     cart,
     email: user.values.email,
@@ -86,7 +91,6 @@ export const add = async (req, res) => {
     total: cart.total,
     user: user._id,
   }).save()
-
 
   const response = hasNewAddress ? { order, user } : { order }
   res.send(response)
