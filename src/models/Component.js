@@ -55,7 +55,7 @@ const componentSchema = new Schema({
         link: { type: String, trim: true, maxlength: 90, },
       },
       typographies: [{
-        content: { type: String, trim: true, maxlength: 300 },
+        content: { type: String, trim: true, maxlength: 3000 },
         kind: { type: String, trim: true, maxlength: 90, enum: typographies },
       }],
       wysiwyg: {
