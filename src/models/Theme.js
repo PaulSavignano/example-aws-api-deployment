@@ -11,7 +11,6 @@ const themeSchema = new Schema({
     imageDisplay: { type: String, enum: ['false', 'true'], default: ['false'], maxlength: 25 },
     imagePosition: { type: String, enum: ['absolute', 'relative'], default: ['relative'], maxlength: 25 },
     imageWidth: { type: String, trim: true, maxlength: 25 },
-    phoneColor: { type: String, trim: true, maxlength: 25 },
     phoneDisplay: { type: String, enum: ['false', 'true'], default: ['false'], maxlength: 25 },
     phoneSize: { type: String, trim: true, maxlength: 25 },
   },
