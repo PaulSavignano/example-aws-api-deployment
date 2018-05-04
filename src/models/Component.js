@@ -59,8 +59,9 @@ const componentSchema = new Schema({
         kind: { type: String, trim: true, maxlength: 90, enum: typographies },
       }],
       wysiwyg: {
-        flex: { type: String, trim: true, maxlength: 90 },
         content: { type: String, trim: true, maxlength: 9000 },
+        flex: { type: String, trim: true, maxlength: 90 },
+        padding: { type: String, trim: true, maxlength: 90 },
       },
     }],
   }
