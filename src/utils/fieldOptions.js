@@ -15,6 +15,13 @@ export const components = [
   'hero',
 ]
 
+export const color = [
+  'default',
+  'inherit',
+  'primary',
+  'secondary',
+]
+
 export const items = [
   'button',
   'iframe',
@@ -44,6 +51,8 @@ export const justifyContent = [
   'space-around',
   'space-between',
 ]
+
+export const size = ['small', 'medium', 'large']
 
 export const textAlign = [
   'center',

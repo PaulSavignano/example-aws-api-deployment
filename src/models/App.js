@@ -13,9 +13,18 @@ import Section from './Section'
 import Theme from './Theme'
 import User from './User'
 
+import { color, size } from '../utils/fieldOptions'
+
+
 const appSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true, unique: true },
   business: {
+    actionButton: {
+      children: { type: String, trim: true, maxlength: 300 },
+      color: { type: String, enum: color },
+      href: { type: String, trim: true, maxlength: 300 },
+      size: { type: String, enum: size },
+    },
     address: {
       city: { type: String, trim: true, maxlength: 100, default: 'Carlsbad' },
       zip: { type: String, trim: true, maxlength: 50, default: '12345' },
