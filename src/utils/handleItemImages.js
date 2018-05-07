@@ -16,7 +16,7 @@ const handleItemImages = async ({
         kind: item.kind,
         _id: itemId,
         image: await handleImage({
-          path: `${appName}/${pageSlug}/${kind}-${_id}-${item.kind}-${itemId}_${getTime()}.${item.image.ext}`,
+          path: `${appName}/page-${pageSlug}/${kind}-${_id}-${item.kind}-${itemId}_${getTime()}.${item.image.ext}`,
           image: item.image,
         })
       }
