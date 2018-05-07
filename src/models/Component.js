@@ -8,6 +8,8 @@ import {
   flexFlow,
   justifyContent,
   typographies,
+  color,
+  size,
 } from '../utils/fieldOptions'
 
 const componentSchema = new Schema({
@@ -49,14 +51,15 @@ const componentSchema = new Schema({
         src: { type: String, trim: true, maxlength: 300 },
       },
       button: {
-        color: { type: String, trim: true, maxlength: 90 },
         content: { type: String, trim: true, maxlength: 300 },
+        color: { type: String, enum: color },
+        href: { type: String, trim: true, maxlength: 300 },
+        size: { type: String, enum: size },
         flex: { type: String, trim: true, maxlength: 90 },
-        link: { type: String, trim: true, maxlength: 90, },
       },
       typographies: [{
         content: { type: String, trim: true, maxlength: 3000 },
-        kind: { type: String, trim: true, maxlength: 90, enum: typographies },
+        variant: { type: String, enum: typographies },
       }],
       wysiwyg: {
         content: { type: String, trim: true, maxlength: 9000 },
