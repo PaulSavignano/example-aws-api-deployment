@@ -32,8 +32,9 @@ const componentSchema = new Schema({
     link: { type: String, trim: true, maxlength: 300 },
     margin: { type: String, trim: true, maxlength: 90 },
     items: [{
-      kind: { type: String, trim: true, maxlength: 90, enum: items },
       flex: { type: String, trim: true, maxlength: 90 },
+      kind: { type: String, trim: true, maxlength: 90, enum: items },
+      padding: { type: String, trim: true, maxlength: 90 },
       textAlign: { type: String, enum: alignItems },
       iframe: {
         border: { type: String, trim: true, maxlength: 300 },
