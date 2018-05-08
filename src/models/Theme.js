@@ -1,11 +1,21 @@
 import mongoose, { Schema } from 'mongoose'
 
 import { deleteFile } from '../utils/s3'
-import { alignItems, flexFlow, justifyContent, textAlign } from '../utils/fieldOptions'
+import {
+  alignItems,
+  color,
+  flexFlow,
+  justifyContent,
+} from '../utils/fieldOptions'
 
 const themeSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
-  appBar: {
+  header: {
+    actionButton: {
+      children: { type: String, trim: true, maxlength: 300 },
+      color: { type: String, enum: color },
+      href: { type: String, trim: true, maxlength: 300 },
+    },
     backgroundColor: { type: String, trim: true, maxlength: 50, default: '#2196f3' },
     color: { type: String, trim: true, maxlength: 25, default: 'rgb(255, 255, 255)' },
     imageDisplay: { type: Boolean, default: false },
