@@ -8,10 +8,10 @@ const themeSchema = new Schema({
   appBar: {
     backgroundColor: { type: String, trim: true, maxlength: 50, default: '#2196f3' },
     color: { type: String, trim: true, maxlength: 25, default: 'rgb(255, 255, 255)' },
-    imageDisplay: { type: String, enum: ['false', 'true'], default: ['false'], maxlength: 25 },
+    imageDisplay: { type: Boolean, default: false },
     imagePosition: { type: String, enum: ['absolute', 'relative'], default: ['relative'], maxlength: 25 },
     imageWidth: { type: String, trim: true, maxlength: 25 },
-    phoneDisplay: { type: String, enum: ['false', 'true'], default: ['false'], maxlength: 25 },
+    phoneDisplay: { type: Boolean, default: false },
   },
   footer: {
     paper: {

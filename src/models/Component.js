@@ -27,9 +27,8 @@ const componentSchema = new Schema({
     color: { type: String, trim: true, maxlength: 90 },
     flex: { type: String, trim: true, maxlength: 90, default: '1 1 auto' },
     flexFlow: { type: String, enum: flexFlow },
-    hash: { type: String, trim: true, maxlength: 300 },
+    href: { type: String, trim: true, maxlength: 300 },
     justifyContent: { type: String, enum: justifyContent },
-    link: { type: String, trim: true, maxlength: 300 },
     margin: { type: String, trim: true, maxlength: 90 },
     items: [{
       flex: { type: String, trim: true, maxlength: 90 },
