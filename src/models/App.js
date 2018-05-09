@@ -22,6 +22,7 @@ const appSchema = new Schema({
       state: { type: String, trim: true, maxlength: 25, default: 'CA' },
       street: { type: String, trim: true, maxlength: 100, default: '123 Fourth St' },
     },
+    description: { type: String, trim: true, minlength: 1, maxlength: 3000, default: 'Solutions'},
     email: { type: String, trim: true, maxlength: 100, default: 'info@yourapprocks.com' },
     googleAnalyticsUA: { type: String, trim: true, maxlength: 150 },
     image: {
@@ -31,7 +32,6 @@ const appSchema = new Schema({
       margin: { type: String, trim: true, maxlength: 300 },
       src: { type: String, trim: true, maxlength: 900 },
     },
-    keywords: { type: String, trim: true, maxlength: 1000 },
     license: { type: String, trim: true, maxlength: 100 },
     name: {
       fontFamily: {type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },

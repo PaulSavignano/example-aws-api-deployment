@@ -45,6 +45,10 @@ const themeSchema = new Schema({
       alignItems: { type: String, enum: alignItems, default: 'center' },
     }
   },
+  page: {
+    maxWidth: { type: String, trim: true, maxlength: 90, default: '1044px' },
+    padding: { type: String, trim: true, maxlength: 90, default: '32px 0' },
+  },
   palette: {
     common: {
       transparent: { type: String, trim: true, maxlength: 50, default: 'transparent' },
