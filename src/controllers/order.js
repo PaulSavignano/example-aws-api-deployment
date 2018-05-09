@@ -29,7 +29,6 @@ export const add = async (req, res) => {
     },
     appName,
   } = req
-  console.log('fullAddress', fullAddress)
   const hasNewAddress = fullAddress === 'newAddress' ? true : false
   const address = hasNewAddress ?
     await new Address({

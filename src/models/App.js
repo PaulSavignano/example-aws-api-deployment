@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 
+import { deleteFiles } from '../utils/s3'
 import AppPages from './AppPages'
 import Address from './Address'
 import Config from './Config'
@@ -65,7 +66,7 @@ const appSchema = new Schema({
 appSchema.post('remove', function(doc, next) {
   const { business } = doc
   if (business.image && business.image.src) {
-    deleteFiles({ Key: appBar.image.src })
+    deleteFiles({ Key: business.image.src })
     .catch(err => console.error(err))
   }
 

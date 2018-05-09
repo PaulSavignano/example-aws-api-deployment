@@ -111,7 +111,6 @@ export const get = async (req, res) => {
   const {
     appName,
     query: { reviewId },
-    body
   } = req
   const comments = await Comment.find({ appName, review: reviewId })
   return res.send(comments)

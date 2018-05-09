@@ -1,10 +1,6 @@
 import { ObjectID } from 'mongodb'
 
-import { deleteFiles } from '../utils/s3'
-import getTime from '../utils/getTime'
 import AppPages from '../models/AppPages'
-import CustomError from '../utils/CustomError'
-import Page from '../models/Page'
 
 
 
@@ -24,7 +20,6 @@ export const update = async (req, res) => {
     appName,
     params: { _id }
   } = req
-  console.log('updateOrder', _id, appName)
   const appPages = await AppPages.findOneAndUpdate(
     { _id, appName },
     { $set: { pages: pageIds }},
@@ -47,6 +42,6 @@ export const remove = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('Page remove failed, invalid _id')
   const appPages = await AppPages.findOne({ _id, appName })
   if (!appPages) throw Error('Page delete failed, no page found')
-  await page.remove()
+  await appPages.remove()
   return res.send(appPages._id)
 }
