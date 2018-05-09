@@ -24,7 +24,7 @@ const sectionSchema = new Schema({
     maxWidth: { type: String, trim: true, default: '1044px', maxlength: 50 },
     minHeight: { type: String, trim: true, default: '120px', maxlength: 50 },
     hash: { type: String, trim: true, maxlength: 50 },
-    padding: { type: String, trim: true, maxlength: 50, default: '3vw 0' },
+    padding: { type: String, trim: true, maxlength: 50, default: '40px 0' },
     type: { type: String, trim: true, default: 'Flex', enum: [ 'Flex', 'SlideShow', 'Swipeable' ] },
   }
 }, {
