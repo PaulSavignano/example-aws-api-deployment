@@ -71,11 +71,24 @@ export const get = async (req, res) => {
 
 
 
-export const update = async (req, res) => {
+export const updateValues = async (req, res) => {
   const {
     body: { values },
   } = req
   req.user.values = values
+  const user = await req.user.save()
+  return res.send(user)
+}
+
+
+
+
+
+export const updatePassword = async (req, res) => {
+  const {
+    body: { password },
+  } = req
+  req.user.password = password
   const user = await req.user.save()
   return res.send(user)
 }

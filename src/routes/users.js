@@ -13,14 +13,16 @@ import {
   reset,
   signin,
   signout,
-  update,
   updateAddresses,
+  updatePassword,
+  updateValues,
 } from '../controllers/user'
 import {
   adminAdd,
   adminGet,
   adminRemove,
   adminUpdateAddresses,
+  adminUpdatePassword,
   adminUpdateRoles,
   adminUpdateValues,
 } from '../controllers/userAdmin'
@@ -37,11 +39,13 @@ users.delete('/', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(remove
 users.delete('/admin/:_id', authenticate([ 'owner' ]), catchErrors(adminRemove))
 users.get('/', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(get))
 users.get('/admin', authenticate([ 'owner' ]), catchErrors(adminGet))
-users.patch('/', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(update))
-users.patch('/admin/update-addresses/:_id', authenticate(['owner']), catchErrors(adminUpdateAddresses))
-users.patch('/admin/update-roles/:_id', authenticate(['owner']), catchErrors(adminUpdateRoles))
-users.patch('/admin/update-values/:_id', authenticate(['owner']), catchErrors(adminUpdateValues))
-users.patch('/update-addresses', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(updateAddresses))
+users.patch('/', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(updateValues))
+users.patch('/password', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(updatePassword))
+users.patch('/admin/addresses/:_id', authenticate(['owner']), catchErrors(adminUpdateAddresses))
+users.patch('/admin/roles/:_id', authenticate(['owner']), catchErrors(adminUpdateRoles))
+users.patch('/admin/values/:_id', authenticate(['owner']), catchErrors(adminUpdateValues))
+users.patch('/admin/password/:_id', authenticate(['owner']), catchErrors(adminUpdatePassword))
+users.patch('/addresses', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(updateAddresses))
 users.post('/', catchErrors(add))
 users.post('/admin', authenticate([ 'owner' ]), catchErrors(adminAdd))
 users.post('/contact', catchErrors(contact))

@@ -77,6 +77,23 @@ export const adminUpdateValues = async (req, res) => {
 
 
 
+export const adminUpdatePassword = async (req, res) => {
+  const {
+    body: { password },
+    appName,
+    params: { _id },
+  } = req
+  if (!ObjectID.isValid(_id)) throw Error('User update failed, invalid _id')
+  const userDoc = await User.findOne({ _id, appName })
+  if (!userDoc) throw Error('User updated failed, user not found')
+  userDoc.password = password
+  const user = await userDoc.save()
+  return res.send(user)
+}
+
+
+
+
 
 
 export const adminUpdateRoles = async (req, res) => {
