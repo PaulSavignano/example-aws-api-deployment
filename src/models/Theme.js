@@ -1,54 +1,10 @@
 import mongoose, { Schema } from 'mongoose'
 
 import { deleteFile } from '../utils/s3'
-import {
-  alignItems,
-  color,
-  flexFlow,
-  justifyContent,
-} from '../utils/fieldOptions'
+
 
 const themeSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
-  header: {
-    actionButton: {
-      children: { type: String, trim: true, maxlength: 300 },
-      color: { type: String, enum: color },
-      href: { type: String, trim: true, maxlength: 300 },
-    },
-    backgroundColor: { type: String, trim: true, maxlength: 50, default: '#2196f3' },
-    color: { type: String, trim: true, maxlength: 25, default: 'rgb(255, 255, 255)' },
-    imageDisplay: { type: Boolean, default: false },
-    imagePosition: { type: String, enum: ['absolute', 'relative'], default: ['relative'], maxlength: 25 },
-    imageWidth: { type: String, trim: true, maxlength: 25 },
-    phoneDisplay: { type: Boolean, default: false },
-  },
-  footer: {
-    paper: {
-      alignItems: { type: String, enum: alignItems, default: 'center' },
-      backgroundColor: { type: String, trim: true, maxlength: 50, default: '#2196f3' },
-      borderBottom: { type: String, trim: true, maxlength: 50 },
-      borderTop: { type: String, trim: true, maxlength: 50 },
-      boxShadow: { type: String, trim: true, maxlength: 100 },
-      flexFlow: { type: String, enum: flexFlow },
-      justifyContent: { type: String, enum: justifyContent, default: 'center' },
-    },
-    image: {
-      border: { type: String, trim: true, maxlength: 300 },
-      borderRadius: { type: String, trim: true, maxlength: 300 },
-      elevation: { type: Number, trim: true, max: 24, min: 0 },
-      margin: { type: String, trim: true, maxlength: 300 },
-      src: { type: String, trim: true, maxlength: 900 },
-    },
-    text: {
-      color: { type: String, trim: true, maxlength: 50, default: '#ffffff' },
-      alignItems: { type: String, enum: alignItems, default: 'center' },
-    }
-  },
-  page: {
-    maxWidth: { type: String, trim: true, maxlength: 90, default: '1044px' },
-    padding: { type: String, trim: true, maxlength: 90, default: '32px 0' },
-  },
   palette: {
     common: {
       transparent: { type: String, trim: true, maxlength: 50, default: 'transparent' },

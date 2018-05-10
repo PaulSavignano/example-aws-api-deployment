@@ -1,6 +1,12 @@
 import mongoose, { Schema } from 'mongoose'
 
 import { deleteFiles } from '../utils/s3'
+import {
+  alignItems,
+  color,
+  flexFlow,
+  justifyContent,
+} from '../utils/fieldOptions'
 import AppPages from './AppPages'
 import Address from './Address'
 import Config from './Config'
@@ -35,12 +41,12 @@ const appSchema = new Schema({
     },
     license: { type: String, trim: true, maxlength: 100 },
     name: {
-      fontFamily: {type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
-      fontSize: {type: String, trim: true, maxlength: 100, default: '1.3125rem' },
-      fontWeight: {type: String, trim: true, maxlength: 100, default: '500' },
-      letterSpacing: {type: String, trim: true, maxlength: 100, default: '1px' },
-      text: {type: String, trim: true, maxlength: 100, default: 'App' },
-      textShadow: {type: String, trim: true, maxlength: 100 },
+      fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
+      fontSize: { type: String, trim: true, maxlength: 100, default: '1.3125rem' },
+      fontWeight: { type: String, trim: true, maxlength: 100, default: '500' },
+      letterSpacing: { type: String, trim: true, maxlength: 100, default: '1px' },
+      text: { type: String, trim: true, maxlength: 100, default: 'App' },
+      textShadow: { type: String, trim: true, maxlength: 100 },
     },
     phone: { type: String, trim: true, maxlength: 50, default: '(123) 456-7899' },
     phoneStyle: { type: String, trim: true, maxlength: 1000 },
@@ -49,6 +55,45 @@ const appSchema = new Schema({
   },
   hasBlogs: { Type: Boolean, default: false },
   hasProducts: { Type: Boolean, default: false },
+  header: {
+    actionButton: {
+      children: { type: String, trim: true, maxlength: 300 },
+      color: { type: String, enum: color },
+      href: { type: String, trim: true, maxlength: 300 },
+    },
+    backgroundColor: { type: String, trim: true, maxlength: 50, default: '#2196f3' },
+    color: { type: String, trim: true, maxlength: 25, default: 'rgb(255, 255, 255)' },
+    imageDisplay: { type: Boolean, default: false },
+    imagePosition: { type: String, enum: ['absolute', 'relative'], default: ['relative'], maxlength: 25 },
+    imageWidth: { type: String, trim: true, maxlength: 25 },
+    phoneDisplay: { type: Boolean, default: false },
+  },
+  footer: {
+    paper: {
+      alignItems: { type: String, enum: alignItems, default: 'center' },
+      backgroundColor: { type: String, trim: true, maxlength: 50, default: '#2196f3' },
+      borderBottom: { type: String, trim: true, maxlength: 50 },
+      borderTop: { type: String, trim: true, maxlength: 50 },
+      boxShadow: { type: String, trim: true, maxlength: 100 },
+      flexFlow: { type: String, enum: flexFlow },
+      justifyContent: { type: String, enum: justifyContent, default: 'center' },
+    },
+    image: {
+      border: { type: String, trim: true, maxlength: 300 },
+      borderRadius: { type: String, trim: true, maxlength: 300 },
+      elevation: { type: Number, trim: true, max: 24, min: 0 },
+      margin: { type: String, trim: true, maxlength: 300 },
+      src: { type: String, trim: true, maxlength: 900 },
+    },
+    text: {
+      color: { type: String, trim: true, maxlength: 50, default: '#ffffff' },
+      alignItems: { type: String, enum: alignItems, default: 'center' },
+    }
+  },
+  page: {
+    maxWidth: { type: String, trim: true, maxlength: 90, default: '1044px' },
+    padding: { type: String, trim: true, maxlength: 90, default: '32px 0' },
+  },
   socialMedia: {
     facebook: { type: String, trim: true, maxlength: 150 },
     github: { type: String, trim: true, maxlength: 150 },
