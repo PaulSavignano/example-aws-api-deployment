@@ -111,7 +111,24 @@ const sendGmail = async (props) => {
       </html>
     `)
 
-    if (toEmail) {
+    if (toEmail && adminSubject) {
+      const userMail = {
+        from: gmailUser,
+        to: toEmail,
+        subject: toSubject,
+        html: emailTemplate(toBody)
+      }
+      const userEmailPromise = transporter.sendMail(userMail)
+
+      const adminMail = {
+        from: gmailUser,
+        to: gmailUser,
+        subject: adminSubject,
+        html: emailTemplate(adminBody)
+      }
+      const adminEmailPromise = transporter.sendMail(adminMail)
+      const [ userEmail, adminEmail ] = await Promise.all([ userEmailPromise, adminEmailPromise ])
+    } else if (userEmail) {
       const userMail = {
         from: gmailUser,
         to: toEmail,
@@ -119,10 +136,7 @@ const sendGmail = async (props) => {
         html: emailTemplate(toBody)
       }
       const userEmail = await transporter.sendMail(userMail)
-      console.info('send email success! ', userEmail)
-    }
-
-    if (adminSubject) {
+    } else if (adminSubject) {
       const adminMail = {
         from: gmailUser,
         to: gmailUser,
@@ -130,7 +144,6 @@ const sendGmail = async (props) => {
         html: emailTemplate(adminBody)
       }
       const adminEmail = await transporter.sendMail(adminMail)
-      console.info('send admin email success! ', adminEmail)
     }
     return
   } catch (error) {

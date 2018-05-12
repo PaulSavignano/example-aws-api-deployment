@@ -1,9 +1,8 @@
 import { ObjectID } from 'mongodb'
 
-import { deleteFiles } from '../utils/s3'
+import { deleteFiles, uploadFile } from '../utils/s3'
 import Component from '../models/Component'
 import getTime from '../utils/getTime'
-import handleImage from '../utils/handleImage'
 import handleItemImages from '../utils/handleItemImages'
 import Section from '../models/Section'
 
@@ -21,11 +20,14 @@ export const add = async (req, res) => {
     appName
   } = req
   const _id = new ObjectID()
-  const backgroundImage = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
-    backgroundImage: await handleImage({
-      path: `${appName}/page-${pageSlug}/component-${_id}-${kind}-background-image_${getTime()}.${values.backgroundImage.ext}`,
-      image: values.backgroundImage,
-    })
+  const backgroundImage = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.includes('data') ? {
+    backgroundImage: {
+      ...values.backgroundImage,
+      src: await uploadFile({
+        Key: `${appName}/page-${pageSlug}/component-${_id}-${kind}-background-image_${getTime()}.${values.backgroundImage.ext}`,
+        Body: new Buffer(values.backgroundImage.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+      })
+    }
   } : {}
   // handle items array and check for images that have a data prefix
   const items = values.items && {
@@ -35,7 +37,6 @@ export const add = async (req, res) => {
       items: values.items,
       kind,
       pageSlug,
-      imageType: 'image',
     })
   }
 
@@ -98,11 +99,14 @@ export const update = async (req, res) => {
   oldSrcs.length && await deleteFiles(oldSrcs)
 
   // handle new background image
-  const backgroundImage = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
-    backgroundImage: await handleImage({
-      path: `${appName}/page-${pageSlug}/component-${_id}-${kind}-background-image_${getTime()}.${values.backgroundImage.ext}`,
-      image: values.backgroundImage,
-    })
+  const backgroundImage = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.includes('data') ? {
+    backgroundImage: {
+      ...values.backgroundImage,
+      src: await uploadFile({
+        Key: `${appName}/page-${pageSlug}/component-${_id}-${kind}-background-image_${getTime()}.${values.backgroundImage.ext}`,
+        Body: new Buffer(values.backgroundImage.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+      })
+    }
   } : {}
 
   // handle items array, check for images that have a data prefix
@@ -113,7 +117,6 @@ export const update = async (req, res) => {
       items: values.items,
       kind,
       pageSlug,
-      imageType: 'image',
     })
   }
 

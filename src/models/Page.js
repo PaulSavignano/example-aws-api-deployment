@@ -10,13 +10,15 @@ const pageSchema = new Schema({
   url: { type: String, trim: true, maxlength: 90 },
   name: { type: String, trim: true, minlength: 1, maxlength: 100 },
   values: {
-    backgroundColor: { type: String, trim: true, maxlength: 50 },
     backgroundImage: {
-      src: { type: String, trim: true, maxlength: 50 },
+      src: { type: String, trim: true, maxlength: 90 },
       backgroundPosition: { type: String, trim: true, maxlength: 50 },
     },
     description: { type: String, trim: true, minlength: 1, maxlength: 1000},
-  },
+    style: {
+      backgroundColor: { type: String, trim: true, maxlength: 50 },
+    }
+  }
 }, {
   timestamps: true
 })
@@ -24,17 +26,21 @@ const pageSchema = new Schema({
 
 pageSchema.post('remove', async function(doc, next) {
   try {
-    if (doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src) {
-      await deleteFiles([{ Key: doc.values.backgroundImage.src }])
+    if (doc.values && doc.values.style && doc.values.style.backgroundImage) {
+      await deleteFiles([{ Key: doc.values.style.backgroundImage }])
     }
     if (doc.sections.length > 0) {
-      doc.sections.forEach(async (section) => await Section.findOne({ _id: section })
-      .then(section => section.remove()))
-      .catch(error => Promise.reject(error))
+      doc.sections.forEach(async (section) => {
+        const secDoc = await Section.findOne({ _id: section })
+        await secDoc.remove()
+      })
+      .catch(error => {
+        throw Error(error)
+      })
     }
     next()
   } catch (error) {
-    throw Error(error)
+    next(error)
   }
 })
 

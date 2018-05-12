@@ -14,18 +14,22 @@ const productSchema = new Schema({
     description: { type: String, minlength: 1, trim: true, maxlength: 500 },
     detail: { type: String, minlength: 1, trim: true, maxlength: 1000 },
     iframe: {
-      border: { type: String, trim: true, maxlength: 25 },
-      borderRadius: { type: String, trim: true, maxlength: 25 },
       elevation: { type: Number, trim: true, max: 25, min: 0 },
-      flex: { type: String, trim: true, maxlength: 100 },
       src: { type: String, trim: true, maxlength: 500 },
+      style: {
+        border: { type: String, trim: true, maxlength: 25 },
+        borderRadius: { type: String, trim: true, maxlength: 25 },
+        flex: { type: String, trim: true, maxlength: 100 },
+      }
     },
     image: {
-      border: { type: String, trim: true, maxlength: 25 },
-      borderRadius: { type: String, trim: true, maxlength: 25 },
       elevation: { type: Number, trim: true, max: 25, min: 0 },
-      flex: { type: String, trim: true, maxlength: 100 },
       src: { type: String, trim: true, maxlength: 500 },
+      style: {
+        border: { type: String, trim: true, maxlength: 25 },
+        borderRadius: { type: String, trim: true, maxlength: 25 },
+        flex: { type: String, trim: true, maxlength: 100 },
+      }
     },
     name: { type: String, minlength: 1, trim: true, maxlength: 50 },
     price: { type: Number, default: 0 , max: 100000, min: 0 },

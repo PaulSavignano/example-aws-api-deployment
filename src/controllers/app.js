@@ -1,12 +1,11 @@
 import { ObjectID } from 'mongodb'
 
-import { deleteFiles } from '../utils/s3'
+import { deleteFiles, uploadFile } from '../utils/s3'
 import getTime from '../utils/getTime'
 import App from '../models/App'
 import AppPages from '../models/AppPages'
 import Blog from '../models/Blog'
 import Config from '../models/Config'
-import handleImage from '../utils/handleImage'
 import Page from '../models/Page'
 import Product from '../models/Product'
 import Theme from '../models/Theme'
@@ -72,10 +71,13 @@ export const update = async (req, res) => {
 
   const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
-    image: await handleImage({
-      path: `${appName}/${appKey}-image_${getTime()}.${values.image.ext}`,
-      image: values.image,
-    })
+    image: {
+      style: { ...values.style },
+      src: await uploadFile({
+        Key: `${appName}/${appKey}-image_${getTime()}.${values.image.ext}`,
+        Body: new Buffer(values.image.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+      })
+    }
   } : values
 
   if (appKey) {

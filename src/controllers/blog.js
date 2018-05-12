@@ -1,10 +1,9 @@
 import { ObjectID } from 'mongodb'
 
-import { deleteFiles } from '../utils/s3'
+import { deleteFiles, uploadFile } from '../utils/s3'
 import getSlug from '../utils/getSlug'
 import getTime from '../utils/getTime'
 import Blog from '../models/Blog'
-import handleImage from '../utils/handleImage'
 import getQuery from '../utils/getQuery'
 import getCursorSort from '../utils/getCursorSort'
 
@@ -19,10 +18,13 @@ export const add = async (req, res) => {
 
   const valuesWithNewImage = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
-    image: await handleImage({
-      path: `${appName}/blogs/${getSlug(values.title)}-${_id}-image_${getTime()}.${values.image.ext}`,
-      image: values.image,
-    })
+    image: {
+      style: { ...values.image.style },
+      src: await uploadFile({
+        Key: `${appName}/blogs/${getSlug(values.title)}-${_id}-image_${getTime()}.${values.image.ext}`,
+        Body: new Buffer(values.image.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+      })
+    }
   } : null
 
   const newValues = valuesWithNewImage ? valuesWithNewImage : values
@@ -123,10 +125,13 @@ export const update = async (req, res) => {
   oldSrcs && oldSrcs.length && await deleteFiles(oldSrcs)
   const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
-    image: await handleImage({
-      path: `${appName}/blogs/${getSlug(values.title)}-${_id}-image_${getTime()}.${values.image.ext}`,
-      image: values.image,
-    })
+    image: {
+      style: { ...values.image.style },
+      src: await uploadFile({
+        Key: `${appName}/blogs/${getSlug(values.title)}-${_id}-image_${getTime()}.${values.image.ext}`,
+        Body: new Buffer(values.image.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+      })
+    }
   } : values
 
   const set = values ? { values: valuesUpdate } : typeof published === 'undefined' ? null : { published }

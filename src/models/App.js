@@ -33,20 +33,25 @@ const appSchema = new Schema({
     email: { type: String, trim: true, maxlength: 100, default: 'info@yourapprocks.com' },
     googleAnalyticsUA: { type: String, trim: true, maxlength: 150 },
     image: {
-      border: { type: String, trim: true, maxlength: 300 },
-      borderRadius: { type: String, trim: true, maxlength: 300 },
       elevation: { type: Number, trim: true, max: 24, min: 0 },
-      margin: { type: String, trim: true, maxlength: 300 },
       src: { type: String, trim: true, maxlength: 900 },
+      style: {
+        border: { type: String, trim: true, maxlength: 300 },
+        borderRadius: { type: String, trim: true, maxlength: 300 },
+        margin: { type: String, trim: true, maxlength: 300 },
+      }
     },
     license: { type: String, trim: true, maxlength: 100 },
     name: {
-      fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
-      fontSize: { type: String, trim: true, maxlength: 100, default: '1.3125rem' },
-      fontWeight: { type: String, trim: true, maxlength: 100, default: '500' },
-      letterSpacing: { type: String, trim: true, maxlength: 100, default: '1px' },
-      text: { type: String, trim: true, maxlength: 100, default: 'App' },
-      textShadow: { type: String, trim: true, maxlength: 100 },
+      children: { type: String, trim: true, maxlength: 100, default: 'App' },
+      style: {
+        color: { type: String, trim: true, maxlength: 100 },
+        fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
+        fontSize: { type: String, trim: true, maxlength: 100, default: '1.3125rem' },
+        fontWeight: { type: String, trim: true, maxlength: 100, default: '500' },
+        letterSpacing: { type: String, trim: true, maxlength: 100, default: '1px' },
+        textShadow: { type: String, trim: true, maxlength: 100 },
+      },
     },
     phone: { type: String, trim: true, maxlength: 50, default: '(123) 456-7899' },
     phoneStyle: { type: String, trim: true, maxlength: 1000 },
@@ -61,12 +66,15 @@ const appSchema = new Schema({
       color: { type: String, enum: color },
       href: { type: String, trim: true, maxlength: 300 },
     },
-    backgroundColor: { type: String, trim: true, maxlength: 50, default: '#2196f3' },
-    color: { type: String, trim: true, maxlength: 25, default: 'rgb(255, 255, 255)' },
     imageDisplay: { type: Boolean, default: false },
     imagePosition: { type: String, enum: ['absolute', 'relative'], default: ['relative'], maxlength: 25 },
     imageWidth: { type: Number, min: 0, max: 9000 },
+    nameDisplay: { type: Boolean, default: true },
     phoneDisplay: { type: Boolean, default: false },
+    style: {
+      backgroundColor: { type: String, trim: true, maxlength: 50, default: '#2196f3' },
+      color: { type: String, trim: true, maxlength: 25, default: 'rgb(255, 255, 255)' },
+    },
   },
   footer: {
     paper: {
@@ -79,10 +87,12 @@ const appSchema = new Schema({
       justifyContent: { type: String, enum: justifyContent, default: 'center' },
     },
     image: {
-      border: { type: String, trim: true, maxlength: 300 },
-      borderRadius: { type: String, trim: true, maxlength: 300 },
+      style: {
+        border: { type: String, trim: true, maxlength: 300 },
+        borderRadius: { type: String, trim: true, maxlength: 300 },
+        margin: { type: String, trim: true, maxlength: 300 },
+      },
       elevation: { type: Number, trim: true, max: 24, min: 0 },
-      margin: { type: String, trim: true, maxlength: 300 },
       src: { type: String, trim: true, maxlength: 900 },
     },
     text: {

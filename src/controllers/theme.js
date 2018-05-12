@@ -1,10 +1,6 @@
 import { ObjectID } from 'mongodb'
 
-import getTime from '../utils/getTime'
-import { deleteFiles } from '../utils/s3'
-import handleImage from '../utils/handleImage'
 import Theme from '../models/Theme'
-
 
 
 export const add = async (req, res) => {
@@ -31,7 +27,6 @@ export const get = async (req, res) => {
 export const update = async (req, res) => {
   const {
     body: {
-      oldImageSrc,
       themeItem,
       themeItemChild,
       values,
@@ -40,16 +35,6 @@ export const update = async (req, res) => {
     params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Theme update failed, invalid _id')
-  oldImageSrc && await deleteFiles([{ Key: oldImageSrc }])
-
-  const valuesWithNewImage = values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
-    ...values,
-    image: await handleImage({
-      path: `${appName}/${themeItem}-image_${getTime()}.${values.image.ext}`,
-      image: values.image,
-    })
-  } : null
-  const newValues = valuesWithNewImage ? valuesWithNewImage : values
 
   if (themeItemChild === 'general') {
     const {
@@ -77,13 +62,13 @@ export const update = async (req, res) => {
     return res.send(theme)
   } else if (themeItemChild)  {
     const set = { $set: {}}
-    set.$set[themeItem + "." + themeItemChild] = newValues
+    set.$set[themeItem + "." + themeItemChild] = values
     const theme = await Theme.findOneAndUpdate({ _id, appName }, set,{ new: true })
     if (!theme) throw Error(`Theme update ${themeItem} ${themeItemChild} failed`)
     return res.send(theme)
   } else {
     const set = { $set: {}}
-    set.$set[themeItem] = newValues
+    set.$set[themeItem] = values
     const theme = await Theme.findOneAndUpdate({ _id, appName }, set, { new: true })
     if (!theme) throw Error(`Theme update ${themeItem} failed`)
     return res.send(theme)

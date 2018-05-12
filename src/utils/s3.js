@@ -10,31 +10,28 @@ AWS.config.update({
 
 const Bucket = process.env.AWS_S3_BUCKET
 
-export const uploadFile = ({ Key, src, oldSrc }) => {
+
+
+export const uploadFile = ({ Key, Body }) => {
   const params = {
     ACL: 'public-read',
-    Body: new Buffer(src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+    Body,
     Bucket,
     Key,
   }
-  if (oldSrc) s3.deleteObject({ Bucket, Key: oldSrc }).promise()
-  .then(deleteData => {
-    console.info('s3 uploadFile deleteFile oldImage success!: ', deleteData)
-    return deleteData
-  })
-  .catch(error => {
-    console.error('s3 uploadFile deleteFile oldImage error: ', error)
-  })
   return s3.upload(params).promise()
   .then(data => {
-    console.info('s3 uploadFile success!: ', data)
-    return data
+    console.info('s3 uploadImage success!: ', data)
+    return Key
   })
   .catch(error => {
-    console.error('s3 uploadFile error: ', error)
+    console.error('s3 uploadImage error: ', error)
     return Promise.reject(error)
   })
 }
+
+
+
 
 export const deleteFile = ({ Key }) => {
   const params = { Bucket, Key }
@@ -48,6 +45,9 @@ export const deleteFile = ({ Key }) => {
     return Promise.reject(error)
   })
 }
+
+
+
 
 
 export const deleteFiles = (objects) => {

@@ -1,10 +1,9 @@
 import { ObjectID } from 'mongodb'
 
-import { deleteFiles } from '../utils/s3'
+import { deleteFiles, uploadFile } from '../utils/s3'
 import getTime from '../utils/getTime'
 import AppPages from '../models/AppPages'
 import CustomError from '../utils/CustomError'
-import handleImage from '../utils/handleImage'
 import Page from '../models/Page'
 import getSlug from '../utils/getSlug'
 
@@ -63,12 +62,15 @@ export const update = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('Page update failed, invalid _id')
   oldSrcs.length && await deleteFiles(oldSrcs)
 
-  const valuesUpdate = values && values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
+  const valuesUpdate = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.includes('data') ? {
     ...values,
-    backgroundImage: await handleImage({
-      path: `${appName}/page-${pageSlug}/page-${_id}-background-image_${getTime()}.${values.backgroundImage.ext}`,
-      image: values.backgroundImage,
-    })
+    backgroundImage: {
+      ...values.backgroundImage,
+      src: await uploadFile({
+        Key: `${appName}/page-${pageSlug}/page-${_id}-background-image_${getTime()}.${values.backgroundImage.ext}`,
+        Body: new Buffer(values.backgroundImage.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+      })
+    }
   } : values
 
   const page = await Page.findOneAndUpdate(

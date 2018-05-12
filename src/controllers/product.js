@@ -1,8 +1,7 @@
 import { ObjectID } from 'mongodb'
 
-import { deleteFiles } from '../utils/s3'
+import { deleteFiles, uploadFile } from '../utils/s3'
 import getTime from '../utils/getTime'
-import handleImage from '../utils/handleImage'
 import Product from '../models/Product'
 import getSlug from '../utils/getSlug'
 import getQuery from '../utils/getQuery'
@@ -19,10 +18,13 @@ export const add = async (req, res) => {
   // handle new background image and return object
   const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
-    image: await handleImage({
-      path: `${appName}/products/${getSlug(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
-      image: values.image,
-    })
+    image: {
+      style: { ...values.image.style },
+      src: await uploadFile({
+        Key: `${appName}/products/${getSlug(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
+        Body: new Buffer(values.image.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+      })
+    }
   } : values
 
   const product = await new Product({
@@ -123,10 +125,13 @@ export const update = async (req, res) => {
   oldSrcs && oldSrcs.length && await deleteFiles(oldSrcs)
   const valuesUpdate = values && values.image && values.image.src && values.image.src.indexOf('data') !== -1 ? {
     ...values,
-    image: await handleImage({
-      path: `${appName}/products/${getSlug(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
-      image: values.image,
-    })
+    image: {
+      style: { ...values.image.style },
+      src: await uploadFile({
+        Key: `${appName}/products/${getSlug(values.name)}-${_id}-image_${getTime()}.${values.image.ext}`,
+        Body: new Buffer(values.image.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+      })
+    }
   } : values
 
   const set = values ? { values: valuesUpdate } : typeof published === 'undefined' ? null : { published }

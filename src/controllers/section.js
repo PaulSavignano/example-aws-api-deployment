@@ -1,8 +1,7 @@
 import { ObjectID } from 'mongodb'
 
-import { deleteFiles } from '../utils/s3'
+import { deleteFiles, uploadFile } from '../utils/s3'
 import getTime from '../utils/getTime'
-import handleImage from '../utils/handleImage'
 import Page from '../models/Page'
 import Section from '../models/Section'
 
@@ -15,12 +14,15 @@ export const add = async (req, res) => {
   } = req
   const _id = new ObjectID()
 
-  const newImageValues = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
+  const newImageValues = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.includes('data') ? {
     ...values,
-    backgroundImage: await handleImage({
-      path: `${appName}/page-${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
-      image: values.backgroundImage,
-    })
+    backgroundImage: {
+      ...values.backgroundImage,
+      src: await uploadFile({
+        Key: `${appName}/page-${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
+        Body: new Buffer(values.backgroundImage.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+      })
+    }
   } : null
 
   const newValues = newImageValues ? newImageValues : values
@@ -74,12 +76,15 @@ export const update = async (req, res) => {
   oldSrcs.length && await deleteFiles(oldSrcs)
 
   // handle new background image
-  const newImageValues = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.indexOf('data') !== -1 ? {
+  const newImageValues = values.backgroundImage && values.backgroundImage.src && values.backgroundImage.src.includes('data') ? {
     ...values,
-    backgroundImage: await handleImage({
-      path: `${appName}/page-${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
-      image: values.backgroundImage,
-    })
+    backgroundImage: {
+      ...values.backgroundImage,
+      src: await uploadFile({
+        Key: `${appName}/page-${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
+        Body: new Buffer(values.backgroundImage.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+      })
+    }
   } : null
 
   const newValues = newImageValues ? newImageValues : values
