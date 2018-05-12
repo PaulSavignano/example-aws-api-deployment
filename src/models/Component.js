@@ -88,8 +88,8 @@ const componentSchema = new Schema({
 })
 
 componentSchema.index({
-  'values.items.typographies.content': 'text',
-  'values.items.wysiwyg.content': 'text'
+  'values.items.typographies.children': 'text',
+  'values.items.wysiwyg.children': 'text'
 }, {
   name: 'component'
 })

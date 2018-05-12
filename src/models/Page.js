@@ -26,17 +26,13 @@ const pageSchema = new Schema({
 
 pageSchema.post('remove', async function(doc, next) {
   try {
-    if (doc.values && doc.values.style && doc.values.style.backgroundImage) {
-      await deleteFiles([{ Key: doc.values.style.backgroundImage }])
+    if (doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src) {
+      await deleteFiles([{ Key: doc.values.backgroundImage.src }])
     }
     if (doc.sections.length > 0) {
-      doc.sections.forEach(async (section) => {
-        const secDoc = await Section.findOne({ _id: section })
-        await secDoc.remove()
-      })
-      .catch(error => {
-        throw Error(error)
-      })
+      Section.find({ _id: { $in: doc.sections }})
+      .then(items => items.forEach(item => item.remove()))
+      .catch(error => Promise.reject(error))
     }
     next()
   } catch (error) {

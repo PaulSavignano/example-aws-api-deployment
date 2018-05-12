@@ -126,7 +126,7 @@ appSchema.post('remove', function(doc, next) {
   }
 
   AppPages.find({ appName: doc.appName })
-  .then(items => items.length && items.forEach(item => item.remove()))
+  .then(doc => doc.remove())
   .catch(error => console.error(error))
 
   Address.deleteMany({ appName: doc.appName }).then(deletes => console.info('Address deleteMany', deletes)).catch(error => console.error(error))

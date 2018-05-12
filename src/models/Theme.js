@@ -7,11 +7,8 @@ const themeSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
   palette: {
     common: {
-      transparent: { type: String, trim: true, maxlength: 50, default: 'transparent' },
       black: { type: String, trim: true, maxlength: 50, default: '#000' },
-      fullBlack: { type: String, trim: true, maxlength: 50, default: 'rgba(0,0,0,1)' },
       white: { type: String, trim: true, maxlength: 50, default: '#fff' },
-      fullWhite: { type: String, trim: true, maxlength: 50, default: 'rgba(255,255,255,1)' },
     },
     primary: {
       light: { type: String, trim: true, maxlength: 50, default: '#7986cb' },

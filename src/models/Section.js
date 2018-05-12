@@ -35,15 +35,13 @@ const sectionSchema = new Schema({
 
 sectionSchema.post('remove', async function(doc, next) {
   try {
-    if (doc.values && doc.values.style && doc.values.style.backgroundImage) {
-      await deleteFiles([{ Key: doc.values.style.backgroundImage }])
+    if (doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src) {
+      await deleteFiles([{ Key: doc.values.backgroundImage.src }])
     }
     if (doc.components.length > 0) {
-      doc.components.forEach((component) => {
-        return Component.findOne({ _id: component })
-        .then(component => component.remove())
-        .catch(error => Promise.reject(error))
-      })
+      Component.find({ _id: { $in: doc.components }})
+      .then(items => items.forEach(item => item.remove()))
+      .catch(error => Promise.reject(error))
     }
     next()
   } catch (error) {
