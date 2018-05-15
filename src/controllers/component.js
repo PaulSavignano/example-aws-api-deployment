@@ -143,6 +143,35 @@ export const update = async (req, res) => {
 
 
 
+
+
+export const updateItemOrder = async (req, res) => {
+  const {
+    body: { items },
+    appName,
+    params: { _id }
+  } = req
+  console.log('items!', items)
+  const component = await Component.findOneAndUpdate(
+    { _id, appName },
+    { $set: { 'values.items': items }},
+    { new: true }
+  )
+  console.log('component', component.values.items)
+  if (!component) throw Error('Component item order update error')
+  return res.send(component)
+}
+
+
+
+
+
+
+
+
+
+
+
 export const remove = async (req, res) => {
   const {
     appName,

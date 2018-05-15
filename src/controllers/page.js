@@ -124,7 +124,7 @@ export const updateOrder = async (req, res) => {
     { $set: { pages: pageIds }},
     { new: true }
   )
-  if (!appPages) throw Error('Brand set pages failed')
+  if (!appPages) throw Error('Page update section order error')
   return res.send(appPages.pages)
 }
 

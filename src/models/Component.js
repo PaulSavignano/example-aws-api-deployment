@@ -32,7 +32,6 @@ const componentSchema = new Schema({
           border: { type: String, trim: true, maxlength: 300 },
           borderRadius: { type: String, trim: true, maxlength: 300 },
           flex: { type: String, trim: true, maxlength: 300 },
-          default: {},
         },
       },
       image: {
@@ -43,7 +42,6 @@ const componentSchema = new Schema({
           borderRadius: { type: String, trim: true, maxlength: 300 },
           flex: { type: String, trim: true, maxlength: 90 },
           margin: { type: String, trim: true, maxlength: 90 },
-          default: {},
         }
       },
       button: {
@@ -53,7 +51,6 @@ const componentSchema = new Schema({
         size: { type: String, enum: size },
         style: {
           flex: { type: String, trim: true, maxlength: 90 },
-          default: {},
         },
       },
       typographies: [{
@@ -65,8 +62,12 @@ const componentSchema = new Schema({
         style: {
           flex: { type: String, trim: true, maxlength: 90 },
           padding: { type: String, trim: true, maxlength: 90 },
-          default: {}
         }
+      },
+      style: {
+        color: { type: String, trim: true, maxlength: 90 },
+        flex: { type: String, trim: true, maxlength: 90 },
+        textAlign: { type: String, enum: alignItems },
       },
     }],
     style: {
@@ -79,11 +80,9 @@ const componentSchema = new Schema({
       margin: { type: String, trim: true, maxlength: 90 },
       padding: { type: String, trim: true, maxlength: 90 },
       textAlign: { type: String, enum: alignItems },
-      default: {}
     },
   }
 }, {
-  minimize: false,
   timestamps: true
 })
 

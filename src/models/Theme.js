@@ -11,9 +11,9 @@ const themeSchema = new Schema({
       white: { type: String, trim: true, maxlength: 50, default: '#fff' },
     },
     primary: {
-      light: { type: String, trim: true, maxlength: 50, default: '#7986cb' },
-      main: { type: String, trim: true, maxlength: 50, default: '#3f51b5', },
-      dark: { type: String, trim: true, maxlength: 50, default: '#303f9f' },
+      light: { type: String, trim: true, maxlength: 50, default: '#6ec6ff' },
+      main: { type: String, trim: true, maxlength: 50, default: '#2196f3', },
+      dark: { type: String, trim: true, maxlength: 50, default: '#0069c0' },
       contrastText: { type: String, trim: true, maxlength: 50, default: 'rgba(255, 255, 255, 1)' }
     },
     secondary: {
