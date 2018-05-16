@@ -97,7 +97,7 @@ export const add = async (req, res) => {
   res.send(response)
 
   const htmlOrder = `
-    <div style="font-weight: 900">Order Summary</div>
+    <h3>Order Summary</h3>
     <div>Order: ${order._id}</div>
     <div>Total: ${formatPrice(order.cart.total)}</div>
     <div>Quantity: ${order.cart.quantity}</div>
@@ -110,11 +110,12 @@ export const add = async (req, res) => {
         `)
       )}
     </ol>
-    <div style="font-weight: 900">Delivery Summary</div>
+    <br/>
+    <h3>Delivery Summary</h3>
     <div>${name}</div>
     <div>${phone}</div>
     <div>${street}</div>
-    <div>${city}, ${state} ${zip}</div>
+    <div class="gutterBottom">${city}, ${state} ${zip}</div>
   `
 
 
@@ -125,11 +126,13 @@ export const add = async (req, res) => {
     toBody: `
       <p>Hi ${user.values.firstName},</p>
       <p>Thank you for your recent order ${order._id}.  We are preparing your order for delivery and will send you a confirmation once it has shipped.  Please don't hesitate to reach out regarding anything we can with in the interim.</p>
+      <br/>
       ${htmlOrder}
     `,
     adminSubject: `New order received!`,
     adminBody: `
       <p>${user.values.firstName} ${user.values.lastName} just placed order an order!</p>
+      <br/>
       ${htmlOrder}
       <p>Once shipped, you can mark the item as shipped in at <a href="${appName}/admin/orders">${appName}/admin/orders</a> to send confirmation to ${user.values.firstName}.</p>
     `
@@ -430,7 +433,7 @@ export const update = async (req, res) => {
       adminSubject: `Order shipped!`,
       adminBody: `
         <p>Order ${order._id} has been changed to shipped!</p>
-        <div>Order: ${order._id}</div>
+        <h3>Order: ${order._id}</h3>
         <div>Total: ${formatPrice(order.cart.total)}</div>
         <div>Quantity: ${order.cart.quantity}</div>
         <div>Items:</div>
@@ -443,11 +446,11 @@ export const update = async (req, res) => {
             `
           )}
         </ul>
-        <div>Address:</div>
+        <h3>Address:</h3>
         <div>${name}</div>
         <div>${phone}</div>
         <div>${street}</div>
-        <div>${city}, ${state} ${zip}</div>
+        <div class="gutterBottom">${city}, ${state} ${zip}</div>
       `
     })
   }
