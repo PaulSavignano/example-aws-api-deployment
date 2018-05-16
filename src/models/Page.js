@@ -24,20 +24,16 @@ const pageSchema = new Schema({
 })
 
 
-pageSchema.post('remove', async function(doc, next) {
-  try {
-    if (doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src) {
-      await deleteFiles([{ Key: doc.values.backgroundImage.src }])
-    }
-    if (doc.sections.length > 0) {
-      Section.find({ _id: { $in: doc.sections }})
-      .then(items => items.forEach(item => item.remove()))
-      .catch(error => Promise.reject(error))
-    }
-    next()
-  } catch (error) {
-    next(error)
+pageSchema.post('remove', function(doc, next) {
+  if (doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src) {
+    deleteFiles([{ Key: doc.values.backgroundImage.src }]).catch(error => console.error(error))
   }
+  if (doc.sections.length > 0) {
+    Section.find({ _id: { $in: doc.sections }})
+    .then(items => items.forEach(item => item.remove()))
+    .catch(error => console.error(error))
+  }
+  next()
 })
 
 const Page = mongoose.model('Page', pageSchema)

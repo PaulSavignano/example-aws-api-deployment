@@ -11,24 +11,27 @@ const authenticate = (requiredRoles) => async (req, res, next) => {
   try {
     if (accessToken) {
       const aToken = await AccessToken.findOne({ accessToken }).populate('user')
-      if (!aToken) throw Error('Access denied')
-      const aTokenHasRoles = handleAuth(aToken.user.roles, requiredRoles)
-      if (!aTokenHasRoles) throw Error('Access denied')
-      req.user = aToken.user
-      req.appName = aToken.user.appName
-      return next()
-    } else if (refreshToken) {
-      const rToken = await RefreshToken.findOne({ refreshToken }).populate('user')
-      const rTokenHasRoles = handleAuth(rToken.user.roles, requiredRoles)
-      if (!rTokenHasRoles) throw Error('Access denied')
-      const { newAccessToken, newRefreshToken } = await createTokens(rToken.user, req.appName)
-      if (newAccessToken && newRefreshToken) {
-        req.user = rToken.user
-        req.appName = rToken.user.appName
-        res.set('x-access-token', newAccessToken)
-        res.set('x-refresh-token', newRefreshToken)
+      if (aToken) {
+        const aTokenHasRoles = handleAuth(aToken.user.roles, requiredRoles)
+        if (!aTokenHasRoles) throw Error('Access denied')
+        req.user = aToken.user
+        req.appName = aToken.user.appName
+        return next()
+      } else if (refreshToken) {
+        const rToken = await RefreshToken.findOne({ refreshToken }).populate('user')
+        if (rToken) {
+          const rTokenHasRoles = handleAuth(rToken.user.roles, requiredRoles)
+          if (!rTokenHasRoles) throw Error('Access denied')
+          const { newAccessToken, newRefreshToken } = await createTokens(rToken.user, req.appName)
+          if (newAccessToken && newRefreshToken) {
+            req.user = rToken.user
+            req.appName = rToken.user.appName
+            res.set('x-access-token', newAccessToken)
+            res.set('x-refresh-token', newRefreshToken)
+          }
+          return next()
+        }
       }
-      return next()
     } else {
       throw Error('Access denied')
     }

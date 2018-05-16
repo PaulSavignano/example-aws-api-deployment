@@ -45,8 +45,7 @@ blogSchema.index({
 
 blogSchema.post('remove', function(doc, next) {
   if (doc.values && doc.values.image && doc.values.image.src) {
-    return deleteFiles([{ Key: doc.values.image.src }])
-    .catch(error => Promise.reject(error))
+    deleteFiles([{ Key: doc.values.image.src }]).catch(error => console.error(error))
   }
   next()
 })

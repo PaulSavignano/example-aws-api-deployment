@@ -171,9 +171,7 @@ const themeSchema = new Schema({
 themeSchema.post('remove', function(doc, next) {
   const { footer } = doc
   if (footer.image && footer.image.src) {
-    deleteFile({ Key: footer.image.src })
-    .then(() => next)
-    .catch(error => Promise.reject(error))
+    deleteFile({ Key: footer.image.src }).catch(error => console.error(error))
   }
   next()
 })

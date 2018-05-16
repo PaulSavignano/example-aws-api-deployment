@@ -74,7 +74,7 @@ const componentSchema = new Schema({
       alignItems: { type: String, enum: alignItems },
       backgroundColor: { type: String, trim: true, maxlength: 300 },
       color: { type: String, trim: true, maxlength: 90 },
-      flex: { type: String, trim: true, maxlength: 90 },
+      flex: { type: String, trim: true, maxlength: 90, default: '1 1 auto' },
       flexFlow: { type: String, enum: flexFlow },
       justifyContent: { type: String, enum: justifyContent },
       margin: { type: String, trim: true, maxlength: 90 },

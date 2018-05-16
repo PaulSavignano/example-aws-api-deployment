@@ -39,7 +39,7 @@ users.delete('/', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(remove
 users.delete('/admin/:_id', authenticate([ 'owner' ]), catchErrors(adminRemove))
 users.get('/', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(get))
 users.get('/admin', authenticate([ 'owner' ]), catchErrors(adminGet))
-users.patch('/', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(updateValues))
+users.patch('/values', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(updateValues))
 users.patch('/password', authenticate([ 'user', 'admin', 'owner' ]), catchErrors(updatePassword))
 users.patch('/admin/addresses/:_id', authenticate(['owner']), catchErrors(adminUpdateAddresses))
 users.patch('/admin/roles/:_id', authenticate(['owner']), catchErrors(adminUpdateRoles))

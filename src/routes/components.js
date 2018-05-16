@@ -6,7 +6,7 @@ import {
   add,
   get,
   remove,
-  update,
+  updateValues,
   updateItemOrder,
 } from '../controllers/component'
 
@@ -14,7 +14,7 @@ const components = express.Router()
 
 components.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 components.get('/', catchErrors(get))
-components.patch('/:_id', authenticate(['admin']), catchErrors(update))
+components.patch('/values/:_id', authenticate(['admin']), catchErrors(updateValues))
 components.patch('/item-order/:_id', authenticate(['admin']), catchErrors(updateItemOrder))
 components.post('/', authenticate(['admin']), catchErrors(add))
 

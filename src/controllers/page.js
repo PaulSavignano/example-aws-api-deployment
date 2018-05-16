@@ -49,7 +49,7 @@ export const get = async (req, res) => {
 
 
 
-export const update = async (req, res) => {
+export const updateValues = async (req, res) => {
   const {
     body: {
       oldSrcs,

@@ -6,7 +6,7 @@ import {
   add,
   get,
   remove,
-  update,
+  updateValues,
   updateComponents,
 } from '../controllers/section'
 
@@ -14,8 +14,8 @@ const sections = express.Router()
 
 sections.delete('/:_id', authenticate(['admin']), catchErrors(remove))
 sections.get('/', catchErrors(get))
-sections.patch('/:_id', authenticate(['admin']), catchErrors(update))
-sections.patch('/:_id/update-components', authenticate(['admin']), catchErrors(updateComponents))
+sections.patch('/values/:_id', authenticate(['admin']), catchErrors(updateValues))
+sections.patch('/components/:_id', authenticate(['admin']), catchErrors(updateComponents))
 sections.post('/', authenticate(['admin']), catchErrors(add))
 
 export default sections

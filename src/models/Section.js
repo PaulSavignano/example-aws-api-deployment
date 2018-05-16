@@ -33,20 +33,16 @@ const sectionSchema = new Schema({
 })
 
 
-sectionSchema.post('remove', async function(doc, next) {
-  try {
-    if (doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src) {
-      await deleteFiles([{ Key: doc.values.backgroundImage.src }])
-    }
-    if (doc.components.length > 0) {
-      Component.find({ _id: { $in: doc.components }})
-      .then(items => items.forEach(item => item.remove()))
-      .catch(error => Promise.reject(error))
-    }
-    next()
-  } catch (error) {
-    throw Error(error)
+sectionSchema.post('remove', function(doc, next) {
+  if (doc.values && doc.values.backgroundImage && doc.values.backgroundImage.src) {
+    deleteFiles([{ Key: doc.values.backgroundImage.src }]).catch(err => console.error(err))
   }
+  if (doc.components.length > 0) {
+    Component.find({ _id: { $in: doc.components }})
+    .then(items => items.forEach(item => item.remove()))
+    .catch(err => console.error(err))
+  }
+  next()
 })
 
 const Section = mongoose.model('Section', sectionSchema)
