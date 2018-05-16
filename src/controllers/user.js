@@ -38,20 +38,21 @@ export const add = async (req, res) => {
   await sendGmail({
     appName,
     toEmail: values.email,
-    toSubject: `Welcome to ${appName}!`,
+    toSubject: `Welcome to ${appName} ${values.firstName}!`,
     toBody: `
       <p>Hi ${values.firstName},</p>
       <p>Thank you for joining ${appName}!</p>
-      <p>You may edit your account settings at <a href="${appName}/user/account">${appName}/user/account</a>.</p>
-      <p>Please let us know if there is anything we can do to better help you.</p>
+      <p>You may manage your account at <a href="${appName}/user/account">${appName}/user/account</a>.</p>
+      <p>Feel free to reply to this email regarding anything we may help with!</p>
     `,
     adminSubject: `New ${appName} user!`,
     adminBody: `
       <p>New ${appName} user!</p>
+      <br/>
       <div>First Name: ${values.firstName}</div>
       <div>Last Name: ${values.lastName}</div>
       <div>Email: ${values.email}</div>
-      <div>Phone: ${values.phone ? values.phone : 'phone number not provided'}</div>
+      <div class="gutterBottom">Phone: ${values.phone ? values.phone : 'phone number not provided'}</div>
     `
   })
 }
@@ -189,11 +190,11 @@ export const recovery = async (req, res) => {
   await sendGmail({
     appName,
     toEmail: email,
-    toSubject: 'Reset Password',
+    toSubject: `Reset your password at ${appName}`,
     toBody: `
       <p>Hi ${firstName},</p>
       <p>Click the link below to reset your password.</p>
-      <a href="${path}" style="color: black; text-decoration: none;">
+      <a href="${path}">
         ${path}
       </a>
       `
@@ -242,16 +243,17 @@ export const contact = async (req, res) => {
   await sendGmail({
     appName,
     toEmail: email,
-    toSubject: `Thank you for contacting ${appName}!`,
+    toSubject: `Thank you for contacting ${appName} ${firstName}!`,
     toBody: `
-      <p>Hi ${firstName}</p>
+      <p>Hi ${firstName},</p>
       <p>Thank you for contacting ${appName}.  We have received your request and will respond shortly!</p>`,
-    adminSubject: `New Contact Request`,
+    adminSubject: `New Contact Request at ${appName}`,
     adminBody: `
-      <p>${firstName} just contacted you through ${appName}.</p>
+      <p>${firstName} just contacted you at ${appName}.</p>
+      <br/>
       <div>Phone: ${phone ? phone : 'not provided'}</div>
       <div>Email: ${email}</div>
-      <div>Message: ${message}</div>
+      <div class="gutterBottom">Message: ${message}</div>
     `
   })
 }

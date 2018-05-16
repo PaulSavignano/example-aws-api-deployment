@@ -72,7 +72,7 @@ export const add = async (req, res) => {
     values,
   }).save()
 
-  const review = values.rating < 3 ? null : await Review.findOne({ _id: doc._id })
+  const review = await Review.findOne({ _id: doc._id })
 
   if (values.rating < 3) {
     res.send({ review })
@@ -82,22 +82,24 @@ export const add = async (req, res) => {
   }
 
   const emailSummary = `
-    <div style="text-decoration: underline">Review Summary</div>
+    <h3>Review Summary:</h3>
     <div>Stars: ${values.rating}</div>
-    <div>Review: ${values.text}</div>
+    <div class="gutterBottom">Review: ${values.text}</div>
   `
   await sendGmail({
     appName,
     toEmail: user.values.email,
-    toSubject: 'Thank you for your review!',
+    toSubject: `Thank you for your review of ${review.kind} ${itemName}!`,
     toBody: `
       <p>Hi ${user.values.firstName},</p>
-      <p>We appreciate you taking to time to write a review for <a href="${href}#${review._id}">${itemName}</a>.</p>
+      <p>We appreciate you taking to time to write a review for ${review.kind} <a href="${href}#${review._id}">${itemName}</a>.</p>
+      <br/>
       ${emailSummary}
     `,
-    adminSubject: `New review received!`,
+    adminSubject: `New review received for ${review.kind} ${itemName}!`,
     adminBody: `
-      <p>${user.values.firstName} ${user.values.lastName} just added a review for <a href="${href}#${review._id}">${itemName}</a>!</p>
+      <p>${user.values.firstName} ${user.values.lastName} just added a review for ${review.kind} <a href="${href}#${review._id}">${itemName}</a>!</p>
+      <br/>
       ${emailSummary}
     `
   })
@@ -313,17 +315,17 @@ export const updateValues = async (req, res) => {
   }
   await sendGmail({
     appName,
-    adminSubject: `Review Updated for ${itemName}!`,
+    adminSubject: `Review Updated for ${review.kind} ${itemName}!`,
     adminBody: `
       <p>${user.values.firstName} ${user.values.lastName} just updated their review for <a href="${href}#${review._id}">${itemName}</a>!</p>
       <br/>
-      <div style="text-decoration: underline">${user.values.firstName}'s previous review</div>
+      <h3>${user.values.firstName}'s previous review:</h3>
       <div>Stars: ${oldReview.values.rating}</div>
       <div>Review: ${oldReview.values.text}</div>
       <br/>
-      <div style="text-decoration: underline">${user.values.firstName}'s updated review</div>
+      <h3>${user.values.firstName}'s updated review</h3>
       <div>Stars: ${values.rating}</div>
-      <div>Review: ${values.text}</div>
+      <div class="gutterBottom">Review: ${values.text}</div>
     `
   })
 }

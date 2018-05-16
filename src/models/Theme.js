@@ -94,7 +94,7 @@ const themeSchema = new Schema({
       fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
       fontSize: { type: String, trim: true, maxlength: 100, default: '2.8125rem' },
       fontWeight: { type: Number, trim: true, maxlength: 100, default: 400 },
-      letterSpacing: { type: String, trim: true, maxlength: 100 },
+      letterSpacing: { type: String, trim: true, maxlength: 100, default: 'inherit'  },
       lineHeight: { type: String, trim: true, maxlength: 100, default: '1.06667em' },
       marginLeft: { type: String, trim: true, maxlength: 100, default: '-.04em'},
       textShadow: { type: String, trim: true, maxlength: 100 },
@@ -104,7 +104,7 @@ const themeSchema = new Schema({
       fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
       fontSize: { type: String, trim: true, maxlength: 100, default: '2.125rem' },
       fontWeight: { type: Number, trim: true, maxlength: 100, default: 400 },
-      letterSpacing: { type: String, trim: true, maxlength: 100 },
+      letterSpacing: { type: String, trim: true, maxlength: 100, default: 'inherit'  },
       lineHeight: { type: String, trim: true, maxlength: 100, default: '1.20588em' },
       marginLeft: { type: String, trim: true, maxlength: 100, default: '-.04em'},
       textShadow: { type: String, trim: true, maxlength: 100 },
@@ -114,7 +114,7 @@ const themeSchema = new Schema({
       fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
       fontSize: { type: String, trim: true, maxlength: 100, default: '1.5rem' },
       fontWeight: { type: Number, trim: true, maxlength: 100, default: 400 },
-      letterSpacing: { type: String, trim: true, maxlength: 100 },
+      letterSpacing: { type: String, trim: true, maxlength: 100, default: 'inherit'  },
       lineHeight: { type: String, trim: true, maxlength: 100, default: '1.35417em' },
     },
     title: {
@@ -122,7 +122,7 @@ const themeSchema = new Schema({
       fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
       fontSize: { type: String, trim: true, maxlength: 100, default: '1.3125rem' },
       fontWeight: { type: Number, trim: true, maxlength: 100, default: 500 },
-      letterSpacing: { type: String, trim: true, maxlength: 100 },
+      letterSpacing: { type: String, trim: true, maxlength: 100, default: 'inherit' },
       lineHeight: { type: String, trim: true, maxlength: 100, default: '1.16667em' },
     },
     subheading: {
@@ -130,7 +130,7 @@ const themeSchema = new Schema({
       fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
       fontSize: { type: String, trim: true, maxlength: 100, default: '1rem' },
       fontWeight: { type: Number, trim: true, maxlength: 100, default: 400 },
-      letterSpacing: { type: String, trim: true, maxlength: 100 },
+      letterSpacing: { type: String, trim: true, maxlength: 100, default: 'inherit'  },
       lineHeight: { type: String, trim: true, maxlength: 100, default: '1.5em' },
     },
     body2: {
@@ -138,7 +138,7 @@ const themeSchema = new Schema({
       fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
       fontSize: { type: String, trim: true, maxlength: 100, default: '0.875rem' },
       fontWeight: { type: Number, trim: true, maxlength: 100, default: 500 },
-      letterSpacing: { type: String, trim: true, maxlength: 100 },
+      letterSpacing: { type: String, trim: true, maxlength: 100, default: 'inherit'  },
       lineHeight: { type: String, trim: true, maxlength: 100, default: '1.71429em' },
     },
     body1: {
@@ -146,6 +146,7 @@ const themeSchema = new Schema({
       fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
       fontSize: { type: String, trim: true, maxlength: 100, default: '0.875rem' },
       fontWeight: { type: Number, trim: true, maxlength: 100, default: 400 },
+      letterSpacing: { type: String, trim: true, maxlength: 100, default: 'inherit'  },
       lineHeight: { type: String, trim: true, maxlength: 100, default: '1.46429em' },
     },
     caption: {
@@ -153,14 +154,14 @@ const themeSchema = new Schema({
       fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
       fontSize: { type: String, trim: true, maxlength: 100, default: '0.75rem' },
       fontWeight: { type: Number, trim: true, maxlength: 100, default: 400 },
-      letterSpacing: { type: String, trim: true, maxlength: 100 },
+      letterSpacing: { type: String, trim: true, maxlength: 100, default: 'inherit'  },
       lineHeight: { type: String, trim: true, maxlength: 100, default: '1.375em' },
     },
     button: {
       fontFamily: { type: String, trim: true, maxlength: 100, default: 'Roboto, sans-serif' },
       fontSize: { type: String, trim: true, maxlength: 100, default: '0.875rem' },
       fontWeight: { type: Number, trim: true, maxlength: 100, default: 500 },
-      letterSpacing: { type: String, trim: true, maxlength: 100 },
+      letterSpacing: { type: String, trim: true, maxlength: 100, default: 'inherit'  },
       textTransform: { type: String, trim: true, maxlength: 100, default: 'uppercase'}
     },
   },

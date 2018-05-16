@@ -33,7 +33,7 @@ const productSchema = new Schema({
     },
     name: { type: String, minlength: 1, trim: true, maxlength: 50 },
     price: { type: Number, default: 0 , max: 100000, min: 0 },
-  }
+  },
 }, {
   timestamps: true
 })
