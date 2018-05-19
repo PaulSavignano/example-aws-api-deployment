@@ -11,6 +11,7 @@ export const search = async (req, res) => {
     query: { q, limit, lastBlogId, lastComponentId, lastProductId }
   } = req
 
+
   const lastBlogIdQuery = lastBlogId && { _id: { $gt: lastBlogId }}
   const blogsPromise = Blog.find({
     appName,
@@ -20,7 +21,7 @@ export const search = async (req, res) => {
   }, {
     score: { $meta: 'textScore' }
   })
-  .limit(parseInt(limit))
+  .limit(parseInt(limit / 3))
 
   const lastComponentIdQuery = lastComponentId && { _id: { $gt: lastComponentId }}
   const componentsPromise = Component.find({
@@ -31,7 +32,7 @@ export const search = async (req, res) => {
   }, {
     score: { $meta: 'textScore' }
   })
-  .limit(parseInt(limit))
+  .limit(parseInt(limit / 3))
 
   const lastProductIdQuery = lastProductId && { _id: { $gt: lastProductId }}
   const productsPromise = Product.find({
@@ -42,9 +43,11 @@ export const search = async (req, res) => {
   }, {
     score: { $meta: 'textScore' }
   })
-  .limit(parseInt(limit))
+  .limit(parseInt(limit / 3))
 
-  const [ blogs, components, products ] = await Promise.all([ blogsPromise, componentsPromise, productsPromise ])
+  const results = await Promise.all([ blogsPromise, componentsPromise, productsPromise ])
+
+  const [ blogs, components, products ] = results
 
   res.send({ blogs, components, products })
 }

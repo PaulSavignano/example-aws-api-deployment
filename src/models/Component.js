@@ -3,14 +3,15 @@ import mongoose, { Schema } from 'mongoose'
 import { deleteFiles } from '../utils/s3'
 import {
   alignItems,
-  items,
+  buttonVariant,
+  color,
+  componentItems,
   components,
   flexFlow,
   justifyContent,
-  typographies,
-  color,
   size,
-} from '../utils/fieldOptions'
+  typographies,
+} from '../utils/options'
 
 const componentSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
@@ -24,7 +25,7 @@ const componentSchema = new Schema({
     },
     href: { type: String, trim: true, maxlength: 300 },
     items: [{
-      kind: { type: String, trim: true, maxlength: 90, enum: items },
+      kind: { type: String, trim: true, maxlength: 90, enum: componentItems },
       iframe: {
         elevation: { type: String, trim: true, max: 25, min: 0 },
         src: { type: String, trim: true, maxlength: 300 },
@@ -48,17 +49,17 @@ const componentSchema = new Schema({
         children: { type: String, trim: true, maxlength: 300 },
         color: { type: String, enum: color },
         href: { type: String, trim: true, maxlength: 300 },
-        size: { type: String, enum: size },
-        style: {
+        size: { type: String, enum: size },        style: {
           flex: { type: String, trim: true, maxlength: 90 },
         },
+        variant: { type: String, enum: buttonVariant },
       },
       typographies: [{
         children: { type: String, trim: true, maxlength: 3000 },
         variant: { type: String, enum: typographies },
       }],
       wysiwyg: {
-        children: { type: String, trim: true, maxlength: 9000 },
+        children: { type: String, trim: true, maxlength: 90000 },
         style: {
           flex: { type: String, trim: true, maxlength: 90 },
           padding: { type: String, trim: true, maxlength: 90 },

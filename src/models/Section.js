@@ -3,7 +3,7 @@ import mongoose, { Schema } from 'mongoose'
 import Component from './Component'
 
 import { deleteFiles } from '../utils/s3'
-import { alignItems, flexFlow, justifyContent } from '../utils/fieldOptions'
+import { alignItems, flexFlow, justifyContent } from '../utils/options'
 
 const sectionSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },

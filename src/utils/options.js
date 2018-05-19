@@ -8,6 +8,13 @@ export const alignItems = [
   'stretch',
 ]
 
+export const buttonVariant = [
+  'fab',
+  'flat',
+  'outlined',
+  'raised',
+]
+
 export const components = [
   'article',
   'card',
@@ -22,7 +29,7 @@ export const color = [
   'secondary',
 ]
 
-export const items = [
+export const componentItems = [
   'button',
   'iframe',
   'image',
@@ -52,7 +59,11 @@ export const justifyContent = [
   'space-between',
 ]
 
-export const size = ['small', 'medium', 'large']
+export const size = [
+  'small',
+  'medium',
+  'large'
+]
 
 export const textAlign = [
   'center',

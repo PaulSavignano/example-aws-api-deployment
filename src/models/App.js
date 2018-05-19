@@ -6,7 +6,7 @@ import {
   color,
   flexFlow,
   justifyContent,
-} from '../utils/fieldOptions'
+} from '../utils/options'
 import AppPages from './AppPages'
 import Address from './Address'
 import Config from './Config'

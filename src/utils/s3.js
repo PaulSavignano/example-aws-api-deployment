@@ -11,7 +11,6 @@ AWS.config.update({
 const Bucket = process.env.AWS_S3_BUCKET
 
 
-
 export const uploadFile = ({ Key, Body }) => {
   const params = {
     ACL: 'public-read',

@@ -1,5 +1,14 @@
 import mongoose, { Schema } from 'mongoose'
+
 import { deleteFiles } from '../utils/s3'
+import {
+  iframe,
+  image,
+  button,
+  typography,
+  wysiwyg,
+  style,
+} from '../utils/schemas'
 
 const blogSchema = new Schema({
   appName: { type: String, maxlength: 90, required: true },
@@ -11,7 +20,7 @@ const blogSchema = new Schema({
   },
   values: {
     description: { type: String, minlength: 1, trim: true, maxlength: 150 },
-    detail: { type: String, minlength: 1, trim: true, maxlength: 5000 },
+    detail: { type: String, minlength: 1, trim: true, maxlength: 90000 },
     iframe: {
       border: { type: String, trim: true, maxlength: 25 },
       borderRadius: { type: String, trim: true, maxlength: 25 },

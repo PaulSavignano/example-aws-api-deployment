@@ -180,7 +180,7 @@ export const updateValue = async (req, res) => {
     params: { _id }
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Page update failed, invalid _id')
-
+  console.log(req.originalUrl)
   const set = { $set: {}}
   set.$set[`values.${key}`] = value
   const page = await Page.findOneAndUpdate(

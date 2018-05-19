@@ -27,8 +27,8 @@ export const get = async (req, res) => {
 export const update = async (req, res) => {
   const {
     body: {
-      themeItem,
-      themeItemChild,
+      themeKey,
+      themeKeyChild,
       values,
     },
     appName,
@@ -36,7 +36,7 @@ export const update = async (req, res) => {
   } = req
   if (!ObjectID.isValid(_id)) throw Error('Theme update failed, invalid _id')
 
-  if (themeItemChild === 'general') {
+  if (themeKeyChild === 'general') {
     const {
       fontFamily,
       fontSize,
@@ -58,19 +58,19 @@ export const update = async (req, res) => {
       },
       { new: true }
     )
-    if (!theme) throw Error(`Theme update of ${themeItem}`)
+    if (!theme) throw Error(`Theme update of ${themeKey}`)
     return res.send(theme)
-  } else if (themeItemChild)  {
+  } else if (themeKeyChild)  {
     const set = { $set: {}}
-    set.$set[themeItem + "." + themeItemChild] = values
+    set.$set[themeKey + "." + themeKeyChild] = values
     const theme = await Theme.findOneAndUpdate({ _id, appName }, set,{ new: true })
-    if (!theme) throw Error(`Theme update ${themeItem} ${themeItemChild} failed`)
+    if (!theme) throw Error(`Theme update ${themeKey} ${themeKeyChild} failed`)
     return res.send(theme)
   } else {
     const set = { $set: {}}
-    set.$set[themeItem] = values
+    set.$set[themeKey] = values
     const theme = await Theme.findOneAndUpdate({ _id, appName }, set, { new: true })
-    if (!theme) throw Error(`Theme update ${themeItem} failed`)
+    if (!theme) throw Error(`Theme update ${themeKey} failed`)
     return res.send(theme)
   }
 }

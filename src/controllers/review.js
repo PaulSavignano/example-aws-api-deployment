@@ -75,7 +75,7 @@ export const add = async (req, res) => {
   const review = await Review.findOne({ _id: doc._id })
 
   if (values.rating < 3) {
-    res.send({ review })
+    res.send({ })
   } else {
     const { blog, product } = await handleItem({ item: review.item, kind: review.kind })
     res.send({ blog, product, review })
@@ -323,9 +323,10 @@ export const updateValues = async (req, res) => {
       <div>Stars: ${oldReview.values.rating}</div>
       <div>Review: ${oldReview.values.text}</div>
       <br/>
-      <h3>${user.values.firstName}'s updated review</h3>
+      <h3>${user.values.firstName}'s updated review:</h3>
       <div>Stars: ${values.rating}</div>
       <div class="gutterBottom">Review: ${values.text}</div>
+      <br/>
     `
   })
 }
