@@ -137,7 +137,7 @@ export const get = async (req, res) => {
     userId
   })
   const cursorSort = getCursorSort({ sort, rating: 'values.rating' })
-  const limitInt = limit ? parseInt(limit) : 3
+  const limitInt = limit ? parseInt(limit) : 9
   const reviews = await Review.find(query)
   .sort(cursorSort)
   .limit(limitInt)
@@ -177,7 +177,7 @@ export const userGet = async (req, res) => {
     userId: user._id,
   })
   const cursorSort = getCursorSort({ sort, rating: 'values.rating' })
-  const limitInt = limit ? parseInt(limit) : 3
+  const limitInt = limit ? parseInt(limit) : 9
   if (item) {
     const reviews = await Review.find(query)
     .sort(cursorSort)
@@ -223,7 +223,7 @@ export const adminGet = async (req, res) => {
     userId,
   })
   const cursorSort = getCursorSort({ sort, rating: 'values.rating' })
-  const limitInt = limit ? parseInt(limit) : 3
+  const limitInt = limit ? parseInt(limit) : 9
   if (item) {
     const reviews = await Review
     .find(query)

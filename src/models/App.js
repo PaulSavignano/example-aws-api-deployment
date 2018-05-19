@@ -41,6 +41,7 @@ const appSchema = new Schema({
         margin: { type: String, trim: true, maxlength: 300 },
       }
     },
+    keywords: { type: String, trim: true, minlength: 1, maxlength: 3000, default: 'React, Redux, Express, Mongo'},
     license: { type: String, trim: true, maxlength: 100 },
     name: {
       children: { type: String, trim: true, maxlength: 100, default: 'App' },

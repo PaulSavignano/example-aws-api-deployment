@@ -175,7 +175,7 @@ export const get = async (req, res) => {
     userId: user._id,
   })
   const cursorSort = getCursorSort({ sort })
-  const limitInt = limit ? parseInt(limit) : 3
+  const limitInt = limit ? parseInt(limit) : 9
   const orders = await Order
   .find(query)
   .sort(cursorSort)
@@ -216,7 +216,7 @@ export const adminGet = async (req, res) => {
     userId,
   })
   const cursorSort = getCursorSort({ sort })
-  const limitInt = limit ? parseInt(limit) : 3
+  const limitInt = limit ? parseInt(limit) : 9
   const orders = await Order
   .find(query)
   .sort(cursorSort)
