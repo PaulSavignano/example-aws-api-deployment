@@ -16,7 +16,7 @@ export const add = async (req, res) => {
   }).save()
   const user = await User.findOneAndUpdate(
     { _id: req.user._id, appName },
-    { $push: { addresses: address._id }},
+    { $push: { addresses: address._id } },
     { new: true }
   )
   return res.send({ address, user })
@@ -37,7 +37,7 @@ export const adminAdd = async (req, res) => {
   }).save()
   const user = await User.findOneAndUpdate(
     { _id: userId, appName },
-    { $push: { addresses: address._id }},
+    { $push: { addresses: address._id } },
     { new: true }
   )
   return res.send({ address, user })
@@ -55,7 +55,7 @@ export const get = async (req, res) => {
     query: { lastId, limit, addressId },
     user
   } = req
-  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const lastIdQuery = lastId && { _id: { $gt: lastId } }
   const idQuery = addressId && { _id: addressId }
   const query = {
     appName,
@@ -68,7 +68,7 @@ export const get = async (req, res) => {
     return res.send(address)
   }
   const addresses = await Address.find(query)
-  .limit(parseInt(limit))
+    .limit(parseInt(limit))
   return res.send(addresses)
 }
 
@@ -79,7 +79,7 @@ export const adminGet = async (req, res) => {
     appName,
     query: { lastId, limit, addressId, userId },
   } = req
-  const lastIdQuery = lastId && { _id: { $gt: lastId }}
+  const lastIdQuery = lastId && { _id: { $gt: lastId } }
   const idQuery = addressId && { _id: addressId }
   const userQuery = userId && { user: userId }
   const query = {
@@ -93,7 +93,7 @@ export const adminGet = async (req, res) => {
     return res.send(address)
   }
   const addresses = await Address.find(query)
-  .limit(parseInt(limit))
+    .limit(parseInt(limit))
   return res.send(addresses)
 }
 
@@ -116,7 +116,7 @@ export const update = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('Update address failed, invalid _id')
   const address = await Address.findOneAndUpdate(
     { _id, user: req.user._id, appName },
-    { $set: { values }},
+    { $set: { values } },
     { new: true }
   )
   return res.send(address)
@@ -133,7 +133,7 @@ export const adminUpdate = async (req, res) => {
   if (!ObjectID.isValid(_id)) throw Error('Address update failed, invalid _id')
   const address = await Address.findOneAndUpdate(
     { _id, appName },
-    { $set: { values }},
+    { $set: { values } },
     { new: true }
   )
   return res.send(address)
@@ -151,7 +151,7 @@ export const remove = async (req, res) => {
   const address = await Address.findOneAndRemove({ _id, user: req.user._id })
   const user = await User.findOneAndUpdate(
     { _id: req.user._id, appName },
-    { $pull: { addresses: _id }},
+    { $pull: { addresses: _id } },
     { new: true }
   )
   return res.send({ address, user })
@@ -169,7 +169,7 @@ export const adminRemove = async (req, res) => {
   const address = await Address.findOneAndRemove({ _id, appName })
   const user = await User.findOneAndUpdate(
     { _id: userId, appName },
-    { $pull: { addresses: address._id }},
+    { $pull: { addresses: address._id } },
     { new: true }
   )
   return res.send({ address, user })

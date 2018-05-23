@@ -6,7 +6,6 @@ import Page from '../models/Page'
 import Section from '../models/Section'
 
 
-
 export const add = async (req, res) => {
   const {
     body: { pageId, pageSlug, values },
@@ -20,7 +19,7 @@ export const add = async (req, res) => {
       ...values.backgroundImage,
       src: await uploadFile({
         Key: `${appName}/page-${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
-        Body: new Buffer(values.backgroundImage.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+        Body: new Buffer(values.backgroundImage.src.replace(/^data:image\/\w+;base64,/, ""), 'base64'),
       })
     }
   } : null
@@ -38,7 +37,7 @@ export const add = async (req, res) => {
 
   const page = await Page.findOneAndUpdate(
     { _id: section.page, appName },
-    { $push: { sections: section._id }},
+    { $push: { sections: section._id } },
     { new: true }
   )
   if (!page) throw Error('Page push section failed')
@@ -82,7 +81,7 @@ export const updateValues = async (req, res) => {
       ...values.backgroundImage,
       src: await uploadFile({
         Key: `${appName}/page-${pageSlug}/section-${_id}-background-image-_${getTime()}.${values.backgroundImage.ext}`,
-        Body: new Buffer(values.backgroundImage.src.replace(/^data:image\/\w+;base64,/, ""),'base64'),
+        Body: new Buffer(values.backgroundImage.src.replace(/^data:image\/\w+;base64,/, ""), 'base64'),
       })
     }
   } : null
@@ -91,9 +90,11 @@ export const updateValues = async (req, res) => {
 
   const section = await Section.findOneAndUpdate(
     { _id, appName },
-    { $set: {
-      values: newValues,
-    }},
+    {
+      $set: {
+        values: newValues,
+      }
+    },
     { new: true }
   ).populate({ path: 'items.item' })
 
@@ -114,7 +115,7 @@ export const updateComponents = async (req, res) => {
   } = req
   const section = await Section.findOneAndUpdate(
     { _id, appName },
-    { $set: { components: componentIds }},
+    { $set: { components: componentIds } },
     { new: true }
   )
   if (!section) throw Error('Section set components failed')
@@ -137,7 +138,7 @@ export const remove = async (req, res) => {
   await section.remove()
   const page = await Page.findOneAndUpdate(
     { _id: section.page, appName },
-    { $pull: { sections: section._id }},
+    { $pull: { sections: section._id } },
     { new: true }
   )
   if (!page) throw Error('Page pull section failed')

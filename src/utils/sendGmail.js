@@ -52,7 +52,6 @@ const sendGmail = async (props) => {
         body1,
         body2,
         headline,
-        letterSpacing,
         subheading,
         title,
       }
@@ -70,7 +69,7 @@ const sendGmail = async (props) => {
       const margin = style.margin ? `${image.margin};` : '0 0 .35em;'
       return `
         <img
-          src="assets.savignano.io/${src}"
+          src="${process.env.IMAGE_ENDPOINT}/${src}"
           alt="business"
           height="60px"
           width="auto"

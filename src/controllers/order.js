@@ -10,8 +10,6 @@ import User from '../models/User'
 import getQuery from '../utils/getQuery'
 import getCursorSort from '../utils/getCursorSort'
 
-
-
 const formatPrice = (cents) => `$${(cents / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
 
 export const add = async (req, res) => {
@@ -105,19 +103,21 @@ export const add = async (req, res) => {
     <ol>
       ${order.cart.items.map(item => (`
         <li style="display: flex; flex-flow: row wrap; align-items: center; font-family: inherit;">
-          ${item.productQty} of <img src="${process.env.REACT_APP_IMAGE_ENDPOINT/item.image.src}" alt="order item" height="32px" width="auto" style="margin-left:8px;margin-right:8px"/> ${item.name} ${item.productId}
+          ${item.productQty} of <img src="${process.env.IMAGE_ENDPOINT}/${item.image.src}" alt="order item" height="32px" width="auto" style="margin-left:8px;margin-right:8px"/> ${item.name} ${item.productId}
         </li>
         `)
       )}
     </ol>
     <br/>
     <h3>Delivery Summary</h3>
-    <div>${name}</div>
-    <div>${phone}</div>
-    <div>${street}</div>
-    <div class="gutterBottom">${city}, ${state} ${zip}</div>
+    <div>${address.values.name}</div>
+    <div>${address.values.phone}</div>
+    <div>${address.values.street}</div>
+    <div class="gutterBottom">
+      ${address.values.city}, ${address.values.state} ${address.values.zip}
+    </div>
   `
-
+  console.log()
 
   await sendGmail({
     appName,
