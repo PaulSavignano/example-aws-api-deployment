@@ -52,7 +52,7 @@ app.get('/', (req, res) => {
       </head>
       <body>
         <div class="text-container">
-          <h1>Savignano.io API</h1>
+          <h1>Example AWS API Deployment</h1>
         </div>
       </body>
     </html>
