@@ -45,20 +45,21 @@
   ],
   "license": "MIT",
   "main": "build/index.js",
-  "name": "savignano-io-api-1.0.0",
-  "repository": "https://github.com/PaulSavignano/savignano-io-api-1.0.0",
+  "name": "savignano-api",
+  "repository": "https://github.com/PaulSavignano/example-aws-api-deployment",
   "version": "3.0.0",
   "engines": {
     "node": "10.1.0"
   },
   "scripts": {
-    "clean": "rm -rf build",
-    "prestart": "npm run -s build",
     "build": "npm run clean && babel src -d build",
-    "postbuild": "rm -rf src",
+    "clean": "rm -rf build",
+    "predeploy": "npm run build",
+    "deploy": "eb deploy",
+    "postdeploy": "npm run clean",
     "start": "node build/index.js",
     "start-dev": "nodemon -r babel-register src/index.js",
-    "test-watch": "nodemon --exec 'npm test'",
-    "test": "export NODE_ENV=test && mocha **/**/*.test.js --compilers js:babel-register"
+    "test": "export NODE_ENV=test && mocha **/**/*.test.js --compilers js:babel-register",
+    "test-watch": "nodemon --exec 'npm test'"
   }
 }
