@@ -1,0 +1,10 @@
+# Exclude from Elastic Beanstalk
+.babelrc
+.eslintrc
+.git
+.prettierrc
+.vscode
+config-example.json
+config.json
+node_modules
+src
